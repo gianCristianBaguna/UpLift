@@ -31,7 +31,7 @@ export default function Navbar() {
         </div>
 
         {/* Nav Links - Right */}
-        <nav className="flex items-center gap-6 pr-50">
+        <nav className="flex items-center gap-6 pr-15">
           {navLinks.map((link) => {
             const isDonation = link.label === 'Donation';
             const isAbout = link.label === 'About';
