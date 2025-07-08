@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   GraduationCap,
@@ -19,26 +18,33 @@ import {
   Sprout,
   Soup,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { useInView } from "framer-motion";
 
-export default function FocusSection() {
+export default function ServicesSection() {
   const focusCards = [
     {
-      title: "Children & Youth",
-      icon: <GraduationCap className="w-5 h-5" />,
+      title: "CHILDREN & YOUTH",
+      icon: <GraduationCap className="w-10 h-10 transition-all duration-500" />,
       items: [
         { icon: <BookOpen className="w-4 h-4" />, text: "VALUES Advocacy" },
         { icon: <Backpack className="w-4 h-4" />, text: "School supplies" },
         { icon: <Utensils className="w-4 h-4" />, text: "Feeding program" },
         { icon: <LibraryBig className="w-4 h-4" />, text: "Mobile library" },
-        { icon: <ArchiveRestore className="w-4 h-4" />, text: "Improve libraries" },
+        {
+          icon: <ArchiveRestore className="w-4 h-4" />,
+          text: "Improve libraries",
+        },
         { icon: <Trophy className="w-4 h-4" />, text: "Sports & Music" },
         { icon: <GraduationCap className="w-4 h-4" />, text: "Scholarship" },
       ],
     },
     {
-      title: "Family",
-      icon: <Home className="w-5 h-5" />,
+      title: "FAMILY",
+      icon: <Home className="w-10 h-10 transition-all duration-500" />,
       items: [
         { icon: <Briefcase className="w-4 h-4" />, text: "Livelihood" },
         { icon: <Hammer className="w-4 h-4" />, text: "Build better homes" },
@@ -46,8 +52,8 @@ export default function FocusSection() {
       ],
     },
     {
-      title: "Community",
-      icon: <Leaf className="w-5 h-5" />,
+      title: "COMMUNITY",
+      icon: <Leaf className="w-10 h-10 transition-all duration-500" />,
       items: [
         { icon: <HeartPulse className="w-4 h-4" />, text: "Medical Mission" },
         { icon: <Leaf className="w-4 h-4" />, text: "Environmental programs" },
@@ -55,8 +61,8 @@ export default function FocusSection() {
       ],
     },
     {
-      title: "Elderly",
-      icon: <Soup className="w-5 h-5" />,
+      title: "ELDERLY",
+      icon: <Soup className="w-10 h-10 transition-all duration-500" />,
       items: [
         { icon: <Home className="w-4 h-4" />, text: "Home visits" },
         { icon: <Sparkles className="w-4 h-4" />, text: "Make a Wish" },
@@ -66,119 +72,242 @@ export default function FocusSection() {
     },
   ];
 
-  const [focusIndex, setFocusIndex] = useState(0);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [expandedMobileCard, setExpandedMobileCard] = useState<number | null>(
+    null
+  );
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFocusIndex((prev) => (prev + 1) % focusCards.length);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const handleArrow = (dir: string) => {
+    // Close expanded card when navigating
+    setExpandedMobileCard(null);
+
+    if (dir === "left") {
+      setActiveIndex((prev) => (prev === 0 ? focusCards.length - 1 : prev - 1));
+    } else {
+      setActiveIndex((prev) => (prev === focusCards.length - 1 ? 0 : prev + 1));
+    }
+  };
+
+  const handleMobileCardClick = (index: number) => {
+    setExpandedMobileCard(expandedMobileCard === index ? null : index);
+  };
 
   return (
-    <section className="relative py-20 px-4 bg-white text-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative py-20 px-4 bg-gray-50 overflow-hidden"
+    >
+      <div className="absolute top-10 left-0 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#F3954A] opacity-80"></div>
+      <div className="absolute bottom-10 right-0 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#F3954A] opacity-80"></div>
+
       <div className="relative z-10 max-w-7xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: false, amount: 0.5 }}
-          className="text-[#2A61AC] text-bold text-4xl md:text-5xl font-[Montserrat] mb-12"
-        >
-          <span>OUR </span>
-          <span className="text-[#F3954A]">FOCUS</span>
-        </motion.h2>
-
-        {/* Mobile view: 1 card at a time */}
-        <div className="block md:hidden flex items-center justify-center gap-2">
-          {/* Left arrow */}
-          <button
-            onClick={() =>
-              setFocusIndex((prev) =>
-                prev === 0 ? focusCards.length - 1 : prev - 1
-              )
-            }
-            className="text-[#2A61AC] hover:text-[#1f4d94] opacity-40"
-            aria-label="Previous card"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          {/* Focus card */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
           <motion.div
-            key={focusIndex}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex-1 max-w-xs bg-blue-100 bg-opacity-80 backdrop-blur-md rounded-lg shadow-md p-5 flex flex-col gap-2 text-left"
+            initial={{ opacity: 0, x: -50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7 }}
+            className="lg:sticky lg:top-20"
           >
-            <h3 className="text-lg font-semibold text-[#2A61AC] flex items-center gap-2 justify-center">
-              {focusCards[focusIndex].icon} {focusCards[focusIndex].title}
-            </h3>
-            <ul className="text-sm text-gray-800 space-y-1">
-              {focusCards[focusIndex].items.map((item, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  {item.icon} {item.text}
-                </li>
-              ))}
-            </ul>
+            <h2 className="text-5xl lg:text-6xl font-bold leading-tight">
+              <span className="text-[#2A61AC] block">LEARN MORE</span>
+              <span className="text-[#2A61AC] block">ABOUT OUR</span>
+              <span className="text-[#F3954A] block">FOCUS</span>
+            </h2>
+
+            <div className="mt-30">
+              <a
+                href="/pages/donation"
+                className="inline-block bg-[#F3954A] text-white text-lg font-semibold px-10 py-4 rounded-full shadow-lg hover:bg-[#e07f2f] transition"
+              >
+                Donate Now
+              </a>
+            </div>
           </motion.div>
 
-          {/* Right arrow */}
-          <button
-            onClick={() =>
-              setFocusIndex((prev) =>
-                prev === focusCards.length - 1 ? 0 : prev + 1
-              )
-            }
-            className="text-[#2A61AC] hover:text-[#1f4d94] opacity-40"
-            aria-label="Next card"
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+            className="relative"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+            {/* Mobile Carousel */}
+            <div className="relative lg:hidden">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <button
+                  onClick={() => handleArrow("left")}
+                  className="text-[#2A61AC] hover:text-[#1f4d94] p-2 rounded-full bg-white shadow-md transition-all duration-200 hover:shadow-lg"
+                  aria-label="Previous card"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
 
-        {/* Desktop view: all cards in grid */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {focusCards.map((card, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              viewport={{ once: false, amount: 0.3 }}
-              className="bg-blue-100 bg-opacity-80 backdrop-blur-md rounded-lg shadow-md hover:shadow-xl transition duration-300 p-5 flex flex-col gap-2 text-left"
-            >
-              <h3 className="text-lg font-semibold text-[#2A61AC] flex items-center gap-2">
-                {card.icon} {card.title}
-              </h3>
-              <ul className="text-sm text-gray-800 space-y-1">
-                {card.items.map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    {item.icon} {item.text}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
+                <div className="flex gap-2">
+                  {focusCards.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setActiveIndex(index);
+                        setExpandedMobileCard(null);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === activeIndex
+                          ? "bg-[#F3954A] w-6"
+                          : "bg-gray-300"
+                      }`}
+                      aria-label={`Go to card ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => handleArrow("right")}
+                  className="text-[#2A61AC] hover:text-[#1f4d94] p-2 rounded-full bg-white shadow-md transition-all duration-200 hover:shadow-lg"
+                  aria-label="Next card"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="overflow-hidden w-full">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{
+                    transform: `translateX(-${activeIndex * 100}%)`,
+                  }}
+                >
+                  {focusCards.map((card, index) => (
+                    <div key={index} className="w-full flex-shrink-0 px-2">
+                      <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={isInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ duration: 0.5 }}
+                        className={`relative bg-gradient-to-br from-[#fff] to-[#fdf7f2] rounded-2xl border border-gray-200 shadow-lg transition-all duration-500 cursor-pointer overflow-hidden ${
+                          expandedMobileCard === index
+                            ? "min-h-[28rem]"
+                            : "min-h-[20rem]"
+                        }`}
+                        onClick={() => handleMobileCardClick(index)}
+                      >
+                        {/* Collapsed State */}
+                        <div
+                          className={`absolute inset-0 flex flex-col items-center justify-center z-10 transition-all duration-500 p-6 ${
+                            expandedMobileCard === index
+                              ? "opacity-0 pointer-events-none"
+                              : "opacity-100"
+                          }`}
+                        >
+                          <div className="text-[#2A61AC] mb-4">{card.icon}</div>
+                          <h3 className="text-[#F3954A] text-xl font-bold text-center">
+                            {card.title}
+                          </h3>
+                          <p className="text-[#2A61AC] text-sm mt-2 opacity-70">
+                            Tap to learn more
+                          </p>
+                        </div>
+
+                        {/* Expanded State */}
+                        <div
+                          className={`absolute inset-0 p-6 transition-all duration-500 flex flex-col ${
+                            expandedMobileCard === index
+                              ? "opacity-100"
+                              : "opacity-0 pointer-events-none"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="text-[#F3954A] transform scale-110">
+                              {card.icon}
+                            </div>
+                            <h3 className="text-[#2A61AC] font-bold text-xl">
+                              {card.title}
+                            </h3>
+                          </div>
+
+                          <div className="flex-1 overflow-y-auto">
+                            <ul className="space-y-3">
+                              {card.items.map((item, i) => (
+                                <motion.li
+                                  key={i}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={
+                                    expandedMobileCard === index
+                                      ? { opacity: 1, x: 0 }
+                                      : { opacity: 0, x: -10 }
+                                  }
+                                  transition={{ delay: i * 0.1, duration: 0.3 }}
+                                  className="flex items-center gap-3 text-[#2A61AC] bg-white/50 rounded-lg p-3"
+                                >
+                                  <span className="text-[#F3954A] flex-shrink-0">
+                                    {item.icon}
+                                  </span>
+                                  <span className="text-sm font-medium">
+                                    {item.text}
+                                  </span>
+                                </motion.li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="mt-4 text-center">
+                            <p className="text-[#2A61AC] text-xs opacity-70">
+                              Tap to close
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Grid */}
+            <div className="hidden lg:grid lg:grid-cols-2 gap-8">
+              {focusCards.map((card, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="relative bg-gradient-to-br from-[#fff] to-[#fdf7f2] rounded-2xl border border-gray-200 shadow-lg transition-all duration-500 group cursor-pointer overflow-hidden min-h-[22rem] p-6"
+                >
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 group-hover:opacity-0 transition-all duration-500">
+                    <div className="text-[#2A61AC] mb-2">{card.icon}</div>
+                    <h3 className="text-[#F3954A] text-lg font-bold text-center">
+                      {card.title}
+                    </h3>
+                  </div>
+                  <div className="relative z-10 absolute inset-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 flex flex-col items-start justify-center text-left h-full pt-8">
+                    <div className="text-[#F3954A] mb-3 transform group-hover:scale-125 transition-all duration-500">
+                      {card.icon}
+                    </div>
+                    <h3 className="text-[#2A61AC] font-bold text-lg mb-4">
+                      {card.title}
+                    </h3>
+                    <div className="w-full max-h-52 overflow-y-auto pr-2">
+                      <ul className="space-y-2 w-full">
+                        {card.items.map((item, i) => (
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={isInView ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: i * 0.05 }}
+                            className="flex items-center gap-2 text-sm text-[#2A61AC] justify-start"
+                          >
+                            <span className="text-[#F3954A] flex-shrink-0">
+                              {item.icon}
+                            </span>
+                            <span className="text-left">{item.text}</span>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
