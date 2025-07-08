@@ -1,4 +1,5 @@
-// components/home-sections/aboutSection.tsx
+"use client";
+
 import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,7 +9,7 @@ const mockAboutData = [
     title: "CHILDREN AND YOUTH",
     subtitle:
       "VALUES: Values Advocacy and Literacy Upliftment through Education and Sharing",
-    image: "/uplift-kids.jpg",
+    image: "/chi-and-yo.png",
     items: [
       "School supplies distribution",
       "Improvement of school libraries",
@@ -21,22 +22,14 @@ const mockAboutData = [
   {
     title: "FAMILY",
     subtitle: "Strengthening Families through Sustainable Support",
-    image: "/uplift-family.jpg",
-    items: [
-      "Livelihood programs",
-      "Build better homes",
-      "Relief and food aid",
-    ],
+    image: "/fam.png",
+    items: ["Livelihood programs", "Build better homes", "Relief and food aid"],
   },
   {
     title: "COMMUNITY",
     subtitle: "Medical, Environmental, and Local Empowerment",
-    image: "/uplift-community.jpg",
-    items: [
-      "Medical missions",
-      "Environmental programs",
-      "Community gardens",
-    ],
+    image: "/community.png",
+    items: ["Medical missions", "Environmental programs", "Community gardens"],
   },
 ];
 
@@ -46,14 +39,19 @@ export default function AboutSection() {
 
   const nextSlide = () => setIndex((prev) => (prev + 1) % mockAboutData.length);
   const prevSlide = () =>
-    setIndex((prev) => (prev - 1 + mockAboutData.length) % mockAboutData.length);
+    setIndex(
+      (prev) => (prev - 1 + mockAboutData.length) % mockAboutData.length
+    );
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-[#1d74c1] to-[#3da9e0] flex flex-col justify-center items-center px-6 text-white py-12">
-      <div className="relative w-full max-w-6xl">
+    <section className="relative min-h-screen flex flex-col justify-center bg-[#2A61AC] items-center px-6 text-white py-12 overflow-hidden">
+
+
+      
+      <div className="relative w-full max-w-6xl z-10">
         <button
           onClick={prevSlide}
-          className="absolute top-1/2 left-0 -translate-y-1/2 text-white hover:opacity-60 z-10"
+          className="absolute top-1/2 left-0 -translate-y-1/2 text-white hover:opacity-60 z-20"
           aria-label="Previous"
         >
           <svg
@@ -74,7 +72,7 @@ export default function AboutSection() {
 
         <button
           onClick={nextSlide}
-          className="absolute top-1/2 right-0 -translate-y-1/2 text-white hover:opacity-60 z-10"
+          className="absolute top-1/2 right-0 -translate-y-1/2 text-white hover:opacity-60 z-20"
           aria-label="Next"
         >
           <svg
@@ -102,16 +100,23 @@ export default function AboutSection() {
             transition={{ duration: 0.4 }}
             className="grid grid-cols-1 md:grid-cols-2 items-center bg-[#1c5091] bg-opacity-90 rounded-2xl p-6 md:p-12 shadow-lg"
           >
-            <div className="flex justify-center items-center h-64 md:h-80 bg-gray-200 rounded-xl">
+            {/* Image Container */}
+            <div className="relative flex justify-center items-center h-64 md:h-80 bg-gray-200 rounded-xl overflow-hidden">
               <Image
                 src={current.image}
                 alt={current.title}
                 width={400}
                 height={300}
-                className="rounded-lg object-cover"
+                className="rounded-lg object-cover scale-160 filter blur-sm md:blur-none transition duration-500 ease-in-out"
               />
+
+              {/* Dark sides fading to light middle */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 z-10" />
+              {/* Optional top overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
             </div>
 
+            {/* Text Content */}
             <div className="mt-8 md:mt-0 md:pl-10 text-left">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
                 {current.title}
@@ -134,7 +139,8 @@ export default function AboutSection() {
         </AnimatePresence>
       </div>
 
-      <div className="mt-6 flex items-center justify-center space-x-2">
+      {/* Dot indicators */}
+      <div className="mt-6 flex items-center justify-center space-x-2 z-10">
         {mockAboutData.map((_, i) => (
           <span
             key={i}
