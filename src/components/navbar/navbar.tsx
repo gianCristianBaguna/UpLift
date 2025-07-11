@@ -18,7 +18,7 @@ export default function Navbar() {
   const pathname = usePathname();          // e.g. "/pages/events"
   const [isOpen, setIsOpen] = useState(false);
 
-  /** Returns true if `pathname` starts with the link’s href */
+
   const isActive = (href: string) =>
     href === "/"
       ? pathname === "/"
@@ -26,15 +26,15 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white text-black shadow-sm">
-      {/* TOP BAR */}
+
       <div className="max-w-7xl mx-auto flex justify-between items-center h-24 px-6">
         {/* logo */}
         <Link href="/" className="flex items-center ml-30">
           <Image
             src="/uplift-logo.png"
             alt="Uplift Logo"
-            width={140}
-            height={60}
+            width={160}
+            height={80}
             priority
           />
         </Link>

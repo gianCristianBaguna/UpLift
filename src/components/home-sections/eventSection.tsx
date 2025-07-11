@@ -11,6 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+// Only 2 events
 const eventData = [
   {
     id: 1,
@@ -25,19 +26,10 @@ const eventData = [
     id: 2,
     image: "/event2.png",
     what: "Free Medical Mission",
-    when: "September 10, 8AM to 5PM",
+    when: "September 10, 8 AM – 5 PM",
     where: "La Castellana",
-    why: "Up to your health, our priority.",
+    why: "Your health, our priority.",
     who: "Medical, Minor Surgery, Dental, Pediatrics, Gynecology, Health Expo",
-  },
-  {
-    id: 3,
-    image: "/event3.png",
-    what: "Community Outreach Fair",
-    when: "December 5, 2025",
-    where: "Bacolod City Plaza",
-    why: "Support. Serve. Smile.",
-    who: "Local NGOs, Government Units, Volunteers",
   },
 ];
 
@@ -48,9 +40,7 @@ export default function EventSection() {
 
   useEffect(() => {
     const measure = () => {
-      if (wrapperRef.current) {
-        setCardWidth(wrapperRef.current.offsetWidth);
-      }
+      if (wrapperRef.current) setCardWidth(wrapperRef.current.offsetWidth);
     };
     measure();
     window.addEventListener("resize", measure);
@@ -65,8 +55,8 @@ export default function EventSection() {
     <section className="bg-gray-50 py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12">
-          {/* Carousel LEFT */}
-          <div className="flex items-center justify-center gap-4 w-full lg:w-2/3">
+          {/* 🟠 MOBILE: SLIDER VIEW */}
+          <div className="flex items-center justify-center gap-4 w-full lg:hidden">
             <button
               onClick={handlePrev}
               className="text-[#1c5091] hover:opacity-90 transition"
@@ -91,44 +81,7 @@ export default function EventSection() {
                     style={{ width: cardWidth }}
                     className="flex-shrink-0 px-2"
                   >
-                    <div className="h-full rounded-2xl p-5 shadow-xl bg-[#1c5091] text-white flex flex-col">
-                      <div className="h-40 lg:h-60 w-full rounded-xl mb-4 overflow-hidden relative group">
-                        <Image
-                          src={event.image}
-                          alt={event.what}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      </div>
-
-                      <div className="mb-4">
-                        <h3 className="text-2xl font-bold mb-2">
-                          {event.what}
-                        </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-200">
-                          <CalendarDays className="w-4 h-4 text-orange-300" />
-                          <span>{event.when}</span>
-                        </div>
-                      </div>
-                      <div className="space-y-3 text-sm text-gray-100">
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-4 h-4 text-orange-300 mt-0.5" />
-                          <span>{event.where}</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <HelpCircle className="w-4 h-4 text-orange-300 mt-0.5" />
-                          <span>{event.why}</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <Users className="w-4 h-4 text-orange-300 mt-0.5" />
-                          <span>{event.who}</span>
-                        </div>
-                      </div>
-
-                      <button className="mt-auto bg-orange-400 py-2 px-4 rounded-full text-sm hover:bg-orange-500 transition self-end mt-6">
-                        Learn&nbsp;More
-                      </button>
-                    </div>
+                    <EventCard event={event} />
                   </div>
                 ))}
               </div>
@@ -143,10 +96,20 @@ export default function EventSection() {
             </button>
           </div>
 
-          {/* Title RIGHT */}
+          {/* 🟢 DESKTOP: STATIC GRID */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-6 w-full lg:w-2/3">
+            {eventData.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+
+          {/* 🔵 RIGHT SIDE TITLE + CTA */}
           <div className="text-center lg:text-right lg:w-1/3 mt-12 lg:mt-0">
             <h2 className="text-5xl lg:text-7xl font-bold text-[#1c5091] leading-tight">
-              UPCOMING <span className=" text-orange-400 drop-shadow-[2px_4px_0_#2A61AC]">EVENTS</span>
+              UPCOMING{" "}
+              <span className="text-orange-400 drop-shadow-[2px_4px_0_#2A61AC]">
+                EVENTS
+              </span>
             </h2>
             <p className="mt-4 text-orange-400 font-medium text-base lg:text-lg">
               Discover what’s happening next in our community
@@ -163,5 +126,48 @@ export default function EventSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ✅ Shared Card Component */
+function EventCard({ event }: { event: (typeof eventData)[0] }) {
+  return (
+    <div className="h-full rounded-2xl p-5 shadow-xl bg-[#1c5091] text-white flex flex-col">
+      <div className="h-40 lg:h-60 w-full rounded-xl mb-4 overflow-hidden relative group">
+        <Image
+          src={event.image}
+          alt={event.what}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+      </div>
+
+      <div className="mb-4">
+        <h3 className="text-2xl font-bold mb-2">{event.what}</h3>
+        <div className="flex items-center gap-2 text-sm text-gray-200">
+          <CalendarDays className="w-4 h-4 text-orange-300" />
+          <span>{event.when}</span>
+        </div>
+      </div>
+
+      <div className="space-y-3 text-sm text-gray-100">
+        <div className="flex items-start gap-2">
+          <MapPin className="w-4 h-4 text-orange-300 mt-0.5" />
+          <span>{event.where}</span>
+        </div>
+        <div className="flex items-start gap-2">
+          <HelpCircle className="w-4 h-4 text-orange-300 mt-0.5" />
+          <span>{event.why}</span>
+        </div>
+        <div className="flex items-start gap-2">
+          <Users className="w-4 h-4 text-orange-300 mt-0.5" />
+          <span>{event.who}</span>
+        </div>
+      </div>
+
+      <button className="mt-auto bg-orange-400 py-2 px-4 rounded-full text-sm hover:bg-orange-500 transition self-end mt-6">
+        Learn&nbsp;More
+      </button>
+    </div>
   );
 }

@@ -73,7 +73,7 @@ export default function ServicesSection() {
   ];
 
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, {amount: 0.3 });
+  const isInView = useInView(sectionRef, { amount: 0.3 });
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedMobileCard, setExpandedMobileCard] = useState<number | null>(
     null
@@ -202,7 +202,7 @@ export default function ServicesSection() {
                           </div>
 
                           <div className="flex-1 overflow-y-auto">
-                            <ul className="space-y-3">
+                            <ul className="space-y-3 flex flex-col items-center">
                               {card.items.map((item, i) => (
                                 <motion.li
                                   key={i}
@@ -213,7 +213,7 @@ export default function ServicesSection() {
                                       : { opacity: 0, x: -10 }
                                   }
                                   transition={{ delay: i * 0.1, duration: 0.3 }}
-                                  className="flex items-center gap-3 text-[#2A61AC] bg-white/50 rounded-lg p-3"
+                                  className="flex items-center justify-center gap-3 text-[#2A61AC] bg-white/50 rounded-lg p-3 w-full max-w-[230px] text-center"
                                 >
                                   <span className="text-[#F3954A] flex-shrink-0">
                                     {item.icon}
@@ -302,21 +302,24 @@ export default function ServicesSection() {
                     </div>
 
                     {/* Hover state */}
-                    <div className="absolute inset-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 flex flex-col justify-start items-start text-left h-full bg-white/90">
+                    <div
+                      className="absolute inset-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 
+                flex flex-col justify-center items-center text-center h-full bg-white/90"
+                    >
                       <div className="text-[#F3954A] mb-2 transform group-hover:scale-110 transition-all duration-300">
                         {card.icon}
                       </div>
-                      <h3 className="text-[#2A61AC] font-bold text-base mb-2">
+                      <h3 className="text-[#2A61AC] font-bold text-base mb-4">
                         {card.title}
                       </h3>
-                      <ul className="space-y-1 w-full  pr-1 max-h-[8rem]">
+                      <ul className="space-y-2 w-full max-w-[240px] overflow-y-auto max-h-[8rem]">
                         {card.items.map((item, i) => (
                           <motion.li
                             key={i}
                             initial={{ opacity: 0, y: 10 }}
                             animate={isInView ? { opacity: 1, y: 0 } : {}}
                             transition={{ delay: i * 0.05 }}
-                            className="flex items-start gap-2 text-sm text-[#2A61AC]"
+                            className="flex items-center justify-center gap-2 text-sm text-[#2A61AC] bg-white/60 rounded-md p-2"
                           >
                             <span className="text-[#F3954A]">{item.icon}</span>
                             <span>{item.text}</span>

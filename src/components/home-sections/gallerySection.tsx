@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-
 const galleryImages = [
   "/gallery/gallery1.png",
   "/gallery/gallery2.png",
@@ -17,7 +16,7 @@ const galleryImages = [
   "/gallery/gallery9.png",
 ];
 
-
+// Utility to get the next unique image index
 const getNextImageIndex = (current: number, used: number[]) => {
   let next = (current + 1) % galleryImages.length;
   while (used.includes(next)) {
@@ -27,14 +26,12 @@ const getNextImageIndex = (current: number, used: number[]) => {
 };
 
 export default function GallerySection() {
+  const [indexes, setIndexes] = useState([0, 1, 2, 3, 4, 5]);
+  const [fading, setFading] = useState([false, false, false, false, false, false]);
+  const hoverRef = useRef([false, false, false, false, false, false]);
 
-  const [indexes, setIndexes] = useState([0, 1, 2]);
-  const [fading, setFading] = useState([false, false, false]);
-  const hoverRef = useRef([false, false, false]);
-
- 
   useEffect(() => {
-    const intervals = [0, 1, 2].map((box) =>
+    const intervals = [0, 1, 2, 3, 4, 5].map((box) =>
       setInterval(() => {
         if (hoverRef.current[box]) return;
 
@@ -73,8 +70,9 @@ export default function GallerySection() {
           Empowering Futures Through Education and Care
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {[0, 1, 2].map((i) => (
+        {/* Grid of 6 image boxes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
               onMouseEnter={() => {
