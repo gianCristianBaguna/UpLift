@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
 
+import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
+// Images for rotation
 const galleryImages = [
   "/gallery/gallery1.png",
   "/gallery/gallery2.png",
@@ -15,86 +17,96 @@ const galleryImages = [
   "/gallery/gallery9.png",
 ];
 
+// Get next image index avoiding duplicates
+const getNextImageIndex = (current: number, used: number[]) => {
+  let next = (current + 1) % galleryImages.length;
+  while (used.includes(next)) {
+    next = (next + 1) % galleryImages.length;
+  }
+  return next;
+};
+
 export default function GallerySection() {
-  const [showAll, setShowAll] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const visibleImages = showAll ? galleryImages : galleryImages.slice(0, 6);
+  // Track current image index per box (3 boxes)
+  const [indexes, setIndexes] = useState([0, 1, 2]);
+  const [fading, setFading] = useState([false, false, false]);
+  const hoverRef = useRef([false, false, false]);
+
+  // Independent rotation for each card
+  useEffect(() => {
+    const intervals = [0, 1, 2].map((box) =>
+      setInterval(() => {
+        if (hoverRef.current[box]) return;
+
+        setFading((prev) => {
+          const updated = [...prev];
+          updated[box] = true;
+          return updated;
+        });
+
+        setTimeout(() => {
+          setIndexes((prev) => {
+            const used = prev.filter((_, i) => i !== box);
+            const next = getNextImageIndex(prev[box], used);
+            const updated = [...prev];
+            updated[box] = next;
+            return updated;
+          });
+
+          setFading((prev) => {
+            const updated = [...prev];
+            updated[box] = false;
+            return updated;
+          });
+        }, 500); // match fade transition
+      }, 5000)
+    );
+
+    return () => intervals.forEach(clearInterval);
+  }, []);
 
   return (
-    <section className="bg-white py-12 px-4 transition-all duration-500 ease-in-out">
+    <section className="bg-white py-16 px-4">
       <div className="max-w-7xl mx-auto text-center">
         <h2 className="text-3xl font-bold text-[#1c5091] mb-2">GALLERY</h2>
-        <p className="text-orange-400 mb-6">
+        <p className="text-orange-400 mb-8">
           Empowering Futures Through Education and Care
         </p>
 
-        <div
-          className={`grid grid-cols-2 md:grid-cols-3 gap-4 transition-all duration-700 ease-in-out ${
-            showAll ? "mb-8" : "mb-6"
-          }`}
-        >
-          {visibleImages.map((src, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="relative h-48 w-full rounded-lg overflow-hidden group cursor-pointer"
-              onClick={() => setSelectedImage(src)}
+              onMouseEnter={() => {
+                hoverRef.current[i] = true;
+              }}
+              onMouseLeave={() => {
+                hoverRef.current[i] = false;
+              }}
+              className={`relative h-64 w-full rounded-xl overflow-hidden group shadow-lg 
+                transition-opacity duration-500 
+                ${fading[i] ? "opacity-0" : "opacity-100"}`}
             >
               <Image
-                src={src}
-                alt={`Gallery Image ${i + 1}`}
-                layout="fill"
-                objectFit="cover"
-                className="transition-transform duration-500 group-hover:scale-105"
+                src={galleryImages[indexes[i]]}
+                alt={`Gallery ${i + 1}`}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <span className="text-white text-sm font-semibold">
-                  Click to Preview
-                </span>
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white font-semibold">Featured Image</span>
               </div>
             </div>
           ))}
         </div>
 
-        <button
-          onClick={() => setShowAll(!showAll)}
-          className="mt-2 flex items-center justify-center mx-auto text-[#1c5091] hover:text-orange-400 transition duration-300"
+        <Link
+          href="/pages/gallery"
+          className="inline-flex items-center text-[#1c5091] hover:text-orange-400 transition font-semibold"
         >
-          {showAll ? (
-            <>
-              <ChevronUp className="w-6 h-6" />
-              <span className="ml-1 font-semibold">Show Less</span>
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-6 h-6" />
-              <span className="ml-1 font-semibold">Show More</span>
-            </>
-          )}
-        </button>
+          Show More
+        </Link>
       </div>
-
-      {selectedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center transition-opacity duration-300"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative w-[90vw] max-w-4xl h-[80vh]">
-            <Image
-              src={selectedImage}
-              alt="Full Preview"
-              layout="fill"
-              objectFit="contain"
-              className="rounded-lg shadow-xl"
-            />
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 text-white bg-black/20 hover:bg-black/70 rounded-full p-1"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

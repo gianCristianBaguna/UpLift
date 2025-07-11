@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   CalendarDays,
@@ -43,17 +43,24 @@ const eventData = [
 
 export default function EventSection() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [cardWidth, setCardWidth] = useState(0);
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
-  const cardWidth = isMobile ? 340 : 520;
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + eventData.length) % eventData.length);
-  };
+  useEffect(() => {
+    const measure = () => {
+      if (wrapperRef.current) {
+        setCardWidth(wrapperRef.current.offsetWidth);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % eventData.length);
-  };
+  const handlePrev = () =>
+    setActiveIndex((i) => (i - 1 + eventData.length) % eventData.length);
+  const handleNext = () => setActiveIndex((i) => (i + 1) % eventData.length);
 
   return (
     <section className="bg-gray-50 py-16 px-4">
@@ -65,97 +72,72 @@ export default function EventSection() {
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={handlePrev}
-            className="text-[#1c5091] mr-10 hover:opacity-90 transition"
+            className="text-[#1c5091] hover:opacity-90 transition"
           >
             <ChevronLeft className="w-8 h-8 opacity-80" />
           </button>
 
           <div
-            className="overflow-hidden"
-            style={{ width: isMobile ? "340px" : "520px" }}
+            className="overflow-hidden w-full max-w-[520px]"
+            ref={wrapperRef}
           >
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${activeIndex * cardWidth}px)` }}
             >
-  
-            </div>
-          </div>
-
-          <button
-            onClick={handleNext}
-            className="text-[#1c5091] ml-10 hover:opacity-70 transition"
-          >
-            <ChevronRight className="w-8 h-8 opacity-80" />
-          </button>
-        </div>
-
-        <div className="flex items-center justify-center gap-4">
-
-          <div
-            className=""
-            style={{
-              width: isMobile ? "340px" : "520px",
-            }}
-          >
-            <div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{
-                transform: `translateX(-${activeIndex * cardWidth}px)`,
-              }}
-            >
-              {eventData.map((event, index) => (
+              {eventData.map((event) => (
                 <div
-                  key={index}
-                  className={`min-w-[320px] lg:min-w-[500px] max-w-full transition-all duration-300 rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col bg-[#1c5091] text-white ${
-                    index === activeIndex
-                      ? "opacity-100 scale-100 z-10"
-                      : "opacity-30 scale-95 z-0"
-                  }`}
+                  key={event.id}
+                  style={{ width: cardWidth }}
+                  className="flex-shrink-0 px-2"
                 >
-                  <div className="h-40 lg:h-60 w-full rounded-xl mb-4 overflow-hidden relative group">
-                    <Image
-                      src={event.image}
-                      alt={`Event ${index}`}
-                      layout="fill"
-                      objectFit="cover"
-                      className="transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </div>
+                  <div className="h-full rounded-2xl p-5 shadow-xl bg-[#1c5091] text-white flex flex-col">
+                    <div className="h-40 lg:h-60 w-full rounded-xl mb-4 overflow-hidden relative group">
+                      <Image
+                        src={event.image}
+                        alt={event.what}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
 
-                  <div className="mb-4">
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {event.what}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-200">
-                      <CalendarDays className="w-4 h-4 text-orange-300" />
-                      <span>{event.when}</span>
+                    <div className="mb-4">
+                      <h3 className="text-2xl font-bold mb-2">{event.what}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-200">
+                        <CalendarDays className="w-4 h-4 text-orange-300" />
+                        <span>{event.when}</span>
+                      </div>
                     </div>
-                  </div>
+                    <div className="space-y-3 text-sm text-gray-100">
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-orange-300 mt-0.5" />
+                        <span>{event.where}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <HelpCircle className="w-4 h-4 text-orange-300 mt-0.5" />
+                        <span>{event.why}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Users className="w-4 h-4 text-orange-300 mt-0.5" />
+                        <span>{event.who}</span>
+                      </div>
+                    </div>
 
-                  <div className="space-y-3 text-sm text-gray-100">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-orange-300 mt-0.5" />
-                      <span>{event.where}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <HelpCircle className="w-4 h-4 text-orange-300 mt-0.5" />
-                      <span>{event.why}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Users className="w-4 h-4 text-orange-300 mt-0.5" />
-                      <span>{event.who}</span>
-                    </div>
+                    <button className="mt-auto bg-orange-400 py-2 px-4 rounded-full text-sm hover:bg-orange-500 transition self-end mt-6">
+                      Learn&nbsp;More
+                    </button>
                   </div>
-
-                  <button className="mt-auto bg-orange-400 text-white py-2 px-4 rounded-full text-sm hover:bg-orange-500 transition w-fit self-end mt-6">
-                    Learn More
-                  </button>
                 </div>
               ))}
             </div>
           </div>
 
+          <button
+            onClick={handleNext}
+            className="text-[#1c5091] hover:opacity-70 transition"
+          >
+            <ChevronRight className="w-8 h-8 opacity-80" />
+          </button>
         </div>
       </div>
     </section>
