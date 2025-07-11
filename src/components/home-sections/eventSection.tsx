@@ -44,7 +44,6 @@ const eventData = [
 export default function EventSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(0);
-
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,80 +63,103 @@ export default function EventSection() {
 
   return (
     <section className="bg-gray-50 py-16 px-4">
-      <div className="max-w-full mx-auto">
-        <h2 className="text-4xl font-bold text-[#1c5091] mb-10 text-center">
-          Upcoming Events
-        </h2>
-
-        <div className="flex items-center justify-center gap-4">
-          <button
-            onClick={handlePrev}
-            className="text-[#1c5091] hover:opacity-90 transition"
-          >
-            <ChevronLeft className="w-8 h-8 opacity-80" />
-          </button>
-
-          <div
-            className="overflow-hidden w-full max-w-[520px]"
-            ref={wrapperRef}
-          >
-            <div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${activeIndex * cardWidth}px)` }}
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12">
+          {/* Carousel LEFT */}
+          <div className="flex items-center justify-center gap-4 w-full lg:w-2/3">
+            <button
+              onClick={handlePrev}
+              className="text-[#1c5091] hover:opacity-90 transition"
+              aria-label="Previous Event"
             >
-              {eventData.map((event) => (
-                <div
-                  key={event.id}
-                  style={{ width: cardWidth }}
-                  className="flex-shrink-0 px-2"
-                >
-                  <div className="h-full rounded-2xl p-5 shadow-xl bg-[#1c5091] text-white flex flex-col">
-                    <div className="h-40 lg:h-60 w-full rounded-xl mb-4 overflow-hidden relative group">
-                      <Image
-                        src={event.image}
-                        alt={event.what}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    </div>
+              <ChevronLeft className="w-8 h-8 opacity-80" />
+            </button>
 
-                    <div className="mb-4">
-                      <h3 className="text-2xl font-bold mb-2">{event.what}</h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-200">
-                        <CalendarDays className="w-4 h-4 text-orange-300" />
-                        <span>{event.when}</span>
+            <div
+              className="overflow-hidden w-full max-w-[520px]"
+              ref={wrapperRef}
+            >
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{
+                  transform: `translateX(-${activeIndex * cardWidth}px)`,
+                }}
+              >
+                {eventData.map((event) => (
+                  <div
+                    key={event.id}
+                    style={{ width: cardWidth }}
+                    className="flex-shrink-0 px-2"
+                  >
+                    <div className="h-full rounded-2xl p-5 shadow-xl bg-[#1c5091] text-white flex flex-col">
+                      <div className="h-40 lg:h-60 w-full rounded-xl mb-4 overflow-hidden relative group">
+                        <Image
+                          src={event.image}
+                          alt={event.what}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
                       </div>
-                    </div>
-                    <div className="space-y-3 text-sm text-gray-100">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-orange-300 mt-0.5" />
-                        <span>{event.where}</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <HelpCircle className="w-4 h-4 text-orange-300 mt-0.5" />
-                        <span>{event.why}</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Users className="w-4 h-4 text-orange-300 mt-0.5" />
-                        <span>{event.who}</span>
-                      </div>
-                    </div>
 
-                    <button className="mt-auto bg-orange-400 py-2 px-4 rounded-full text-sm hover:bg-orange-500 transition self-end mt-6">
-                      Learn&nbsp;More
-                    </button>
+                      <div className="mb-4">
+                        <h3 className="text-2xl font-bold mb-2">
+                          {event.what}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-gray-200">
+                          <CalendarDays className="w-4 h-4 text-orange-300" />
+                          <span>{event.when}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3 text-sm text-gray-100">
+                        <div className="flex items-start gap-2">
+                          <MapPin className="w-4 h-4 text-orange-300 mt-0.5" />
+                          <span>{event.where}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <HelpCircle className="w-4 h-4 text-orange-300 mt-0.5" />
+                          <span>{event.why}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <Users className="w-4 h-4 text-orange-300 mt-0.5" />
+                          <span>{event.who}</span>
+                        </div>
+                      </div>
+
+                      <button className="mt-auto bg-orange-400 py-2 px-4 rounded-full text-sm hover:bg-orange-500 transition self-end mt-6">
+                        Learn&nbsp;More
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            <button
+              onClick={handleNext}
+              className="text-[#1c5091] hover:opacity-70 transition"
+              aria-label="Next Event"
+            >
+              <ChevronRight className="w-8 h-8 opacity-80" />
+            </button>
           </div>
 
-          <button
-            onClick={handleNext}
-            className="text-[#1c5091] hover:opacity-70 transition"
-          >
-            <ChevronRight className="w-8 h-8 opacity-80" />
-          </button>
+          {/* Title RIGHT */}
+          <div className="text-center lg:text-right lg:w-1/3 mt-12 lg:mt-0">
+            <h2 className="text-5xl lg:text-7xl font-bold text-[#1c5091] leading-tight">
+              UPCOMING <span className=" text-orange-400 drop-shadow-[2px_4px_0_#2A61AC]">EVENTS</span>
+            </h2>
+            <p className="mt-4 text-orange-400 font-medium text-base lg:text-lg">
+              Discover what’s happening next in our community
+            </p>
+            <div className="flex justify-center mt-20">
+              <a
+                href="/pages/events"
+                className="bg-orange-400 text-white font-semibold block drop-shadow-[2px_4px_0_#2A61AC] text-lg px-6 py-3 rounded-full shadow-lg hover:bg-orange-500 transition-transform transform hover:scale-105"
+              >
+                View All Events
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

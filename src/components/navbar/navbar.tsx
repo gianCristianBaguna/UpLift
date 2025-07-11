@@ -29,7 +29,7 @@ export default function Navbar() {
       {/* TOP BAR */}
       <div className="max-w-7xl mx-auto flex justify-between items-center h-24 px-6">
         {/* logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center ml-30">
           <Image
             src="/uplift-logo.png"
             alt="Uplift Logo"
@@ -40,7 +40,7 @@ export default function Navbar() {
         </Link>
 
         {/* desktop links */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-10 mr-30">
           {navLinks
             .filter((l) => l.label !== "Donation")
             .map((link) => (

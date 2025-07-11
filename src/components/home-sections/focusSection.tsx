@@ -73,7 +73,7 @@ export default function ServicesSection() {
   ];
 
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+  const isInView = useInView(sectionRef, {amount: 0.3 });
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedMobileCard, setExpandedMobileCard] = useState<number | null>(
     null

@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 
+// Data
 const mockAboutData = [
   {
     title: "CHILDREN AND YOUTH",
@@ -33,92 +34,121 @@ const mockAboutData = [
   },
 ];
 
+const slideVariants = {
+  enter: (dir: number) => ({
+    opacity: 0,
+    x: dir > 0 ? 100 : -100,
+    scale: 0.95,
+  }),
+  center: { opacity: 1, x: 0, scale: 1 },
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir > 0 ? -100 : 100,
+    scale: 0.95,
+  }),
+};
+
 export default function AboutSection() {
-  const [index, setIndex] = useState(0);
+  const [[index, direction], setIndex] = useState<[number, number]>([0, 0]);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+
   const current = mockAboutData[index];
 
-  const nextSlide = () => setIndex((prev) => (prev + 1) % mockAboutData.length);
-  const prevSlide = () =>
-    setIndex(
-      (prev) => (prev - 1 + mockAboutData.length) % mockAboutData.length
-    );
+  useEffect(() => {
+    if (isInView) {
+      setIsVisible(false);
+      const timeout = setTimeout(() => setIsVisible(true), 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [isInView]);
+
+  const paginate = (dir: number) => {
+    setIndex(([i]) => [
+      (i + dir + mockAboutData.length) % mockAboutData.length,
+      dir,
+    ]);
+  };
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center bg-[#2A61AC] items-center px-6 text-white py-12 overflow-hidden">
+    <motion.section
+      ref={sectionRef}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="relative min-h-screen flex flex-col justify-center bg-[#2A61AC] items-center px-6 text-white py-16 overflow-hidden"
+    >
+      {/* Arrows */}
+      <button
+        onClick={() => paginate(-1)}
+        className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:scale-110 transition-transform z-20"
+        aria-label="Previous"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="w-6 h-6"
+        >
+          <path
+            d="M10 4L6 8L10 12"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
 
+      <button
+        onClick={() => paginate(1)}
+        className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:scale-110 transition-transform z-20"
+        aria-label="Next"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="w-6 h-6"
+        >
+          <path
+            d="M6 4L10 8L6 12"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
 
-      
+      {/* Slides */}
       <div className="relative w-full max-w-6xl z-10">
-        <button
-          onClick={prevSlide}
-          className="absolute top-1/2 left-0 -translate-y-1/2 text-white hover:opacity-60 z-20"
-          aria-label="Previous"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-8 h-8"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-
-        <button
-          onClick={nextSlide}
-          className="absolute top-1/2 right-0 -translate-y-1/2 text-white hover:opacity-60 z-20"
-          aria-label="Next"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-8 h-8"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-
-        <AnimatePresence mode="wait">
+        <AnimatePresence custom={direction} mode="wait">
           <motion.div
             key={index}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-2 items-center bg-[#1c5091] bg-opacity-90 rounded-2xl p-6 md:p-12 shadow-lg"
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="grid grid-cols-1 md:grid-cols-2 items-center bg-[#1c5091]/90 rounded-2xl p-6 md:p-12 shadow-2xl"
           >
-            {/* Image Container */}
-            <div className="relative flex justify-center items-center h-64 md:h-80 bg-gray-200 rounded-xl overflow-hidden">
+            {/* Image with no black gradient */}
+            <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
               <Image
                 src={current.image}
                 alt={current.title}
-                width={400}
-                height={300}
-                className="rounded-lg object-cover scale-160 filter blur-sm md:blur-none transition duration-500 ease-in-out"
+                fill
+                priority
+                className="object-cover"
               />
-
-              {/* Dark sides fading to light middle */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50 z-10" />
-              {/* Optional top overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
             </div>
 
-            {/* Text Content */}
-            <div className="mt-8 md:mt-0 md:pl-10 text-left">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
+            {/* Text */}
+            <div className="mt-8 md:mt-0 md:pl-10">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">
                 {current.title}
               </h2>
               <p className="text-orange-400 font-semibold mt-2 mb-4">
@@ -131,7 +161,7 @@ export default function AboutSection() {
                   </p>
                 ))}
               </div>
-              <button className="mt-6 px-5 py-2 bg-orange-400 text-white font-semibold rounded-full hover:bg-orange-500 transition">
+              <button className="mt-6 px-6 py-2 bg-orange-400 hover:bg-orange-500 transition rounded-full font-semibold">
                 Learn More
               </button>
             </div>
@@ -142,14 +172,15 @@ export default function AboutSection() {
       {/* Dot indicators */}
       <div className="mt-6 flex items-center justify-center space-x-2 z-10">
         {mockAboutData.map((_, i) => (
-          <span
+          <button
             key={i}
+            onClick={() => paginate(i - index)}
             className={`w-8 h-1 rounded-full transition-opacity duration-300 ${
-              i === index ? "bg-white opacity-60" : "bg-white opacity-30"
+              i === index ? "bg-white opacity-70" : "bg-white opacity-30"
             }`}
-          ></span>
+          ></button>
         ))}
       </div>
-    </section>
+    </motion.section>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-// Images for rotation
+
 const galleryImages = [
   "/gallery/gallery1.png",
   "/gallery/gallery2.png",
@@ -17,7 +17,7 @@ const galleryImages = [
   "/gallery/gallery9.png",
 ];
 
-// Get next image index avoiding duplicates
+
 const getNextImageIndex = (current: number, used: number[]) => {
   let next = (current + 1) % galleryImages.length;
   while (used.includes(next)) {
@@ -27,12 +27,12 @@ const getNextImageIndex = (current: number, used: number[]) => {
 };
 
 export default function GallerySection() {
-  // Track current image index per box (3 boxes)
+
   const [indexes, setIndexes] = useState([0, 1, 2]);
   const [fading, setFading] = useState([false, false, false]);
   const hoverRef = useRef([false, false, false]);
 
-  // Independent rotation for each card
+ 
   useEffect(() => {
     const intervals = [0, 1, 2].map((box) =>
       setInterval(() => {
@@ -58,7 +58,7 @@ export default function GallerySection() {
             updated[box] = false;
             return updated;
           });
-        }, 500); // match fade transition
+        }, 500);
       }, 5000)
     );
 
