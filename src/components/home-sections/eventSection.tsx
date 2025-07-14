@@ -55,6 +55,36 @@ export default function EventSection() {
     <section className="bg-gray-50 py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12">
+          
+
+          {/* 🟢 DESKTOP: STATIC GRID */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-6 w-full lg:w-2/3">
+            {eventData.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+
+          {/* 🔵 RIGHT SIDE TITLE + CTA */}
+          <div className="text-center lg:text-right lg:w-1/3 mt-12 lg:mt-0">
+            <h2 className="text-5xl lg:text-7xl font-bold text-[#1c5091] leading-tight">
+              UPCOMING{" "}
+              <span className="text-orange-400 drop-shadow-[2px_4px_0_#2A61AC]">
+                EVENTS
+              </span>
+            </h2>
+            <p className="mt-4 text-orange-400 font-medium text-base lg:text-lg">
+              Discover what’s happening next in our community
+            </p>
+            <div className="hidden md:flex justify-center mt-20">
+              <a
+                href="/pages/events"
+                className="bg-orange-400 text-white font-semibold block drop-shadow-[2px_4px_0_#2A61AC] text-lg px-6 py-3 rounded-full shadow-lg hover:bg-orange-500 transition-transform transform hover:scale-105"
+              >
+                View All Events
+              </a>
+            </div>
+          </div>
+
           {/* 🟠 MOBILE: SLIDER VIEW */}
           <div className="flex items-center justify-center gap-4 w-full lg:hidden">
             <button
@@ -96,25 +126,7 @@ export default function EventSection() {
             </button>
           </div>
 
-          {/* 🟢 DESKTOP: STATIC GRID */}
-          <div className="hidden lg:grid lg:grid-cols-2 gap-6 w-full lg:w-2/3">
-            {eventData.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-
-          {/* 🔵 RIGHT SIDE TITLE + CTA */}
-          <div className="text-center lg:text-right lg:w-1/3 mt-12 lg:mt-0">
-            <h2 className="text-5xl lg:text-7xl font-bold text-[#1c5091] leading-tight">
-              UPCOMING{" "}
-              <span className="text-orange-400 drop-shadow-[2px_4px_0_#2A61AC]">
-                EVENTS
-              </span>
-            </h2>
-            <p className="mt-4 text-orange-400 font-medium text-base lg:text-lg">
-              Discover what’s happening next in our community
-            </p>
-            <div className="flex justify-center mt-20">
+          <div className="lg:hidden flex justify-center mt-20">
               <a
                 href="/pages/events"
                 className="bg-orange-400 text-white font-semibold block drop-shadow-[2px_4px_0_#2A61AC] text-lg px-6 py-3 rounded-full shadow-lg hover:bg-orange-500 transition-transform transform hover:scale-105"
@@ -122,7 +134,6 @@ export default function EventSection() {
                 View All Events
               </a>
             </div>
-          </div>
         </div>
       </div>
     </section>

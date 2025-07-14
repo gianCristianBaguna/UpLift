@@ -29,7 +29,17 @@ export default function Navbar() {
 
       <div className="max-w-7xl mx-auto flex justify-between items-center h-24 px-6">
         {/* logo */}
-        <Link href="/" className="flex items-center ml-30">
+        <Link href="/" className=" hidden md:flex items-center ml-30">
+          <Image
+            src="/uplift-logo.png"
+            alt="Uplift Logo"
+            width={160}
+            height={80}
+            priority
+          />
+        </Link>
+
+        <Link href="/" className="flex lg:hidden items-center ">
           <Image
             src="/uplift-logo.png"
             alt="Uplift Logo"
