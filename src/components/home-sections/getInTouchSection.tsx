@@ -6,7 +6,7 @@ export default function GetInTouchSection() {
   return (
     <div className="bg-gray-100">
       {/* Main Get In Touch Section */}
-      <section className="bg-[#1c5091] text-white py-12 px-4">
+      <section className="bg-[#1c5091] text-white py-12 px-4 rounded-t-3xl">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold mb-6">Get In Touch</h2>
@@ -18,10 +18,10 @@ export default function GetInTouchSection() {
             </p>
           </div>
 
-          {/* Form Container */}
+
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 min-h-[500px]">
-              {/* Left Orange Section */}
+
               <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-8 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="w-24 h-24 bg-transparent bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -35,10 +35,10 @@ export default function GetInTouchSection() {
                   <p className="text-orange-100">We'd love to hear from you</p>
                 </div>
               </div>
-              {/* Right Form Section */}
+
               <div className="p-8 bg-white">
                 <form className="space-y-6">
-                  {/* First Name and Last Name Row */}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-[#1c5091] font-medium text-sm">
@@ -62,7 +62,7 @@ export default function GetInTouchSection() {
                     </div>
                   </div>
 
-                  {/* Email Field */}
+
                   <div className="space-y-2">
                     <label className="text-[#1c5091] font-medium text-sm">
                       Email
@@ -74,7 +74,6 @@ export default function GetInTouchSection() {
                     />
                   </div>
 
-                  {/* Message Field */}
                   <div className="space-y-2">
                     <label className="text-[#1c5091] font-medium text-sm">
                       Message
@@ -86,7 +85,6 @@ export default function GetInTouchSection() {
                     ></textarea>
                   </div>
 
-                  {/* Submit Button */}
                   <div className="pt-4">
                     <button
                       type="submit"

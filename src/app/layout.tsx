@@ -9,7 +9,7 @@ const geistSans = Geist({
 
 const montserrat = Montserrat({
   subsets: ['latin'],
-  weight: ['400', '700'], // or any weights you need
+  weight: ['400', '700'], 
 });
 
 const geistMono = Geist_Mono({
@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // Choose what you need
+  weight: ['400', '500', '600', '700'], 
   display: 'swap',
 });
 
@@ -35,8 +35,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      <body 
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         {children}
       </body>

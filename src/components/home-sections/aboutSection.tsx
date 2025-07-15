@@ -77,9 +77,9 @@ export default function AboutSection() {
       initial={{ opacity: 0, y: 50 }}
       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative min-h-screen flex flex-col justify-center bg-[#2A61AC] items-center px-6 text-white py-16 overflow-hidden"
+      className="relative min-h-screen flex flex-col justify-center items-center px-6 text-white py-16 overflow-hidden bg-gradient-to-b from-[#2A61AC] to-gray-50 rounded-2xl "
     >
-      {/* Arrows */}
+
       <button
         onClick={() => paginate(-1)}
         className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:scale-110 transition-transform z-20"
@@ -122,7 +122,7 @@ export default function AboutSection() {
         </svg>
       </button>
 
-      {/* Slides */}
+   
       <div className="relative w-full max-w-6xl z-10">
         <AnimatePresence custom={direction} mode="wait">
           <motion.div
@@ -135,7 +135,7 @@ export default function AboutSection() {
             transition={{ duration: 0.6, ease: "easeInOut" }}
             className="grid grid-cols-1 md:grid-cols-2 items-center bg-[#1c5091]/90 rounded-2xl p-6 md:p-12 shadow-2xl"
           >
-            {/* Image with no black gradient */}
+
             <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
               <Image
                 src={current.image}
@@ -146,7 +146,6 @@ export default function AboutSection() {
               />
             </div>
 
-            {/* Text */}
             <div className="mt-8 md:mt-0 md:pl-10">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">
                 {current.title}
@@ -169,7 +168,7 @@ export default function AboutSection() {
         </AnimatePresence>
       </div>
 
-      {/* Dot indicators */}
+
       <div className="mt-6 flex items-center justify-center space-x-2 z-10">
         {mockAboutData.map((_, i) => (
           <button

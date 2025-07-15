@@ -97,7 +97,7 @@ export default function ServicesSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 px-4 -mt-2 mt-10 bg-gray-50 overflow-hidden"
+      className="relative py-20 -mt-2 bg-gray-50 overflow-hidden bg-gradient-to-b from-orange-50 to-gray-50 rounded-2xl shadow-lg"
     >
       <div className="absolute top-12 left-0 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#F3954A] opacity-80"></div>
       <div className="absolute top-10 left-10 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#2A61AC] opacity-80"></div>

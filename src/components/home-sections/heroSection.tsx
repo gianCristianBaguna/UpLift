@@ -15,7 +15,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative h-[400px] overflow-hidden p-0 m-0 bg-white rounded-b-xl shadow-md z-10 -mb-10">
+    <section className="relative h-[400px] overflow-hidden p-0 m-0 bg-white  shadow-md z-10 -mb-10">
       {images.map((img, index) => (
         <div
           key={index}

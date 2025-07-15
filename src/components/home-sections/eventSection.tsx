@@ -52,19 +52,19 @@ export default function EventSection() {
   const handleNext = () => setActiveIndex((i) => (i + 1) % eventData.length);
 
   return (
-    <section className="bg-gray-50 py-16 px-4">
+    <section className="bg-gray-50 py-16 px-4 bg-gradient-to-b from-gray-50 to-[#2A61AC] rounded-b-3xl">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12">
           
 
-          {/* 🟢 DESKTOP: STATIC GRID */}
+
           <div className="hidden lg:grid lg:grid-cols-2 gap-6 w-full lg:w-2/3">
             {eventData.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
           </div>
 
-          {/* 🔵 RIGHT SIDE TITLE + CTA */}
+
           <div className="text-center lg:text-right lg:w-1/3 mt-12 lg:mt-0">
             <h2 className="text-5xl lg:text-7xl font-bold text-[#1c5091] leading-tight">
               UPCOMING{" "}
@@ -85,7 +85,7 @@ export default function EventSection() {
             </div>
           </div>
 
-          {/* 🟠 MOBILE: SLIDER VIEW */}
+
           <div className="flex items-center justify-center gap-4 w-full lg:hidden">
             <button
               onClick={handlePrev}
