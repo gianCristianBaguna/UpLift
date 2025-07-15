@@ -105,16 +105,6 @@ export default function EventsPage() {
             transform="translate(100 100)"
           />
         </svg>
-
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-          <LottiePlayer
-            autoplay
-            loop
-            src="/lottie/particles.json"
-            style={{ width: "100%", height: "100%" }}
-          />
-        </div>
-
         <div className="relative text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-extrabold text-[#1c5091]">
             Events

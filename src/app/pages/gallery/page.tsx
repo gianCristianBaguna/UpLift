@@ -12,6 +12,7 @@ interface GalleryItem {
   title: string;
   description: string;
   images: string[];
+  category: string[];
 }
 
 interface CategoryItem {
@@ -23,37 +24,136 @@ interface CategoryItem {
 
 const fallbackGallery: GalleryItem[] = [
   {
-    title: "🚻 Comfort Room Donation",
+    title: "🚻 CR Donation - District Office",
     cover: "/gallery/gallery1.png",
-    description:
-      "Donation of a comfort room to La Castellana I District Office to promote hygiene and comfort in schools.",
+    description: "New comfort room donated to La Castellana I District Office.",
     images: [
       "/gallery/gallery1.png",
       "/gallery/gallery2.png",
       "/gallery/gallery3.png",
     ],
+    category: ["🚻 Infrastructure", "🏠 Housing Assistance"],
   },
   {
-    title: "📚 VALUES Project",
+    title: "📚 VALUES Literacy Drive",
     cover: "/gallery/gallery4.png",
-    description:
-      "Promoting values and literacy through books, storytelling, and educational drives.",
+    description: "Books and storytelling activities in rural schools.",
     images: [
       "/gallery/gallery4.png",
       "/gallery/gallery5.png",
       "/gallery/gallery6.png",
     ],
+    category: ["📚 Education"],
   },
   {
-    title: "🎒 Back‑to‑School Program",
+    title: "🎒 Back-to-School Kits",
     cover: "/gallery/gallery7.png",
-    description:
-      "100 school supply kits distributed in partnership with LCNHS Junior High SSLG.",
+    description: "Distribution of 100+ school supply kits.",
     images: [
       "/gallery/gallery7.png",
       "/gallery/gallery8.png",
       "/gallery/gallery9.png",
     ],
+    category: ["🎓 Educational Assistance", "🏫 School Outreach"],
+  },
+  {
+    title: "🍽️ Feeding for Evacuees",
+    cover: "/gallery/feeding.jpg",
+    description: "Nutritional meals served to disaster-affected families.",
+    images: ["/gallery/feeding.jpg", "/gallery/gallery2.png"],
+    category: ["🍽️ Feeding Program"],
+  },
+  {
+    title: "🏥 Medical Outreach",
+    cover: "/gallery/medical.jpg",
+    description: "Free health consultations in underserved areas.",
+    images: ["/gallery/medical.jpg"],
+    category: ["🏥 Medical Mission"],
+  },
+  {
+    title: "🆘 Typhoon Relief Goods",
+    cover: "/gallery/relief.jpg",
+    description: "Emergency aid distributed to typhoon victims.",
+    images: ["/gallery/gallery3.png"],
+    category: ["🆘 Relief Operations", "🍽️ Feeding Program"],
+  },
+  {
+    title: "🏠 Housing Support - 80 Families",
+    cover: "/gallery/gallery6.png",
+    description: "Post-disaster materials for family homes.",
+    images: ["/gallery/housing.jpg"],
+    category: ["🏠 Housing Assistance", "🚻 Infrastructure"],
+  },
+  {
+    title: "🏫 Tipolo Elementary Outreach",
+    cover: "/gallery/gallery2.png",
+    description: "School supplies and support to rural schools.",
+    images: ["/gallery/outreach.jpg"],
+    category: ["🏫 School Outreach"],
+  },
+  {
+    title: "🌍 African Parish Aid",
+    cover: "/gallery/gallery3.png",
+    description: "International donation support to Africa.",
+    images: ["/gallery/international.jpg"],
+    category: ["🌍 International Outreach"],
+  },
+];
+
+const categoriesData: CategoryItem[] = [
+  {
+    title: "🚻 Infrastructure",
+    description: "Comfort Room Donations & Facilities",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "📚 Education",
+    description: "VALUES & Educational Programs",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🍽️ Feeding Program",
+    description: "Nutrition & Food Security",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🎓 Educational Assistance",
+    description: "Scholarships & School Supplies",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🏫 School Outreach",
+    description: "Rural School Programs",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🆘 Relief Operations",
+    description: "Disaster Response & Emergency Aid",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🏠 Housing Assistance",
+    description: "Shelter & Construction Materials",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🏥 Medical Mission",
+    description: "Healthcare & Medical Services",
+    image: "",
+    projects: [],
+  },
+  {
+    title: "🌍 International Outreach",
+    description: "Global Community Support",
+    image: "",
+    projects: [],
   },
 ];
 
@@ -63,6 +163,9 @@ const GallerySection: React.FC = () => {
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState<number>(0);
 
   const galleryData = fallbackGallery;
+  const filteredGallery = selectedCategory
+    ? galleryData.filter((item) => item.category.includes(selectedCategory))
+    : galleryData;
 
   const openModal = (index: number) => {
     setModalIndex(index);
@@ -73,92 +176,21 @@ const GallerySection: React.FC = () => {
 
   const prevImage = () => {
     if (modalIndex === null) return;
-    const total = galleryData[modalIndex].images.length;
+    const total = filteredGallery[modalIndex].images.length;
     setCurrentPreviewIndex((prev) => (prev - 1 + total) % total);
   };
 
   const nextImage = () => {
     if (modalIndex === null) return;
-    const total = galleryData[modalIndex].images.length;
+    const total = filteredGallery[modalIndex].images.length;
     setCurrentPreviewIndex((prev) => (prev + 1) % total);
   };
 
-  const categoriesData: CategoryItem[] = [
-    {
-      title: "🚻 Infrastructure",
-      description: "Comfort Room Donations & Facilities",
-      image: "/gallery/comfort-room.jpg",
-      projects: ["Comfort Room Donation to La Castellana I District Office"],
-    },
-    {
-      title: "📚 Education",
-      description: "VALUES & Educational Programs",
-      image: "/gallery/values.jpg",
-      projects: [
-        "VALUES - Values Advocacy and Literacy Upliftment",
-        "Educational Assistance",
-        "Back-to-School Program",
-      ],
-    },
-    {
-      title: "🍽️ Feeding Program",
-      description: "Nutrition & Food Security",
-      image: "/gallery/feeding.jpg",
-      projects: ["Community Feeding Programs", "Outreach Feeding for Evacuees"],
-    },
-    {
-      title: "🎓 Educational Assistance",
-      description: "Scholarships & School Supplies",
-      image: "/gallery/education.jpg",
-      projects: [
-        "105 Loboc Children Educational Assistance",
-        "School Supplies Distribution",
-      ],
-    },
-    {
-      title: "🏫 School Outreach",
-      description: "Rural School Programs",
-      image: "/gallery/outreach.jpg",
-      projects: [
-        "Tipolo Cabandungga Elem. School",
-        "Odiong Elem. School",
-        "Talaptap Elem. School",
-      ],
-    },
-    {
-      title: "🆘 Relief Operations",
-      description: "Disaster Response & Emergency Aid",
-      image: "/gallery/relief.jpg",
-      projects: ["Mt. Kanla‑on Eruption Relief", "Typhoon Odette Response"],
-    },
-    {
-      title: "🏠 Housing Assistance",
-      description: "Shelter & Construction Materials",
-      image: "/gallery/housing.jpg",
-      projects: [
-        "Housing Materials for 80 Families",
-        "Post‑Disaster Reconstruction",
-      ],
-    },
-    {
-      title: "🏥 Medical Mission",
-      description: "Healthcare & Medical Services",
-      image: "/gallery/medical.jpg",
-      projects: ["Community Health Programs", "Medical Outreach"],
-    },
-    {
-      title: "🌍 International Outreach",
-      description: "Global Community Support",
-      image: "/gallery/international.jpg",
-      projects: ["Parish Community Support in Africa"],
-    },
-  ];
-
   return (
     <Shell>
-      <section className="relative py-16 bg-gray-50 mt-20  bg-gradient-to-b from-orange-100 via-orange-50 to-white ">
+      <section className="relative py-16 bg-gradient-to-b from-orange-100 via-orange-50 to-white overflow-hidden mt-20">
         <svg
-          className="absolute bottom-0 left-0 w-full h-90 text-orange-200 rotate-180 pointer-events-none"
+          className="absolute left-0 w-full h-90 text-orange-200 pointer-events-none -mt-20"
           viewBox="0 0 1440 120"
           preserveAspectRatio="none"
         >
@@ -168,8 +200,20 @@ const GallerySection: React.FC = () => {
           />
         </svg>
 
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-12">
+        <svg
+          className="absolute -bottom-20 -right-20 w-96 h-96 text-[#1c5091]/20 blur-2xl pointer-events-none"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill="currentColor"
+            d="M46.2,-62.7C59,-52.4,67,-37.4,73.3,-21.3C79.5,-5.3,84,11.8,78.4,27.2C72.9,42.6,57.2,56.3,40.2,61.4C23.3,66.5,5.1,63, -12.4,67.2C-29.9,71.3,-47,82.9,-59.6,78.1C-72.2,73.3,-80.3,52.1,-81.3,32.4C-82.2,12.8,-76, -5.3,-71.6,-24.1C-67.2,-43,-64.7,-62.5,-53.4,-73.1C-42,-83.7,-21,-85.4,-3,-81.2C15,-77,29.9,-66.9,46.2,-62.7Z"
+            transform="translate(100 100)"
+          />
+        </svg>
+
+        <div className="relative container mx-auto px-4">
+          <div className="text-center space-y-4 mb-8">
             <h2 className="text-2xl font-semibold text-[#1c5091]">
               UPLIFT Categories
             </h2>
@@ -178,85 +222,57 @@ const GallerySection: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-10">
+          <div className="block sm:hidden mb-6">
+            <select
+              value={selectedCategory ?? ""}
+              onChange={(e) => setSelectedCategory(e.target.value || null)}
+              className="w-full p-2 border border-gray-300 text-black rounded-md shadow-sm text-sm"
+            >
+              <option value="">🌟 All Programs</option>
+              {categoriesData.map((cat) => (
+                <option key={cat.title} value={cat.title}>
+                  {cat.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Desktop: category buttons */}
+          <div className="hidden sm:grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-10">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`p-4 rounded-lg border-2 transition-all text-center ${
+              className={`p-1 rounded-md border text-sm font-medium transition text-left whitespace-nowrap text-black ${
                 selectedCategory === null
                   ? "border-orange-500 bg-orange-50 text-orange-700"
                   : "border-gray-200 hover:border-orange-300 bg-white"
               }`}
             >
-              <div className="text-2xl mb-2">🌟</div>
-              <div className="text-sm font-medium">All Programs</div>
+              🌟 All Programs
             </button>
             {categoriesData.map((cat) => (
               <button
                 key={cat.title}
                 onClick={() => setSelectedCategory(cat.title)}
-                className={`p-4 rounded-lg border-2 transition-all text-center ${
+                className={`p-1 rounded-md border text-sm font-medium transition text-left whitespace-nowrap text-black ${
                   selectedCategory === cat.title
                     ? "border-orange-500 bg-orange-50 text-orange-700"
                     : "border-gray-200 hover:border-orange-300 bg-white"
                 }`}
               >
-                <div className="text-2xl mb-2">{cat.title.split(" ")[0]}</div>
-                <div className="text-sm font-medium">
-                  {cat.title.substring(2)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {cat.projects.length} projects
-                </div>
+                {cat.title}
               </button>
             ))}
           </div>
 
-          {selectedCategory && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-orange-50 to-blue-50 rounded-xl p-6 mb-10"
-            >
-              {(() => {
-                const cat = categoriesData.find(
-                  (c) => c.title === selectedCategory
-                );
-                if (!cat) return null;
-                return (
-                  <div>
-                    <h3 className="text-xl font-semibold text-[#1c5091] mb-2">
-                      {cat.title}
-                    </h3>
-                    <p className="text-gray-700 mb-4">{cat.description}</p>
-                    <h4 className="font-medium text-gray-800 mb-1">
-                      Programs in this category:
-                    </h4>
-                    <ul className="grid md:grid-cols-2 gap-2">
-                      {cat.projects.map((p) => (
-                        <li
-                          key={p}
-                          className="flex items-center text-sm text-gray-600"
-                        >
-                          <span className="w-2 h-2 bg-orange-400 rounded-full mr-2" />
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })()}
-            </motion.div>
-          )}
-
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryData.map((item, index) => (
+            {filteredGallery.map((item, index) => (
               <div
                 key={item.title}
                 onClick={() => openModal(index)}
                 className="relative group cursor-pointer border rounded-xl overflow-hidden shadow hover:shadow-lg transition bg-white"
               >
                 <Image
-                  src={item.cover || "/placeholder.svg"}
+                  src={item.cover}
                   alt={item.title}
                   width={600}
                   height={400}
@@ -277,7 +293,6 @@ const GallerySection: React.FC = () => {
             ))}
           </div>
 
-          {/* Modal */}
           <AnimatePresence>
             {modalIndex !== null && (
               <motion.div
@@ -298,7 +313,9 @@ const GallerySection: React.FC = () => {
                     <div className="relative w-full h-[400px]">
                       <Image
                         src={
-                          galleryData[modalIndex].images[currentPreviewIndex]
+                          filteredGallery[modalIndex].images[
+                            currentPreviewIndex
+                          ]
                         }
                         alt={`Preview ${currentPreviewIndex + 1}`}
                         layout="fill"
@@ -320,7 +337,7 @@ const GallerySection: React.FC = () => {
                     </div>
 
                     <div className="flex overflow-x-auto gap-2 pt-2">
-                      {galleryData[modalIndex].images.map((img, idx) => (
+                      {filteredGallery[modalIndex].images.map((img, idx) => (
                         <button
                           key={img}
                           onClick={() => setCurrentPreviewIndex(idx)}
