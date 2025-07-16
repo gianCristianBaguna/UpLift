@@ -210,7 +210,7 @@ const GallerySection: React.FC = () => {
         <div className="relative container mx-auto px-4">
           <div className="text-center space-y-4 mb-8">
             <h2 className="text-2xl font-semibold text-[#1c5091]">
-              UPLIFT Categories
+              UPLIFT GALLERY
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Explore our diverse range of community programs and initiatives.
@@ -224,7 +224,7 @@ const GallerySection: React.FC = () => {
               onChange={(e) => setSelectedCategory(e.target.value || null)}
               className="w-full p-3 border border-[#f8b500] bg-white text-black rounded-lg shadow focus:ring-2 focus:ring-[#f8b500] text-base"
             >
-              <option value="">🌟 All Programs</option>
+              <option value=""> All Programs</option>
               {categoriesData.map((cat) => (
                 <option key={cat.title} value={cat.title}>
                   {cat.title}
@@ -243,7 +243,7 @@ const GallerySection: React.FC = () => {
                   : "border-gray-200 bg-white hover:border-[#f8b500] hover:bg-[#f8b500]/5 text-gray-700"
               }`}
             >
-              🌟 All Programs
+              All Programs
             </button>
             {categoriesData.map((cat) => (
               <button

@@ -23,23 +23,6 @@ function getNextIndex(current: number, exclude: number[]) {
 }
 
 export default function GallerySection() {
-  const [mobileIndex, setMobileIndex] = useState(0);
-  const [mobileFlipping, setMobileFlipping] = useState(false);
-  const mobileHoverRef = useRef(false);
-
-  useEffect(() => {
-    const mobileInterval = setInterval(() => {
-      if (mobileHoverRef.current) return;
-      setMobileFlipping(true);
-      setTimeout(() => {
-        setMobileIndex((prev) => getNextIndex(prev, []));
-        setMobileFlipping(false);
-      }, 600);
-    }, 9000);
-
-    return () => clearInterval(mobileInterval);
-  }, []);
-
   return (
     <section className="bg-white py-16 px-4 overflow-visible">
       <div className="max-w-7xl mx-auto text-center">
@@ -50,39 +33,13 @@ export default function GallerySection() {
 
         {/* 📱 Mobile: One card */}
         <div className="md:hidden mb-8">
-          <div
-            onMouseEnter={() => (mobileHoverRef.current = true)}
-            onMouseLeave={() => (mobileHoverRef.current = false)}
-            className="relative h-64 w-full group [perspective:1000px] overflow-visible"
-          >
-            <div
-              className={`relative h-full w-full transition-transform duration-[1200ms] rounded-xl shadow-2xl ${
-                mobileFlipping ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
-              } border-4 border-[#1c5091] overflow-visible`}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <div
-                className="absolute inset-0 rounded-xl bg-white overflow-visible"
-                style={{ backfaceVisibility: "hidden" }}
-              >
-                <Image
-                  fill
-                  src={galleryImages[mobileIndex]}
-                  alt="Mobile Gallery"
-                  className="object-cover rounded-xl"
-                />
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
-                  <span className="text-white font-semibold">Featured Image</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GalleryCardMobile />
         </div>
 
-        {/* 🖥️ Desktop: Independent rotating cards */}
+        {/* 🖥️ Desktop: Independent rotating cards with alternating borders */}
         <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
           {Array.from({ length: 6 }).map((_, i) => (
-            <GalleryCard key={i} excludeIndices={[]} />
+            <GalleryCard key={i} index={i} excludeIndices={[]} />
           ))}
         </div>
 
@@ -98,26 +55,125 @@ export default function GallerySection() {
   );
 }
 
-/* 💠 Subcomponent: Each card is fully self-contained */
-function GalleryCard({ excludeIndices = [] }: { excludeIndices?: number[] }) {
-  const [index, setIndex] = useState(() =>
+/* 💻 Desktop: Independent infinite flipping with alternating borders */
+function GalleryCard({
+  excludeIndices = [],
+  index,
+}: {
+  excludeIndices?: number[];
+  index: number;
+}) {
+  const [frontIndex, setFrontIndex] = useState(() =>
     Math.floor(Math.random() * galleryImages.length)
   );
-  const [flipping, setFlipping] = useState(false);
+  const [backIndex, setBackIndex] = useState(() =>
+    getNextIndex(frontIndex, excludeIndices)
+  );
+  const [flipped, setFlipped] = useState(false);
+
+  const borderColor = index % 2 === 0 ? "border-[#1c5091]" : "border-orange-400";
+
+  useEffect(() => {
+    const startDelay = Math.random() * 3000 + 1000;
+    let flipInterval: NodeJS.Timeout;
+
+    const startFlipping = () => {
+      flipInterval = setInterval(() => {
+        setFlipped((prev) => !prev);
+        setTimeout(() => {
+          if (flipped) {
+            setBackIndex((prev) => getNextIndex(prev, excludeIndices));
+          } else {
+            setFrontIndex((prev) => getNextIndex(prev, excludeIndices));
+          }
+        }, 600);
+      }, 8000);
+    };
+
+    const delayTimeout = setTimeout(startFlipping, startDelay);
+
+    return () => {
+      clearTimeout(delayTimeout);
+      clearInterval(flipInterval);
+    };
+  }, [flipped, excludeIndices]);
+
+  return (
+    <div className="relative h-64 w-full group [perspective:1000px] overflow-visible">
+      <div
+        className={`relative h-full w-full transition-transform duration-[1200ms] rounded-xl shadow-2xl ${
+          flipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
+        } ${borderColor} overflow-visible`}
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        {/* Front Side */}
+        <div
+          className="absolute inset-0 rounded-xl bg-white overflow-hidden"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          <Image
+            fill
+            src={galleryImages[frontIndex]}
+            alt="Gallery Front"
+            className="object-cover rounded-xl"
+          />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+            <span className="text-white font-semibold">Featured Image</span>
+          </div>
+        </div>
+
+        {/* Back Side */}
+        <div
+          className="absolute inset-0 rounded-xl bg-white overflow-hidden [transform:rotateY(180deg)]"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          <Image
+            fill
+            src={galleryImages[backIndex]}
+            alt="Gallery Back"
+            className="object-cover rounded-xl"
+          />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+            <span className="text-white font-semibold">More from the Gallery</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* 📱 Mobile: Independent flip with alternating images */
+function GalleryCardMobile() {
+  const [frontIndex, setFrontIndex] = useState(0);
+  const [backIndex, setBackIndex] = useState(1);
+  const [flipped, setFlipped] = useState(false);
   const hoverRef = useRef(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (hoverRef.current) return;
-      setFlipping(true);
-      setTimeout(() => {
-        setIndex((prev) => getNextIndex(prev, excludeIndices));
-        setFlipping(false);
-      }, 600);
-    }, Math.random() * 4000 + 9000);
+    const startDelay = Math.random() * 2000 + 1000;
+    let flipInterval: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
-  }, []);
+    const startFlipping = () => {
+      flipInterval = setInterval(() => {
+        if (hoverRef.current) return;
+        setFlipped((prev) => !prev);
+        setTimeout(() => {
+          if (flipped) {
+            setBackIndex((prev) => getNextIndex(prev, []));
+          } else {
+            setFrontIndex((prev) => getNextIndex(prev, []));
+          }
+        }, 600);
+      }, 8000);
+    };
+
+    const delayTimeout = setTimeout(startFlipping, startDelay);
+
+    return () => {
+      clearTimeout(delayTimeout);
+      clearInterval(flipInterval);
+    };
+  }, [flipped]);
 
   return (
     <div
@@ -127,22 +183,39 @@ function GalleryCard({ excludeIndices = [] }: { excludeIndices?: number[] }) {
     >
       <div
         className={`relative h-full w-full transition-transform duration-[1200ms] rounded-xl shadow-2xl ${
-          flipping ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
-        } border-4 border-[#1c5091] overflow-visible`}
+          flipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
+        } border-[#1c5091] overflow-visible`}
         style={{ transformStyle: "preserve-3d" }}
       >
+        {/* Front Side */}
         <div
-          className="absolute inset-0 rounded-xl bg-white overflow-visible"
+          className="absolute inset-0 rounded-xl bg-white overflow-hidden"
           style={{ backfaceVisibility: "hidden" }}
         >
           <Image
             fill
-            src={galleryImages[index]}
-            alt={`Gallery Image`}
+            src={galleryImages[frontIndex]}
+            alt="Mobile Gallery Front"
             className="object-cover rounded-xl"
           />
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
             <span className="text-white font-semibold">Featured Image</span>
+          </div>
+        </div>
+
+        {/* Back Side */}
+        <div
+          className="absolute inset-0 rounded-xl bg-white overflow-hidden [transform:rotateY(180deg)]"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          <Image
+            fill
+            src={galleryImages[backIndex]}
+            alt="Mobile Gallery Back"
+            className="object-cover rounded-xl"
+          />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+            <span className="text-white font-semibold">More from the Gallery</span>
           </div>
         </div>
       </div>
