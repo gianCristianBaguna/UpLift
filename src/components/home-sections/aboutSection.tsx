@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 
-// Data
 const mockAboutData = [
   {
     title: "CHILDREN AND YOUTH",
@@ -77,9 +76,9 @@ export default function AboutSection() {
       initial={{ opacity: 0, y: 50 }}
       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="relative min-h-screen flex flex-col justify-center items-center px-6 text-white py-16 overflow-hidden bg-gradient-to-b from-[#2A61AC] to-gray-50 rounded-2xl "
+      className="relative flex flex-col justify-center items-center px-6 text-white py-16 overflow-hidden bg-gradient-to-b from-[#2A61AC] to-gray-50 rounded-2xl overflow-x-hidden"
     >
-
+      {/* ⬅ Prev Button */}
       <button
         onClick={() => paginate(-1)}
         className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:scale-110 transition-transform z-20"
@@ -93,14 +92,11 @@ export default function AboutSection() {
           strokeWidth="2"
           className="w-6 h-6"
         >
-          <path
-            d="M10 4L6 8L10 12"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d="M10 4L6 8L10 12" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
+      {/* ➡ Next Button */}
       <button
         onClick={() => paginate(1)}
         className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:scale-110 transition-transform z-20"
@@ -114,16 +110,12 @@ export default function AboutSection() {
           strokeWidth="2"
           className="w-6 h-6"
         >
-          <path
-            d="M6 4L10 8L6 12"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d="M6 4L10 8L6 12" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
-   
-      <div className="relative w-full max-w-6xl z-10">
+      {/* Content Wrapper */}
+      <div className="relative w-full container mx-auto z-10 px-4">
         <AnimatePresence custom={direction} mode="wait">
           <motion.div
             key={index}
@@ -133,10 +125,10 @@ export default function AboutSection() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="grid grid-cols-1 md:grid-cols-2 items-center bg-[#1c5091]/90 rounded-2xl p-6 md:p-12 shadow-2xl"
+            className="grid grid-cols-1 md:grid-cols-2 items-center bg-[#1c5091]/90 rounded-2xl p-6 md:p-10 shadow-2xl gap-6"
           >
-
-            <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
+            {/* Image */}
+            <div className="relative h-48 sm:h-64 md:h-80 w-full overflow-hidden rounded-xl">
               <Image
                 src={current.image}
                 alt={current.title}
@@ -146,7 +138,8 @@ export default function AboutSection() {
               />
             </div>
 
-            <div className="mt-8 md:mt-0 md:pl-10">
+            {/* Text */}
+            <div className="mt-6 md:mt-0 md:pl-10">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">
                 {current.title}
               </h2>
@@ -168,16 +161,16 @@ export default function AboutSection() {
         </AnimatePresence>
       </div>
 
-
+      {/* Pagination Dots */}
       <div className="mt-6 flex items-center justify-center space-x-2 z-10">
         {mockAboutData.map((_, i) => (
           <button
             key={i}
             onClick={() => paginate(i - index)}
-            className={`w-8 h-1 rounded-full transition-opacity duration-300 ${
-              i === index ? "bg-white opacity-70" : "bg-white opacity-30"
+            className={`w-6 h-1 rounded-full transition-opacity duration-300 ${
+              i === index ? "bg-white opacity-80" : "bg-white opacity-30"
             }`}
-          ></button>
+          />
         ))}
       </div>
     </motion.section>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,112 +16,73 @@ const galleryImages = [
   "/gallery/gallery9.png",
 ];
 
-// Utility to get the next unique image index
-const getNextImageIndex = (current: number, used: number[]) => {
+function getNextIndex(current: number, exclude: number[]) {
   let next = (current + 1) % galleryImages.length;
-  while (used.includes(next)) next = (next + 1) % galleryImages.length;
+  while (exclude.includes(next)) next = (next + 1) % galleryImages.length;
   return next;
-};
+}
 
 export default function GallerySection() {
-  /* ─────────── DESKTOP state (6 cards) ─────────── */
-  const [indexes, setIndexes] = useState([0, 1, 2, 3, 4, 5]);
-  const [fading, setFading] = useState(Array(6).fill(false));
-  const hoverRef = useRef(Array(6).fill(false));
-
-  /* ─────────── MOBILE state (1 card) ─────────── */
   const [mobileIndex, setMobileIndex] = useState(0);
-  const [mobileFading, setMobileFading] = useState(false);
+  const [mobileFlipping, setMobileFlipping] = useState(false);
   const mobileHoverRef = useRef(false);
 
-  /* ─────────── INTERVAL EFFECTS ─────────── */
   useEffect(() => {
-    // desktop auto‑rotate
-    const desktopIntervals = indexes.map((_, box) =>
-      setInterval(() => {
-        if (hoverRef.current[box]) return;
-        setFading((p) => p.map((v, i) => (i === box ? true : v)));
-
-        setTimeout(() => {
-          setIndexes((prev) => {
-            const used = prev.filter((_, i) => i !== box);
-            const next = getNextImageIndex(prev[box], used);
-            const clone = [...prev];
-            clone[box] = next;
-            return clone;
-          });
-          setFading((p) => p.map((v, i) => (i === box ? false : v)));
-        }, 500);
-      }, 5000)
-    );
-
-    // mobile auto‑rotate
     const mobileInterval = setInterval(() => {
       if (mobileHoverRef.current) return;
-      setMobileFading(true);
+      setMobileFlipping(true);
       setTimeout(() => {
-        setMobileIndex((prev) => getNextImageIndex(prev, []));
-        setMobileFading(false);
-      }, 500);
-    }, 5000);
+        setMobileIndex((prev) => getNextIndex(prev, []));
+        setMobileFlipping(false);
+      }, 600);
+    }, 9000);
 
-    return () => {
-      desktopIntervals.forEach(clearInterval);
-      clearInterval(mobileInterval);
-    };
+    return () => clearInterval(mobileInterval);
   }, []);
 
-  /* ─────────── RENDER ─────────── */
   return (
-    <section className="bg-white py-16 px-4">
+    <section className="bg-white py-16 px-4 overflow-visible">
       <div className="max-w-7xl mx-auto text-center">
         <h2 className="text-3xl font-bold text-[#1c5091] mb-2">GALLERY</h2>
         <p className="text-orange-400 mb-8">
           Empowering Futures Through Education and Care
         </p>
 
-        {/* MOBILE (one card) */}
+        {/* 📱 Mobile: One card */}
         <div className="md:hidden mb-8">
           <div
             onMouseEnter={() => (mobileHoverRef.current = true)}
             onMouseLeave={() => (mobileHoverRef.current = false)}
-            className={`relative h-64 w-full rounded-xl overflow-hidden group shadow-lg transition-opacity duration-500 ${
-              mobileFading ? "opacity-0" : "opacity-100"
-            }`}
+            className="relative h-64 w-full group [perspective:1000px] overflow-visible"
           >
-            <Image
-              fill
-              src={galleryImages[mobileIndex]}
-              alt="Mobile Gallery"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="text-white font-semibold">Featured Image</span>
+            <div
+              className={`relative h-full w-full transition-transform duration-[1200ms] rounded-xl shadow-2xl ${
+                mobileFlipping ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
+              } border-4 border-[#1c5091] overflow-visible`}
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              <div
+                className="absolute inset-0 rounded-xl bg-white overflow-visible"
+                style={{ backfaceVisibility: "hidden" }}
+              >
+                <Image
+                  fill
+                  src={galleryImages[mobileIndex]}
+                  alt="Mobile Gallery"
+                  className="object-cover rounded-xl"
+                />
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                  <span className="text-white font-semibold">Featured Image</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* DESKTOP (six‑card grid) */}
+        {/* 🖥️ Desktop: Independent rotating cards */}
         <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-          {indexes.map((imgIdx, i) => (
-            <div
-              key={i}
-              onMouseEnter={() => (hoverRef.current[i] = true)}
-              onMouseLeave={() => (hoverRef.current[i] = false)}
-              className={`relative h-64 w-full rounded-xl overflow-hidden group shadow-lg transition-opacity duration-500 ${
-                fading[i] ? "opacity-0" : "opacity-100"
-              }`}
-            >
-              <Image
-                fill
-                src={galleryImages[imgIdx]}
-                alt={`Gallery ${i + 1}`}
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white font-semibold">Featured Image</span>
-              </div>
-            </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <GalleryCard key={i} excludeIndices={[]} />
           ))}
         </div>
 
@@ -134,5 +95,57 @@ export default function GallerySection() {
         </Link>
       </div>
     </section>
+  );
+}
+
+/* 💠 Subcomponent: Each card is fully self-contained */
+function GalleryCard({ excludeIndices = [] }: { excludeIndices?: number[] }) {
+  const [index, setIndex] = useState(() =>
+    Math.floor(Math.random() * galleryImages.length)
+  );
+  const [flipping, setFlipping] = useState(false);
+  const hoverRef = useRef(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (hoverRef.current) return;
+      setFlipping(true);
+      setTimeout(() => {
+        setIndex((prev) => getNextIndex(prev, excludeIndices));
+        setFlipping(false);
+      }, 600);
+    }, Math.random() * 4000 + 9000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      onMouseEnter={() => (hoverRef.current = true)}
+      onMouseLeave={() => (hoverRef.current = false)}
+      className="relative h-64 w-full group [perspective:1000px] overflow-visible"
+    >
+      <div
+        className={`relative h-full w-full transition-transform duration-[1200ms] rounded-xl shadow-2xl ${
+          flipping ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
+        } border-4 border-[#1c5091] overflow-visible`}
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        <div
+          className="absolute inset-0 rounded-xl bg-white overflow-visible"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          <Image
+            fill
+            src={galleryImages[index]}
+            alt={`Gallery Image`}
+            className="object-cover rounded-xl"
+          />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+            <span className="text-white font-semibold">Featured Image</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

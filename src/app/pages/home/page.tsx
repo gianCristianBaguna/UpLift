@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 export default function HomePage() {
   return (
     <Shell>
-      <main className="pt-10 font-poppins bg-gray-50 min-h-screen space-y-20">
+      <main className="pt-10 font-poppins bg-gray-50 min-h-screen w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -28,6 +28,7 @@ export default function HomePage() {
         >
           <FocusSection />
         </motion.div>
+
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}

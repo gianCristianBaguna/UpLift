@@ -97,12 +97,12 @@ export default function ServicesSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 -mt-2 bg-gray-50 overflow-hidden bg-gradient-to-b from-orange-50 to-gray-50 rounded-2xl shadow-lg"
+      className="relative py-20 px-4 mt-20 bg-gray-50 overflow-hidden bg-gradient-to-b from-orange-50 to-gray-50 rounded-2xl shadow-lg"
     >
-      <div className="absolute top-12 left-0 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#F3954A] opacity-80"></div>
-      <div className="absolute top-10 left-10 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#2A61AC] opacity-80"></div>
-      <div className="absolute bottom-10 right-0 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#F3954A] opacity-80"></div>
-      <div className="absolute bottom-12 right-10 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#2A61AC] opacity-80"></div>
+      <div className="absolute top-12 left-0 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#F3954A] opacity-80 z-[1]"></div>
+      <div className="absolute top-10 left-10 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#2A61AC] opacity-80 z-[1]"></div>
+      <div className="absolute bottom-10 right-0 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#F3954A] opacity-80 z-[1]"></div>
+      <div className="absolute bottom-12 right-10 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#2A61AC] opacity-80 z-[1]"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -136,8 +136,8 @@ export default function ServicesSection() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="lg:hidden text-center mb-8">
-              <h2 className="text-4xl font-bold leading-tight">
+            <div className="relative z-10 lg:hidden text-center -mt-35 mb-12">
+              <h2 className="text-6xl font-bold leading-tight">
                 <span className="text-[#2A61AC] block">LEARN MORE</span>
                 <span className="text-[#2A61AC] block">ABOUT OUR</span>
                 <span className="text-[#F3954A] block drop-shadow-[2px_4px_0_#2A61AC]">
