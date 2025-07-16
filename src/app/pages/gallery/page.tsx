@@ -24,7 +24,7 @@ interface CategoryItem {
 
 const fallbackGallery: GalleryItem[] = [
   {
-    title: "🚻 CR Donation - District Office",
+    title: " CR Donation - District Office",
     cover: "/gallery/gallery1.png",
     description: "New comfort room donated to La Castellana I District Office.",
     images: [
@@ -32,10 +32,10 @@ const fallbackGallery: GalleryItem[] = [
       "/gallery/gallery2.png",
       "/gallery/gallery3.png",
     ],
-    category: ["🚻 Infrastructure", "🏠 Housing Assistance"],
+    category: [" Infrastructure", "Housing Assistance"],
   },
   {
-    title: "📚 VALUES Literacy Drive",
+    title: " VALUES Literacy Drive",
     cover: "/gallery/gallery4.png",
     description: "Books and storytelling activities in rural schools.",
     images: [
@@ -43,10 +43,10 @@ const fallbackGallery: GalleryItem[] = [
       "/gallery/gallery5.png",
       "/gallery/gallery6.png",
     ],
-    category: ["📚 Education"],
+    category: [" Education"],
   },
   {
-    title: "🎒 Back-to-School Kits",
+    title: " Back-to-School Kits",
     cover: "/gallery/gallery7.png",
     description: "Distribution of 100+ school supply kits.",
     images: [
@@ -54,103 +54,103 @@ const fallbackGallery: GalleryItem[] = [
       "/gallery/gallery8.png",
       "/gallery/gallery9.png",
     ],
-    category: ["🎓 Educational Assistance", "🏫 School Outreach"],
+    category: [" Educational Assistance", " School Outreach"],
   },
   {
-    title: "🍽️ Feeding for Evacuees",
+    title: " Feeding for Evacuees",
     cover: "/gallery/feeding.jpg",
     description: "Nutritional meals served to disaster-affected families.",
     images: ["/gallery/feeding.jpg", "/gallery/gallery2.png"],
-    category: ["🍽️ Feeding Program"],
+    category: [" Feeding Program"],
   },
   {
-    title: "🏥 Medical Outreach",
+    title: " Medical Outreach",
     cover: "/gallery/medical.jpg",
     description: "Free health consultations in underserved areas.",
     images: ["/gallery/medical.jpg"],
-    category: ["🏥 Medical Mission"],
+    category: [" Medical Mission"],
   },
   {
-    title: "🆘 Typhoon Relief Goods",
+    title: " Typhoon Relief Goods",
     cover: "/gallery/relief.jpg",
     description: "Emergency aid distributed to typhoon victims.",
     images: ["/gallery/gallery3.png"],
-    category: ["🆘 Relief Operations", "🍽️ Feeding Program"],
+    category: [" Relief Operations", " Feeding Program"],
   },
   {
-    title: "🏠 Housing Support - 80 Families",
+    title: "Housing Support - 80 Families",
     cover: "/gallery/gallery6.png",
     description: "Post-disaster materials for family homes.",
     images: ["/gallery/housing.jpg"],
-    category: ["🏠 Housing Assistance", "🚻 Infrastructure"],
+    category: ["Housing Assistance", " Infrastructure"],
   },
   {
-    title: "🏫 Tipolo Elementary Outreach",
+    title: " Tipolo Elementary Outreach",
     cover: "/gallery/gallery2.png",
     description: "School supplies and support to rural schools.",
     images: ["/gallery/outreach.jpg"],
-    category: ["🏫 School Outreach"],
+    category: [" School Outreach"],
   },
   {
-    title: "🌍 African Parish Aid",
+    title: "African Parish Aid",
     cover: "/gallery/gallery3.png",
     description: "International donation support to Africa.",
     images: ["/gallery/international.jpg"],
-    category: ["🌍 International Outreach"],
+    category: ["International Outreach"],
   },
 ];
 
 const categoriesData: CategoryItem[] = [
   {
-    title: "🚻 Infrastructure",
+    title: " Infrastructure",
     description: "Comfort Room Donations & Facilities",
     image: "",
     projects: [],
   },
   {
-    title: "📚 Education",
+    title: " Education",
     description: "VALUES & Educational Programs",
     image: "",
     projects: [],
   },
   {
-    title: "🍽️ Feeding Program",
+    title: " Feeding Program",
     description: "Nutrition & Food Security",
     image: "",
     projects: [],
   },
   {
-    title: "🎓 Educational Assistance",
+    title: " Educational Assistance",
     description: "Scholarships & School Supplies",
     image: "",
     projects: [],
   },
   {
-    title: "🏫 School Outreach",
+    title: " School Outreach",
     description: "Rural School Programs",
     image: "",
     projects: [],
   },
   {
-    title: "🆘 Relief Operations",
+    title: " Relief Operations",
     description: "Disaster Response & Emergency Aid",
     image: "",
     projects: [],
   },
   {
-    title: "🏠 Housing Assistance",
+    title: "Housing Assistance",
     description: "Shelter & Construction Materials",
     image: "",
     projects: [],
   },
   {
-    title: "🏥 Medical Mission",
+    title: " Medical Mission",
     description: "Healthcare & Medical Services",
     image: "",
     projects: [],
   },
   {
-    title: "🌍 International Outreach",
+    title: "International Outreach",
     description: "Global Community Support",
     image: "",
     projects: [],
@@ -188,28 +188,23 @@ const GallerySection: React.FC = () => {
 
   return (
     <Shell>
-      <section className="relative py-16 bg-gradient-to-b from-orange-100 via-orange-50 to-white overflow-hidden mt-20">
+      <section className="relative min-h-screen w-full py-16 bg-gradient-to-br from-[#e0f7fa] via-[#fceabb] to-[#f8b500] overflow-hidden mt-20">
         <svg
-          className="absolute left-0 w-full h-90 text-orange-200 pointer-events-none -mt-20"
-          viewBox="0 0 1440 120"
+          className="absolute left-0 top-0 w-full h-80 text-[#f8b500]/20 pointer-events-none"
+          viewBox="0 0 1440 320"
           preserveAspectRatio="none"
         >
           <path
             fill="currentColor"
-            d="M0,64L60,58.7C120,53,240,43,360,58.7C480,75,600,117,720,117.3C840,117,960,75,1080,64C1200,53,1320,75,1380,85.3L1440,96V0H1380C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0H0Z"
+            d="M0,160L80,149.3C160,139,320,117,480,122.7C640,128,800,160,960,154.7C1120,149,1280,107,1360,85.3L1440,64V0H1360C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0H0Z"
           />
         </svg>
-
         <svg
-          className="absolute -bottom-20 -right-20 w-96 h-96 text-[#1c5091]/20 blur-2xl pointer-events-none"
+          className="absolute right-0 bottom-0 w-96 h-96 text-[#1c5091]/10 blur-2xl pointer-events-none"
           viewBox="0 0 200 200"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            fill="currentColor"
-            d="M46.2,-62.7C59,-52.4,67,-37.4,73.3,-21.3C79.5,-5.3,84,11.8,78.4,27.2C72.9,42.6,57.2,56.3,40.2,61.4C23.3,66.5,5.1,63, -12.4,67.2C-29.9,71.3,-47,82.9,-59.6,78.1C-72.2,73.3,-80.3,52.1,-81.3,32.4C-82.2,12.8,-76, -5.3,-71.6,-24.1C-67.2,-43,-64.7,-62.5,-53.4,-73.1C-42,-83.7,-21,-85.4,-3,-81.2C15,-77,29.9,-66.9,46.2,-62.7Z"
-            transform="translate(100 100)"
-          />
+          <circle cx="100" cy="100" r="80" fill="currentColor" />
         </svg>
 
         <div className="relative container mx-auto px-4">
@@ -222,11 +217,12 @@ const GallerySection: React.FC = () => {
             </p>
           </div>
 
+          {/* Mobile: modern select */}
           <div className="block sm:hidden mb-6">
             <select
               value={selectedCategory ?? ""}
               onChange={(e) => setSelectedCategory(e.target.value || null)}
-              className="w-full p-2 border border-gray-300 text-black rounded-md shadow-sm text-sm"
+              className="w-full p-3 border border-[#f8b500] bg-white text-black rounded-lg shadow focus:ring-2 focus:ring-[#f8b500] text-base"
             >
               <option value="">🌟 All Programs</option>
               {categoriesData.map((cat) => (
@@ -237,14 +233,14 @@ const GallerySection: React.FC = () => {
             </select>
           </div>
 
-          {/* Desktop: category buttons */}
-          <div className="hidden sm:grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-10">
+          {/* Desktop: modern category chips */}
+          <div className="hidden sm:flex flex-wrap gap-3 justify-center mb-10">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`p-1 rounded-md border text-sm font-medium transition text-left whitespace-nowrap text-black ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-medium transition whitespace-nowrap shadow-sm ${
                 selectedCategory === null
-                  ? "border-orange-500 bg-orange-50 text-orange-700"
-                  : "border-gray-200 hover:border-orange-300 bg-white"
+                  ? "border-[#f8b500] bg-[#f8b500]/10 text-[#f8b500] scale-105"
+                  : "border-gray-200 bg-white hover:border-[#f8b500] hover:bg-[#f8b500]/5 text-gray-700"
               }`}
             >
               🌟 All Programs
@@ -253,11 +249,12 @@ const GallerySection: React.FC = () => {
               <button
                 key={cat.title}
                 onClick={() => setSelectedCategory(cat.title)}
-                className={`p-1 rounded-md border text-sm font-medium transition text-left whitespace-nowrap text-black ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-medium transition whitespace-nowrap shadow-sm ${
                   selectedCategory === cat.title
-                    ? "border-orange-500 bg-orange-50 text-orange-700"
-                    : "border-gray-200 hover:border-orange-300 bg-white"
+                    ? "border-[#1c5091] bg-[#1c5091]/10 text-[#1c5091] scale-105"
+                    : "border-gray-200 bg-white hover:border-[#1c5091] hover:bg-[#1c5091]/5 text-gray-700"
                 }`}
+                title={cat.description}
               >
                 {cat.title}
               </button>
@@ -343,7 +340,7 @@ const GallerySection: React.FC = () => {
                           onClick={() => setCurrentPreviewIndex(idx)}
                           className={`w-20 h-16 border-2 rounded overflow-hidden transition-all ${
                             currentPreviewIndex === idx
-                              ? "border-orange-500"
+                              ? "border-[#f8b500]"
                               : "border-gray-300"
                           }`}
                         >

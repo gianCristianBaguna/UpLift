@@ -4,6 +4,7 @@ import { Sparkles, Users, Heart, GraduationCap, HelpingHand, ChevronLeft, Chevro
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
+import clsx from "clsx";
 
 export function AboutStory() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,22 +12,27 @@ export function AboutStory() {
   const cards = [
     {
       icon: <Sparkles className="w-6 h-6" />, title: "Rooted in Purpose", color: "orange-400", border: "orange-400", bg: "orange-300",
+      image: "/event1.png",
       text: "Welcome to Uplift Foundation International! We are driven by the passion to empower and uplift marginalized communities, inspired by personal journeys and commitment to service."
     },
     {
       icon: <Users className="w-6 h-6" />, title: "Inspired by Family", color: "blue-700", border: "blue-700", bg: "orange-300",
+      image: "/event1.png",
       text: "Founded by Alex and Vi-anne Calipusan, who hail from Loboc, Bohol and La Castellana, Negros Occidental, Philippines, our foundation is rooted in a legacy of generosity and compassion. Guided by her mother, Eva, and his grandmother, Sixta Calipusan, the couple was inspired to serve communities with love and integrity."
     },
     {
       icon: <GraduationCap className="w-6 h-6" />, title: "Founding Uplift", color: "orange-400", border: "orange-400", bg: "orange-300",
+      image: "/event1.png",
       text: "With encouragement from friends, Alex and Vi-anne founded Uplift Foundation International in November 2018 in Las Vegas, Nevada. It began with granting seniors their last wishes and expanded to closing educational gaps for children in the Philippines."
     },
     {
       icon: <HelpingHand className="w-6 h-6" />, title: "Expanding Reach", color: "blue-700", border: "blue-700", bg: "orange-300",
+      image: "/event1.png",
       text: "Our community projects are driven by volunteers and partners. With a focus on youth and elderly care, we inspire through programs like CarePro Quarterly to give back and build stronger communities."
     },
     {
       icon: <Heart className="w-6 h-6" />, title: "Join Our Journey", color: "orange-400", border: "orange-400", bg: "orange-300",
+      image: "/event1.png",
       text: "Be part of lasting change. Help us spark potential, uplift lives, and create meaningful pathways for everyone’s dreams."
     }
   ];
@@ -60,13 +66,29 @@ export function AboutStory() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.5 }}
-            className={`bg-white shadow-lg rounded-xl p-6 md:p-8 space-y-4 border-l-4 border-${cards[currentIndex].border}`}
+            className={clsx(
+              "bg-white shadow-lg rounded-xl p-6 md:p-8 space-y-4 border-l-4",
+              {
+                "border-orange-400": cards[currentIndex].border === "orange-400",
+                "border-blue-700": cards[currentIndex].border === "blue-700"
+              }
+            )}
           >
-            <div className={`flex items-center gap-3 text-${cards[currentIndex].color}`}>
+            <div className={clsx("flex items-center gap-3", {
+              "text-orange-400": cards[currentIndex].color === "orange-400",
+              "text-blue-700": cards[currentIndex].color === "blue-700"
+            })}>
               {cards[currentIndex].icon}
               <h3 className="text-xl font-bold">{cards[currentIndex].title}</h3>
             </div>
-            <div className={`rounded-lg w-full h-64 bg-${cards[currentIndex].bg}`}></div>
+            <div className="relative w-full h-64 rounded-lg overflow-hidden">
+              <Image
+                src={cards[currentIndex].image}
+                alt={cards[currentIndex].title}
+                fill
+                className="object-cover"
+              />
+            </div>
             <p className="text-gray-700">{cards[currentIndex].text}</p>
           </motion.div>
         </AnimatePresence>
