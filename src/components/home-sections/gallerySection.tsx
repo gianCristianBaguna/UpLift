@@ -182,7 +182,7 @@ function GalleryCardMobile() {
       className="relative h-64 w-full group [perspective:1000px] overflow-visible"
     >
       <div
-        className={`relative h-full w-full transition-transform duration-[1200ms] rounded-xl shadow-2xl ${
+        className={`relative h-full w-full transition-transform duration-[800ms] rounded-xl shadow-2xl ${
           flipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
         } border-[#1c5091] overflow-visible`}
         style={{ transformStyle: "preserve-3d" }}
