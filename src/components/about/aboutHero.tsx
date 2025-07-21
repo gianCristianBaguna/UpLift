@@ -26,7 +26,7 @@ export default function AboutHeroSection() {
   }, []);
 
   return (
-    <section className="relative h-[70vh] overflow-hidden bg-white shadow-md z-10">
+   <section className="relative h-[90vh] overflow-hidden bg-white shadow-md z-10 -mt-20">
       {galleryImages.map((img, index) => (
         <div
           key={index}
@@ -46,7 +46,7 @@ export default function AboutHeroSection() {
         </div>
       ))}
 
-      <div className="relative z-20 max-w-7xl mx-auto flex items-center justify-start h-full px-6 md:px-16">
+      <div className="relative z-20 max-w-7xl mx-auto flex items-center justify-start h-full px-6 md:px-16 mt-10">
         <div className="text-white space-y-4 max-w-2xl text-left">
           <h1 className="font-[Montserrat] text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-wider leading-tight">
             <div className="transform -rotate-2">ABOUT</div>

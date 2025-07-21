@@ -6,7 +6,16 @@ export default function GetInTouchSection() {
   return (
     <div className="bg-gray-100">
       {/* Main Get In Touch Section */}
-      <section className="bg-[#1c5091] text-white py-12 px-4 rounded-t-3xl">
+      <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white py-20 overflow-hidden px-4">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F3954A]/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#F3954A]/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#F3954A]/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(243,149,74,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(243,149,74,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+        </div>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold mb-6">Get In Touch</h2>
@@ -18,10 +27,8 @@ export default function GetInTouchSection() {
             </p>
           </div>
 
-
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 min-h-[500px]">
-
               <div className="bg-gradient-to-br from-orange-400 to-orange-500 p-8 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="w-24 h-24 bg-transparent bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -38,7 +45,6 @@ export default function GetInTouchSection() {
 
               <div className="p-8 bg-white">
                 <form className="space-y-6">
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-[#1c5091] font-medium text-sm">
@@ -61,7 +67,6 @@ export default function GetInTouchSection() {
                       />
                     </div>
                   </div>
-
 
                   <div className="space-y-2">
                     <label className="text-[#1c5091] font-medium text-sm">

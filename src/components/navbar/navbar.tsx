@@ -15,19 +15,15 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const pathname = usePathname();          // e.g. "/pages/events"
+  const pathname = usePathname(); // e.g. "/pages/events"
   const [isOpen, setIsOpen] = useState(false);
 
-
   const isActive = (href: string) =>
-    href === "/"
-      ? pathname === "/"
-      : pathname.startsWith(href);
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white text-black shadow-sm">
-
-      <div className="max-w-7xl mx-auto flex justify-between items-center h-24 px-6">
+    <header className="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur text-black shadow-sm">
+      <div className="max-w-7xl mx-auto flex justify-between items-center h-30 px-6">
         {/* logo */}
         <Link href="/" className=" hidden md:flex items-center ml-30">
           <Image
@@ -59,7 +55,7 @@ export default function Navbar() {
                   className={`font-[Montserrat] text-lg px-3 py-2 transition-colors
                     ${
                       isActive(link.href)
-                        ? "text-[#1f4b85] border-b-2 border-[#1f4b85]"
+                        ? "text-[#F3954A] border-b-2 border-[#F3954A]"
                         : "text-[#2A61AC] hover:text-[#1f4b85]"
                     }`}
                 >

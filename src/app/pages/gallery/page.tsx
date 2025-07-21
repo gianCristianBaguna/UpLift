@@ -6,6 +6,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Shell from "@/components/navbar/shell";
+import { easeOut } from "framer-motion";
+
 
 interface GalleryItem {
   cover: string;
@@ -27,33 +29,21 @@ const fallbackGallery: GalleryItem[] = [
     title: " CR Donation - District Office",
     cover: "/gallery/gallery1.png",
     description: "New comfort room donated to La Castellana I District Office.",
-    images: [
-      "/gallery/gallery1.png",
-      "/gallery/gallery2.png",
-      "/gallery/gallery3.png",
-    ],
+    images: ["/gallery/gallery1.png", "/gallery/gallery2.png", "/gallery/gallery3.png"],
     category: [" Infrastructure", "Housing Assistance"],
   },
   {
     title: " VALUES Literacy Drive",
     cover: "/gallery/gallery4.png",
     description: "Books and storytelling activities in rural schools.",
-    images: [
-      "/gallery/gallery4.png",
-      "/gallery/gallery5.png",
-      "/gallery/gallery6.png",
-    ],
+    images: ["/gallery/gallery4.png", "/gallery/gallery5.png", "/gallery/gallery6.png"],
     category: [" Education"],
   },
   {
     title: " Back-to-School Kits",
     cover: "/gallery/gallery7.png",
     description: "Distribution of 100+ school supply kits.",
-    images: [
-      "/gallery/gallery7.png",
-      "/gallery/gallery8.png",
-      "/gallery/gallery9.png",
-    ],
+    images: ["/gallery/gallery7.png", "/gallery/gallery8.png", "/gallery/gallery9.png"],
     category: [" Educational Assistance", " School Outreach"],
   },
   {
@@ -101,61 +91,30 @@ const fallbackGallery: GalleryItem[] = [
 ];
 
 const categoriesData: CategoryItem[] = [
-  {
-    title: " Infrastructure",
-    description: "Comfort Room Donations & Facilities",
-    image: "",
-    projects: [],
-  },
-  {
-    title: " Education",
-    description: "VALUES & Educational Programs",
-    image: "",
-    projects: [],
-  },
-  {
-    title: " Feeding Program",
-    description: "Nutrition & Food Security",
-    image: "",
-    projects: [],
-  },
-  {
-    title: " Educational Assistance",
-    description: "Scholarships & School Supplies",
-    image: "",
-    projects: [],
-  },
-  {
-    title: " School Outreach",
-    description: "Rural School Programs",
-    image: "",
-    projects: [],
-  },
-  {
-    title: " Relief Operations",
-    description: "Disaster Response & Emergency Aid",
-    image: "",
-    projects: [],
-  },
-  {
-    title: "Housing Assistance",
-    description: "Shelter & Construction Materials",
-    image: "",
-    projects: [],
-  },
-  {
-    title: " Medical Mission",
-    description: "Healthcare & Medical Services",
-    image: "",
-    projects: [],
-  },
-  {
-    title: "International Outreach",
-    description: "Global Community Support",
-    image: "",
-    projects: [],
-  },
+  { title: " Infrastructure", description: "Comfort Room Donations & Facilities", image: "", projects: [] },
+  { title: " Education", description: "VALUES & Educational Programs", image: "", projects: [] },
+  { title: " Feeding Program", description: "Nutrition & Food Security", image: "", projects: [] },
+  { title: " Educational Assistance", description: "Scholarships & School Supplies", image: "", projects: [] },
+  { title: " School Outreach", description: "Rural School Programs", image: "", projects: [] },
+  { title: " Relief Operations", description: "Disaster Response & Emergency Aid", image: "", projects: [] },
+  { title: "Housing Assistance", description: "Shelter & Construction Materials", image: "", projects: [] },
+  { title: " Medical Mission", description: "Healthcare & Medical Services", image: "", projects: [] },
+  { title: "International Outreach", description: "Global Community Support", image: "", projects: [] },
 ];
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 1,
+      ease: easeOut,
+    },
+  }),
+};
+
 
 const GallerySection: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -188,43 +147,32 @@ const GallerySection: React.FC = () => {
 
   return (
     <Shell>
-      <section className="relative min-h-screen w-full py-16 bg-gradient-to-br from-[#e0f7fa] via-[#fceabb] to-[#f8b500] overflow-hidden mt-20">
-        <svg
-          className="absolute left-0 top-0 w-full h-80 text-[#f8b500]/20 pointer-events-none"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-        >
+      <section className="relative min-h-screen w-full py-16 bg-gradient-to-br from-[#0e1a2b] via-[#101e36] to-[#141f33] overflow-hidden text-white">
+        {/* SVG Backgrounds */}
+        <svg className="absolute left-0 top-15 w-full h-80 text-[#F3954A]/40 pointer-events-none" viewBox="0 0 1440 320" preserveAspectRatio="none">
           <path
             fill="currentColor"
             d="M0,160L80,149.3C160,139,320,117,480,122.7C640,128,800,160,960,154.7C1120,149,1280,107,1360,85.3L1440,64V0H1360C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0H0Z"
           />
         </svg>
-        <svg
-          className="absolute right-0 bottom-0 w-96 h-96 text-[#1c5091]/10 blur-2xl pointer-events-none"
-          viewBox="0 0 200 200"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg className="absolute right-0 bottom-0 w-96 h-96 text-[#2A61AC]/10 blur-2xl pointer-events-none" viewBox="0 0 200 200">
           <circle cx="100" cy="100" r="80" fill="currentColor" />
         </svg>
 
-        <div className="relative container mx-auto px-4">
+        <div className="relative container mx-auto px-4 mt-20">
           <div className="text-center space-y-4 mb-8">
-            <h2 className="text-2xl font-semibold text-[#1c5091]">
-              UPLIFT GALLERY
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Explore our diverse range of community programs and initiatives.
-            </p>
+            <h2 className="text-2xl font-semibold text-[#F3954A]">UPLIFT GALLERY</h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">Explore our diverse range of community programs and initiatives.</p>
           </div>
 
-          {/* Mobile: modern select */}
+          {/* Mobile Select */}
           <div className="block sm:hidden mb-6">
             <select
               value={selectedCategory ?? ""}
               onChange={(e) => setSelectedCategory(e.target.value || null)}
-              className="w-full p-3 border border-[#f8b500] bg-white text-black rounded-lg shadow focus:ring-2 focus:ring-[#f8b500] text-base"
+              className="w-full p-3 border border-[#F3954A] bg-[#1b2c45] text-white rounded-lg shadow focus:ring-2 focus:ring-[#F3954A]"
             >
-              <option value=""> All Programs</option>
+              <option value="">All Programs</option>
               {categoriesData.map((cat) => (
                 <option key={cat.title} value={cat.title}>
                   {cat.title}
@@ -233,14 +181,14 @@ const GallerySection: React.FC = () => {
             </select>
           </div>
 
-          {/* Desktop: modern category chips */}
+          {/* Desktop Chips */}
           <div className="hidden sm:flex flex-wrap gap-3 justify-center mb-10">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-medium transition whitespace-nowrap shadow-sm ${
+              className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition shadow-sm ${
                 selectedCategory === null
-                  ? "border-[#f8b500] bg-[#f8b500]/10 text-[#f8b500] scale-105"
-                  : "border-gray-200 bg-white hover:border-[#f8b500] hover:bg-[#f8b500]/5 text-gray-700"
+                  ? "border-[#F3954A] bg-[#F3954A]/10 text-[#F3954A] scale-105"
+                  : "border-gray-600 bg-[#1b2c45] text-white hover:border-[#F3954A] hover:bg-[#F3954A]/10"
               }`}
             >
               All Programs
@@ -249,10 +197,10 @@ const GallerySection: React.FC = () => {
               <button
                 key={cat.title}
                 onClick={() => setSelectedCategory(cat.title)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-medium transition whitespace-nowrap shadow-sm ${
+                className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition shadow-sm ${
                   selectedCategory === cat.title
-                    ? "border-[#1c5091] bg-[#1c5091]/10 text-[#1c5091] scale-105"
-                    : "border-gray-200 bg-white hover:border-[#1c5091] hover:bg-[#1c5091]/5 text-gray-700"
+                    ? "border-[#2A61AC] bg-[#2A61AC]/10 text-[#2A61AC] scale-105"
+                    : "border-gray-600 bg-[#1b2c45] text-white hover:border-[#2A61AC] hover:bg-[#2A61AC]/10"
                 }`}
                 title={cat.description}
               >
@@ -261,59 +209,50 @@ const GallerySection: React.FC = () => {
             ))}
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGallery.map((item, index) => (
-              <div
-                key={item.title}
-                onClick={() => openModal(index)}
-                className="relative group cursor-pointer border rounded-xl overflow-hidden shadow hover:shadow-lg transition bg-white"
-              >
-                <Image
-                  src={item.cover}
-                  alt={item.title}
-                  width={600}
-                  height={400}
-                  className="w-full h-56 object-cover"
-                />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                  <span className="text-white text-lg font-medium">
-                    🔍 Preview Gallery
-                  </span>
-                </div>
-                <div className="p-4 space-y-1">
-                  <h2 className="text-lg font-semibold text-[#1c5091]">
-                    {item.title}
-                  </h2>
-                  <p className="text-sm text-gray-700">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Cards with motion */}
+          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence>
+              {filteredGallery.map((item, index) => (
+                <motion.div
+                  key={item.title}
+                  custom={index}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={cardVariants}
+                  className="relative group cursor-pointer border border-[#2A61AC]/20 rounded-xl overflow-hidden shadow hover:shadow-blue-400/20 transition bg-[#1b2c45]"
+                  onClick={() => openModal(index)}
+                >
+                  <Image src={item.cover} alt={item.title} width={600} height={400} className="w-full h-56 object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <span className="text-white text-lg font-medium">🔍 Preview Gallery</span>
+                  </div>
+                  <div className="p-4 space-y-1">
+                    <h2 className="text-lg font-semibold text-[#F3954A]">{item.title}</h2>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
 
+          {/* Modal */}
           <AnimatePresence>
             {modalIndex !== null && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur px-4"
               >
-                <div className="relative rounded-xl max-w-4xl w-full p-6">
-                  <button
-                    className="absolute top-4 right-4 text-white hover:text-red-500"
-                    onClick={closeModal}
-                  >
+                <div className="relative rounded-xl max-w-4xl w-full p-6 bg-[#101e36] shadow-2xl text-white">
+                  <button className="absolute top-4 right-4 text-white hover:text-red-500" onClick={closeModal}>
                     <X size={24} />
                   </button>
-
                   <div className="flex flex-col gap-4">
                     <div className="relative w-full h-[400px]">
                       <Image
-                        src={
-                          filteredGallery[modalIndex].images[
-                            currentPreviewIndex
-                          ]
-                        }
+                        src={filteredGallery[modalIndex].images[currentPreviewIndex]}
                         alt={`Preview ${currentPreviewIndex + 1}`}
                         layout="fill"
                         objectFit="contain"
@@ -332,25 +271,16 @@ const GallerySection: React.FC = () => {
                         <ChevronRight size={24} />
                       </button>
                     </div>
-
                     <div className="flex overflow-x-auto gap-2 pt-2">
                       {filteredGallery[modalIndex].images.map((img, idx) => (
                         <button
                           key={img}
                           onClick={() => setCurrentPreviewIndex(idx)}
                           className={`w-20 h-16 border-2 rounded overflow-hidden transition-all ${
-                            currentPreviewIndex === idx
-                              ? "border-[#f8b500]"
-                              : "border-gray-300"
+                            currentPreviewIndex === idx ? "border-[#F3954A]" : "border-gray-600"
                           }`}
                         >
-                          <Image
-                            src={img}
-                            alt={`Thumb ${idx + 1}`}
-                            width={80}
-                            height={64}
-                            className="object-cover w-full h-full"
-                          />
+                          <Image src={img} alt={`Thumb ${idx + 1}`} width={80} height={64} className="object-cover w-full h-full" />
                         </button>
                       ))}
                     </div>
