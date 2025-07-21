@@ -18,7 +18,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion"
 const eventData = [
   {
     id: 1,
-    image: "/placeholder.svg?height=300&width=400",
+    image: "/event1.png",
     what: "Make a Change – Save A Life",
     when: "May 23, 2025",
     where: "Interface, Don Salvador, Los Confianza",
@@ -28,7 +28,7 @@ const eventData = [
   },
   {
     id: 2,
-    image: "/placeholder.svg?height=300&width=400",
+    image: "/event2.png",
     what: "Free Medical Mission",
     when: "September 10, 8 AM – 5 PM",
     where: "La Castellana",
@@ -42,7 +42,7 @@ const mockAboutData = [
   {
     title: "CHILDREN AND YOUTH",
     subtitle: "VALUES: Values Advocacy and Literacy Upliftment through Education and Sharing",
-    image: "/placeholder.svg?height=400&width=500",
+    image: "/gallery/gallery1.png",
     items: [
       "School supplies distribution",
       "Improvement of school libraries",
@@ -57,7 +57,7 @@ const mockAboutData = [
   {
     title: "FAMILY",
     subtitle: "Strengthening Families through Sustainable Support",
-    image: "/placeholder.svg?height=400&width=500",
+    image: "/gallery/gallery9.png",
     items: ["Livelihood programs", "Build better homes", "Relief and food aid"],
     icon: <Heart className="w-8 h-8" />,
     gradient: "from-[#F3954A] to-[#e8844a]",
@@ -65,7 +65,7 @@ const mockAboutData = [
   {
     title: "COMMUNITY",
     subtitle: "Medical, Environmental, and Local Empowerment",
-    image: "/placeholder.svg?height=400&width=500",
+    image: "/gallery/gallery7.png",
     items: ["Medical missions", "Environmental programs", "Community gardens"],
     icon: <Target className="w-8 h-8" />,
     gradient: "from-[#F3954A] to-[#d17a42]",
@@ -416,7 +416,7 @@ function EventCard({ event }: { event: EventType }) {
           whileTap={{ scale: 0.95 }}
           className="self-start bg-[#2A61AC] hover:bg-[#1e4a8c] px-6 py-3 rounded-2xl text-sm lg:text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border border-[#2A61AC]/50 hover:border-[#2A61AC] text-white"
         >
-          Learn More
+          <a href="/pages/events">Learn More</a>
         </motion.button>
       </div>
     </motion.div>
