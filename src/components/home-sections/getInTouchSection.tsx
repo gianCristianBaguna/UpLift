@@ -4,22 +4,19 @@ import Image from "next/image";
 
 export default function GetInTouchSection() {
   return (
-    <div className="bg-gray-100">
-      {/* Main Get In Touch Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white py-20 overflow-hidden px-4">
-        {/* Animated Background Elements */}
+    <div className="bg-white ">
+      <section className="relative min-h-screen bg-white text-white py-20 overflow-hidden px-4">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F3954A]/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#F3954A]/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#F3954A]/5 rounded-full blur-3xl animate-pulse delay-500"></div>
 
-          {/* Subtle grid pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(243,149,74,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(243,149,74,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
         </div>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold mb-6">Get In Touch</h2>
-            <p className="text-orange-300 text-lg max-w-4xl mx-auto leading-relaxed">
+            <h2 className="text-4xl font-bold mb-6 text-orange-400">Get In Touch</h2>
+            <p className="text-orange-500 text-lg max-w-4xl mx-auto leading-relaxed">
               Subscribe to our mailing list for inspiring stories and updates
               from Uplift Foundation International. Stay connected with our
               mission to empower children and youth through education,
@@ -104,36 +101,6 @@ export default function GetInTouchSection() {
           </div>
         </div>
       </section>
-
-      {/* Footer Section */}
-      <footer className="bg-gray-100 py-8 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center">
-          {/* Logo Section */}
-          <div className="flex items-center mb-4 sm:mb-0">
-            <Image
-              src="/uplift-logo.png"
-              alt="Uplift Logo"
-              width={140}
-              height={60}
-              priority
-            />
-          </div>
-          <div className="flex space-x-6">
-            <a
-              href="#"
-              className="text-gray-600 hover:text-[#1c5091] transition-colors"
-            >
-              Terms
-            </a>
-            <a
-              href="#"
-              className="text-gray-600 hover:text-[#1c5091] transition-colors"
-            >
-              Privacy
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

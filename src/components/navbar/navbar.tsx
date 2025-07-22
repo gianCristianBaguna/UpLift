@@ -15,7 +15,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const pathname = usePathname(); // e.g. "/pages/events"
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (href: string) =>
@@ -23,9 +23,8 @@ export default function Navbar() {
 
   return (
     <>
-    <header className="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur text-black shadow-sm">
+    <header className="fixed top-0 left-0 w-full z-50 bg-white/40 backdrop-blur text-black shadow-sm">
       <div className="max-w-7xl mx-auto flex justify-between items-center h-30 px-6">
-        {/* logo */}
         <Link href="/" className=" hidden md:flex items-center ml-30">
           <Image
             src="/uplift-logo.png"
@@ -46,7 +45,6 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* desktop links */}
         <nav className="hidden md:flex items-center gap-10 mr-30">
           {navLinks
             .filter((l) => l.label !== "Donation")
@@ -65,7 +63,6 @@ export default function Navbar() {
               </Link>
             ))}
 
-          {/* special Donation button */}
           <Link href="/pages/donation">
             <span
               className={`font-poppins text-lg font-bold rounded-full px-6 py-2 transition-colors
@@ -80,7 +77,6 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        {/* burger for mobile */}
         <button
           className="md:hidden text-[#2A61AC]"
           onClick={() => setIsOpen(true)}
@@ -89,10 +85,8 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* MOBILE SIDEBAR */}
       
 
-      {/* backdrop */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-40"

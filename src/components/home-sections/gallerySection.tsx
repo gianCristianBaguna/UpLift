@@ -31,19 +31,16 @@ export default function GallerySection() {
           Empowering Futures Through Education and Care
         </p>
 
-        {/* 📱 Mobile: One card */}
         <div className="md:hidden mb-8">
           <GalleryCardMobile />
         </div>
 
-        {/* 🖥️ Desktop: Independent rotating cards with alternating borders */}
         <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
           {Array.from({ length: 6 }).map((_, i) => (
             <GalleryCard key={i} index={i} excludeIndices={[]} />
           ))}
         </div>
 
-        {/* CTA */}
         <Link
           href="/pages/gallery"
           className="inline-flex items-center text-[#1c5091] hover:text-orange-400 transition font-semibold"
@@ -55,7 +52,7 @@ export default function GallerySection() {
   );
 }
 
-/* 💻 Desktop: Independent infinite flipping with alternating borders */
+/*  Desktop: Independent infinite flipping with alternating borders */
 function GalleryCard({
   excludeIndices = [],
   index,
@@ -106,7 +103,6 @@ function GalleryCard({
         } ${borderColor} overflow-visible`}
         style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Front Side */}
         <div
           className="absolute inset-0 rounded-xl bg-white overflow-hidden"
           style={{ backfaceVisibility: "hidden" }}
@@ -122,7 +118,6 @@ function GalleryCard({
           </div>
         </div>
 
-        {/* Back Side */}
         <div
           className="absolute inset-0 rounded-xl bg-white overflow-hidden [transform:rotateY(180deg)]"
           style={{ backfaceVisibility: "hidden" }}
@@ -142,7 +137,7 @@ function GalleryCard({
   );
 }
 
-/* 📱 Mobile: Independent flip with alternating images */
+/* Mobile Independent flip with alternating images */
 function GalleryCardMobile() {
   const [frontIndex, setFrontIndex] = useState(0);
   const [backIndex, setBackIndex] = useState(1);
@@ -187,7 +182,6 @@ function GalleryCardMobile() {
         } border-[#1c5091] overflow-visible`}
         style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Front Side */}
         <div
           className="absolute inset-0 rounded-xl bg-white overflow-hidden"
           style={{ backfaceVisibility: "hidden" }}
@@ -203,7 +197,6 @@ function GalleryCardMobile() {
           </div>
         </div>
 
-        {/* Back Side */}
         <div
           className="absolute inset-0 rounded-xl bg-white overflow-hidden [transform:rotateY(180deg)]"
           style={{ backfaceVisibility: "hidden" }}

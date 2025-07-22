@@ -1,6 +1,5 @@
 "use client";
-
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   GraduationCap,
   BookOpen,
@@ -18,322 +17,448 @@ import {
   Sprout,
   Soup,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
+  ArrowRight,
+  Users,
+  Heart,
+  Clock,
+  X,
 } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
-import { useInView } from "framer-motion";
+import { useRef, useState } from "react";
 
 export default function ServicesSection() {
-  const focusCards = [
+  const focusAreas = [
     {
-      title: "CHILDREN & YOUTH",
-      icon: <GraduationCap className="w-10 h-10 transition-all duration-500" />,
-      items: [
-        { icon: <BookOpen className="w-4 h-4" />, text: "VALUES Advocacy" },
-        { icon: <Backpack className="w-4 h-4" />, text: "School supplies" },
-        { icon: <Utensils className="w-4 h-4" />, text: "Feeding program" },
-        { icon: <LibraryBig className="w-4 h-4" />, text: "Mobile library" },
+      id: "children",
+      title: "Children & Youth",
+      subtitle: "Building Tomorrow's Leaders",
+      icon: <GraduationCap className="w-8 h-8" />,
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
+      textColor: "text-blue-600",
+      accentColor: "bg-blue-500",
+      description:
+        "Empowering the next generation through education, nutrition, and opportunities for growth.",
+      stats: { number: "2,500+", label: "Children Served" },
+      programs: [
         {
-          icon: <ArchiveRestore className="w-4 h-4" />,
-          text: "Improve libraries",
+          icon: <BookOpen className="w-5 h-5" />,
+          name: "VALUES Advocacy",
+          impact: "Building character",
         },
-        { icon: <Trophy className="w-4 h-4" />, text: "Sports & Music" },
-        { icon: <GraduationCap className="w-4 h-4" />, text: "Scholarship" },
+        {
+          icon: <Backpack className="w-5 h-5" />,
+          name: "School Supplies",
+          impact: "Education support",
+        },
+        {
+          icon: <Utensils className="w-5 h-5" />,
+          name: "Feeding Program",
+          impact: "Nutrition security",
+        },
+        {
+          icon: <LibraryBig className="w-5 h-5" />,
+          name: "Mobile Library",
+          impact: "Reading access",
+        },
+        {
+          icon: <ArchiveRestore className="w-5 h-5" />,
+          name: "Library Improvement",
+          impact: "Learning spaces",
+        },
+        {
+          icon: <Trophy className="w-5 h-5" />,
+          name: "Sports & Music",
+          impact: "Talent development",
+        },
+        {
+          icon: <GraduationCap className="w-5 h-5" />,
+          name: "Scholarships",
+          impact: "Higher education",
+        },
       ],
     },
     {
-      title: "FAMILY",
-      icon: <Home className="w-10 h-10 transition-all duration-500" />,
-      items: [
-        { icon: <Briefcase className="w-4 h-4" />, text: "Livelihood" },
-        { icon: <Hammer className="w-4 h-4" />, text: "Build better homes" },
-        { icon: <Truck className="w-4 h-4" />, text: "Relief & food aid" },
+      id: "family",
+      title: "Family Support",
+      subtitle: "Strengthening Family Bonds",
+      icon: <Home className="w-8 h-8" />,
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50",
+      textColor: "text-green-600",
+      accentColor: "bg-green-500",
+      description:
+        "Supporting families with essential resources, housing improvements, and livelihood opportunities.",
+      stats: { number: "800+", label: "Families Helped" },
+      programs: [
+        {
+          icon: <Briefcase className="w-5 h-5" />,
+          name: "Livelihood Programs",
+          impact: "Economic stability",
+        },
+        {
+          icon: <Hammer className="w-5 h-5" />,
+          name: "Home Building",
+          impact: "Safe housing",
+        },
+        {
+          icon: <Truck className="w-5 h-5" />,
+          name: "Relief & Food Aid",
+          impact: "Emergency support",
+        },
       ],
     },
     {
-      title: "COMMUNITY",
-      icon: <Leaf className="w-10 h-10 transition-all duration-500" />,
-      items: [
-        { icon: <HeartPulse className="w-4 h-4" />, text: "Medical Mission" },
-        { icon: <Leaf className="w-4 h-4" />, text: "Environmental programs" },
-        { icon: <Sprout className="w-4 h-4" />, text: "Community gardens" },
+      id: "community",
+      title: "Community Health",
+      subtitle: "Caring for Our Neighbors",
+      icon: <Heart className="w-8 h-8" />,
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50",
+      textColor: "text-purple-600",
+      accentColor: "bg-purple-500",
+      description:
+        "Promoting health, wellness, and environmental sustainability in our communities.",
+      stats: { number: "1,200+", label: "People Reached" },
+      programs: [
+        {
+          icon: <HeartPulse className="w-5 h-5" />,
+          name: "Medical Missions",
+          impact: "Healthcare access",
+        },
+        {
+          icon: <Leaf className="w-5 h-5" />,
+          name: "Environmental Programs",
+          impact: "Sustainability",
+        },
+        {
+          icon: <Sprout className="w-5 h-5" />,
+          name: "Community Gardens",
+          impact: "Food security",
+        },
       ],
     },
     {
-      title: "ELDERLY",
-      icon: <Soup className="w-10 h-10 transition-all duration-500" />,
-      items: [
-        { icon: <Home className="w-4 h-4" />, text: "Home visits" },
-        { icon: <Sparkles className="w-4 h-4" />, text: "Make a Wish" },
-        { icon: <HeartPulse className="w-4 h-4" />, text: "Free check-ups" },
-        { icon: <Soup className="w-4 h-4" />, text: "Food assistance" },
+      id: "elderly",
+      title: "Elderly Care",
+      subtitle: "Honoring Our Elders",
+      icon: <Clock className="w-8 h-8" />,
+      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50",
+      textColor: "text-orange-600",
+      accentColor: "bg-orange-500",
+      description:
+        "Providing compassionate care and support for our senior community members.",
+      stats: { number: "400+", label: "Seniors Supported" },
+      programs: [
+        {
+          icon: <Home className="w-5 h-5" />,
+          name: "Home Visits",
+          impact: "Personal care",
+        },
+        {
+          icon: <Sparkles className="w-5 h-5" />,
+          name: "Make a Wish",
+          impact: "Joy & fulfillment",
+        },
+        {
+          icon: <HeartPulse className="w-5 h-5" />,
+          name: "Health Check-ups",
+          impact: "Preventive care",
+        },
+        {
+          icon: <Soup className="w-5 h-5" />,
+          name: "Food Assistance",
+          impact: "Nutritional support",
+        },
       ],
     },
   ];
 
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { amount: 0.3 });
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [expandedMobileCard, setExpandedMobileCard] = useState<number | null>(
-    null
-  );
-
-  const handleArrow = (dir: string) => {
-    // Close expanded card when navigating
-    setExpandedMobileCard(null);
-
-    if (dir === "left") {
-      setActiveIndex((prev) => (prev === 0 ? focusCards.length - 1 : prev - 1));
-    } else {
-      setActiveIndex((prev) => (prev === focusCards.length - 1 ? 0 : prev + 1));
-    }
-  };
-
-  const handleMobileCardClick = (index: number) => {
-    setExpandedMobileCard(expandedMobileCard === index ? null : index);
-  };
+  const isInView = useInView(sectionRef, { amount: 0.2 });
+  const [activeTab, setActiveTab] = useState(0);
+  const [showVolunteerModal, setShowVolunteerModal] = useState(false);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative py-20 px-4 mt-20 bg-gray-50 overflow-hidden bg-gradient-to-b from-orange-50 to-gray-50 rounded-2xl shadow-lg"
-    >
-      <div className="absolute top-12 left-0 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#F3954A] opacity-80 z-[1]"></div>
-      <div className="absolute top-10 left-10 w-0 h-0 border-t-[60px] border-t-transparent border-b-[60px] border-b-transparent border-r-[100px] border-r-[#2A61AC] opacity-80 z-[1]"></div>
-      <div className="absolute bottom-10 right-0 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#F3954A] opacity-80 z-[1]"></div>
-      <div className="absolute bottom-12 right-10 w-0 h-0 border-t-[40px] border-t-transparent border-b-[40px] border-b-transparent border-l-[80px] border-l-[#2A61AC] opacity-80 z-[1]"></div>
+    <>
+      <section
+        ref={sectionRef}
+        className="relative py-24 px-6 lg:px-8 mt-10 bg-gradient-to-b from-gray-50 to-white overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-transparent to-blue-50/30"></div>
+        <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-orange-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-purple-200/20 to-green-200/20 rounded-full blur-3xl"></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="relative z-10 -mt-20 max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7 }}
-            className="lg:sticky lg:top-20 lg:pt-20 lg:mt-20 lg:max-w-md"
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
           >
-            <h2 className="hidden lg:block text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="text-[#2A61AC] block">LEARN MORE</span>
-              <span className="text-[#2A61AC] block">ABOUT OUR</span>
-              <span className="text-[#F3954A] block drop-shadow-[2px_4px_0_#2A61AC]">
-                FOCUS
+            <div className="inline-flex items-center gap-2 bg-[#F3954A]/10 text-[#F3954A] px-6 py-3 rounded-full text-sm font-semibold mb-6 ">
+              <Users className="w-4 h-4" />
+              Our Impact Areas
+            </div>
+
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+              <span className="text-[#2A61AC]">WHERE WE</span>
+              <br />
+              <span className="text-[#F3954A] drop-shadow-[3px_6px_0_#2A61AC]">
+                MAKE A DIFFERENCE
               </span>
             </h2>
 
-            <div className="mt-30 justify-center text-center">
-              <a
-                href="/pages/donation"
-                className="hidden lg:inline-block drop-shadow-[2px_4px_0_#2A61AC] bg-[#F3954A] text-white text-lg font-semibold px-10 py-4 rounded-full shadow-lg hover:bg-[#e07f2f] transition-transform transform hover:scale-105 duration-300"
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Discover how we're transforming lives across four key areas of
+              community impact, creating lasting change through dedicated
+              service and compassionate action.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-4 mb-16"
+          >
+            {focusAreas.map((area, index) => (
+              <button
+                key={area.id}
+                onClick={() => setActiveTab(index)}
+                className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-semibold transition-all duration-300 ${
+                  activeTab === index
+                    ? `bg-gradient-to-r ${area.color} text-white shadow-lg scale-105`
+                    : "bg-white text-gray-600 hover:bg-gray-50 shadow-md hover:shadow-lg"
+                }`}
               >
-                Donate Now
-              </a>
+                <span
+                  className={
+                    activeTab === index ? "text-white" : area.textColor
+                  }
+                >
+                  {area.icon}
+                </span>
+                <span className="hidden sm:inline">{area.title}</span>
+              </button>
+            ))}
+          </motion.div>
+
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+          >
+            <div className={`${focusAreas[activeTab].bgColor} p-8 lg:p-12`}>
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <div
+                      className={`inline-flex items-center gap-3 ${focusAreas[activeTab].accentColor} text-white px-4 py-2 rounded-full`}
+                    >
+                      {focusAreas[activeTab].icon}
+                      <span className="font-semibold">
+                        {focusAreas[activeTab].title}
+                      </span>
+                    </div>
+
+                    <h3 className="text-3xl lg:text-4xl font-bold text-gray-800">
+                      {focusAreas[activeTab].subtitle}
+                    </h3>
+
+                    <p className="text-lg text-gray-600 leading-relaxed">
+                      {focusAreas[activeTab].description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <div
+                        className={`text-3xl font-bold ${focusAreas[activeTab].textColor}`}
+                      >
+                        {focusAreas[activeTab].stats.number}
+                      </div>
+                      <div className="text-sm text-gray-600 font-medium">
+                        {focusAreas[activeTab].stats.label}
+                      </div>
+                    </div>
+                    <div className="w-px h-12 bg-gray-300"></div>
+                    <div className="text-sm text-gray-600">
+                      Making measurable impact in our community through
+                      dedicated programs and initiatives.
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <a
+                      href="/pages/donation"
+                      className="inline-flex items-center gap-2 bg-[#F3954A] text-white px-8 py-4 rounded-full font-semibold hover:bg-[#e07f2f] transition-all duration-300 hover:scale-105 shadow-lg"
+                    >
+                      Support This Cause
+                      <ArrowRight className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <h4 className="text-xl font-bold text-gray-800 mb-6">
+                    Our Programs
+                  </h4>
+                  <div className="grid gap-4">
+                    {focusAreas[activeTab].programs.map((program, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="relative overflow-hidden backdrop-blur-sm rounded-xl p-4 bg-white/80 group hover:shadow-md transition-all duration-300"
+                      >
+                        <div
+                          className={`absolute inset-0 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-700 ease-out pointer-events-none ${focusAreas[activeTab].accentColor}`}
+                          style={{ zIndex: 0 }}
+                        />
+
+                        <div className="flex items-center gap-4 relative z-10">
+                          <div
+                            className={`${focusAreas[activeTab].accentColor} text-white p-3 rounded-lg group-hover:scale-110 transition-transform duration-300`}
+                          >
+                            {program.icon}
+                          </div>
+                          <div className="flex-1">
+                            <h5 className="font-semibold text-gray-800 mb-1">
+                              {program.name}
+                            </h5>
+                            <p className="text-sm text-gray-600">
+                              {program.impact}
+                            </p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-300" />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="relative"
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-center mt-20"
           >
-            <div className="relative z-10 lg:hidden text-center -mt-35 mb-12">
-              <h2 className="text-6xl font-bold leading-tight">
-                <span className="text-[#2A61AC] block">LEARN MORE</span>
-                <span className="text-[#2A61AC] block">ABOUT OUR</span>
-                <span className="text-[#F3954A] block drop-shadow-[2px_4px_0_#2A61AC]">
-                  FOCUS
-                </span>
-              </h2>
-            </div>
-            {/* Mobile Carousel */}
-            <div className="relative lg:hidden">
-              <div className="overflow-hidden w-full">
-                <div
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{
-                    transform: `translateX(-${activeIndex * 100}%)`,
-                  }}
-                >
-                  {focusCards.map((card, index) => (
-                    <div key={index} className="w-full flex-shrink-0 px-2">
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={isInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ duration: 0.5 }}
-                        className={`relative bg-gradient-to-br from-[#fff] to-[#fdf7f2] rounded-2xl border border-gray-200 shadow-lg transition-all duration-500 cursor-pointer overflow-hidden ${
-                          expandedMobileCard === index
-                            ? "min-h-[28rem]"
-                            : "min-h-[20rem]"
-                        }`}
-                        onClick={() => handleMobileCardClick(index)}
-                      >
-                        {/* Collapsed State */}
-                        <div
-                          className={`absolute inset-0 flex flex-col items-center justify-center z-10 transition-all duration-500 p-6 ${
-                            expandedMobileCard === index
-                              ? "opacity-0 pointer-events-none"
-                              : "opacity-100"
-                          }`}
-                        >
-                          <div className="text-[#2A61AC] mb-4">{card.icon}</div>
-                          <h3 className="text-[#F3954A] text-xl font-bold text-center">
-                            {card.title}
-                          </h3>
-                          <p className="text-[#2A61AC] text-sm mt-2 opacity-70">
-                            Tap to learn more
-                          </p>
-                        </div>
-
-                        {/* Expanded State */}
-                        <div
-                          className={`absolute inset-0 p-6 transition-all duration-500 flex flex-col ${
-                            expandedMobileCard === index
-                              ? "opacity-100"
-                              : "opacity-0 pointer-events-none"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 mb-6">
-                            <div className="text-[#F3954A] transform scale-110">
-                              {card.icon}
-                            </div>
-                            <h3 className="text-[#2A61AC] font-bold text-xl">
-                              {card.title}
-                            </h3>
-                          </div>
-
-                          <div className="flex-1 overflow-y-auto">
-                            <ul className="space-y-3 flex flex-col items-center">
-                              {card.items.map((item, i) => (
-                                <motion.li
-                                  key={i}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={
-                                    expandedMobileCard === index
-                                      ? { opacity: 1, x: 0 }
-                                      : { opacity: 0, x: -10 }
-                                  }
-                                  transition={{ delay: i * 0.1, duration: 0.3 }}
-                                  className="flex items-center justify-center gap-3 text-[#2A61AC] bg-white/50 rounded-lg p-3 w-full max-w-[230px] text-center"
-                                >
-                                  <span className="text-[#F3954A] flex-shrink-0">
-                                    {item.icon}
-                                  </span>
-                                  <span className="text-sm font-medium">
-                                    {item.text}
-                                  </span>
-                                </motion.li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          <div className="mt-4 text-center">
-                            <p className="text-[#2A61AC] text-xs opacity-70">
-                              Tap to close
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </div>
-                  ))}
+            <div className="bg-gradient-to-r from-[#2A61AC] to-[#F3954A] rounded-3xl p-12 text-white">
+              <div className="max-w-3xl mx-auto space-y-6">
+                <h3 className="text-3xl lg:text-4xl font-bold">
+                  Ready to Make a Difference?
+                </h3>
+                <p className="text-xl opacity-90">
+                  Join us in creating lasting change in our community. Every
+                  contribution, no matter the size, helps us expand our reach
+                  and deepen our impact.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                  <a
+                    href="/pages/donation"
+                    className="inline-flex items-center justify-center gap-2 bg-white text-[#2A61AC] px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    <Heart className="w-5 h-5" />
+                    Donate Now
+                  </a>
+                  <button
+                    onClick={() => setShowVolunteerModal(true)}
+                    className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#2A61AC] transition-all duration-300 hover:scale-105"
+                  >
+                    <Users className="w-5 h-5" />
+                    Volunteer With Us
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-4 mt-6">
-                <button
-                  onClick={() => handleArrow("left")}
-                  className="text-[#2A61AC] hover:text-[#1f4d94] p-2 rounded-full transition-all duration-200"
-                  aria-label="Previous card"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-
-                <div className="flex gap-2">
-                  {focusCards.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setActiveIndex(index);
-                        setExpandedMobileCard(null);
-                      }}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === activeIndex
-                          ? "bg-[#F3954A] w-6"
-                          : "bg-gray-300"
-                      }`}
-                      aria-label={`Go to card ${index + 1}`}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => handleArrow("right")}
-                  className="text-[#2A61AC] hover:text-[#1f4d94] p-2 rounded-full transition-all duration-200"
-                  aria-label="Next card"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </div>
-              <div className="flex justify-center mt-6 lg:hidden">
-                <a
-                  href="/pages/donation"
-                  className="inline-block drop-shadow-[2px_4px_0_#2A61AC] bg-[#F3954A] text-white text-lg font-semibold px-10 py-4 rounded-full shadow-lg hover:bg-[#e07f2f] transition-transform transform hover:scale-105 duration-300"
-                >
-                  Donate Now
-                </a>
-              </div>
-            </div>
-
-            {/* Desktop Grid */}
-            <div className="hidden lg:grid lg:grid-cols-2 gap-8">
-              {focusCards.map((card, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="relative bg-gradient-to-br from-[#fff] to-[#fdf7f2] rounded-xl border border-gray-200 shadow-md transition-all duration-500 group cursor-pointer overflow-hidden h-[18rem]"
-                >
-                  <div className="absolute inset-0 p-4 h-full">
-                    {/* Default visible state */}
-                    <div className="z-10 group-hover:opacity-0 transition-all duration-500 w-full h-full flex flex-col justify-center items-center text-center">
-                      <div className="text-[#2A61AC] mb-2">{card.icon}</div>
-                      <h3 className="text-[#F3954A] text-base font-bold">
-                        {card.title}
-                      </h3>
-                    </div>
-
-                    {/* Hover state */}
-                    <div
-                      className="absolute inset-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 
-                flex flex-col justify-center items-center text-center h-full bg-white/90"
-                    >
-                      <div className="text-[#F3954A] mb-2 transform group-hover:scale-110 transition-all duration-300">
-                        {card.icon}
-                      </div>
-                      <h3 className="text-[#2A61AC] font-bold text-base mb-4">
-                        {card.title}
-                      </h3>
-                      <ul className="space-y-2 w-full max-w-[240px] overflow-y-auto max-h-[8rem]">
-                        {card.items.map((item, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={isInView ? { opacity: 1, y: 0 } : {}}
-                            transition={{ delay: i * 0.05 }}
-                            className="flex items-center justify-center gap-2 text-sm text-[#2A61AC] bg-white/60 rounded-md p-2"
-                          >
-                            <span className="text-[#F3954A]">{item.icon}</span>
-                            <span>{item.text}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
             </div>
           </motion.div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <AnimatePresence>
+        {showVolunteerModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white max-w-md w-full rounded-2xl p-8 shadow-2xl relative"
+            >
+              <button
+                onClick={() => setShowVolunteerModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex justify-center mb-4">
+                <Users className="w-10 h-10 text-[#2A61AC]" />
+              </div>
+
+              <h3 className="text-2xl font-bold text-center text-gray-800 mb-2">
+                Volunteer With Us
+              </h3>
+              <p className="text-gray-600 text-center mb-6">
+                We’ll notify you when a volunteering opportunity becomes
+                available.
+              </p>
+
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  // Handle submission logic here, e.g., API call or local notification
+                  alert("Thank you! We’ll notify you soon.");
+                  setShowVolunteerModal(false);
+                }}
+              >
+                <div>
+                  <label className="block text-left text-sm font-medium text-gray-700 mb-1">
+                    Name
+                  </label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="Your full name"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-left text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#F3954A] hover:bg-[#e07f2f] text-white py-2 px-4 rounded-md font-semibold transition-all"
+                >
+                  Notify Me
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
