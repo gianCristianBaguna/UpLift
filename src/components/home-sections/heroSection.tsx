@@ -22,46 +22,9 @@ export default function HeroSection() {
           <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-orange-300/30 to-amber-300/30 rounded-full blur-3xl transform translate-x-40 translate-y-40"></div>
           <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-gradient-to-r from-orange-100/50 to-amber-100/50 rounded-full blur-2xl"></div>
 
-          <div className="md:hidden px-6 py-12">
-            <div className="relative z-10 w-full text-left">
-              <div className="inline-block bg-[#F3954A] text-white text-sm font-medium px-4 py-2 rounded-full mb-4 shadow-lg">
-                Making a Difference
-              </div>
-
-              <h1 className="font-[Montserrat] text-4xl font-bold tracking-wide mb-4 text-gray-800 leading-snug">
-                <span>SERVE. </span>
-                <span className="text-[#F3954A] font-bold">SHARE.</span>
-                <span> SHINE.</span>
-              </h1>
-
-              <p className="text-base font-light mb-6 text-gray-700 leading-relaxed">
-                Join us in uplifting communities through{" "}
-                <span className="text-[#F3954A] font-semibold">service</span>{" "}
-                and{" "}
-                <span className="text-[#F3954A] font-semibold">sharing</span>{" "}
-                across our neighborhoods.
-              </p>
-
-              <div className="flex flex-col gap-3">
-                <a
-                  href="/pages/donation"
-                  className="bg-[#F3954A] drop-shadow-[3px_6px_0_#2A61AC] text-white text-base font-semibold px-4 py-3 rounded-full hover:bg-[#e07f2f] hover:drop-shadow-[4px_8px_0_#2A61AC] transition-all transform hover:scale-105 duration-300 flex items-center justify-center"
-                >
-                  Donate Now
-                </a>
-
-                <a
-                  href="/pages/about"
-                  className="bg-white text-gray-700 text-base font-semibold px-4 py-3 rounded-full shadow-md hover:shadow-lg border border-gray-200 hover:border-[#F3954A] transition-all transform hover:scale-105 duration-300 flex items-center justify-center"
-                >
-                  Learn More
-                </a>
-              </div>
-            </div>
-          </div>
 
           {/* 💻 Desktop View ONLY */}
-          <div className="hidden md:block">
+          <div className=" md:block">
             <div className="relative z-10 mt-20 max-w-lg text-left">
               {/* Small badge */}
               <div className="inline-block bg-[#F3954A] text-white text-sm font-medium px-4 py-2 rounded-full mb-6 shadow-lg">
@@ -85,7 +48,7 @@ export default function HeroSection() {
               <div className="flex flex-row gap-4">
                 <a
                   href="/pages/donation"
-                  className="w-fit bg-[#F3954A] drop-shadow-[3px_4px_0_#2A61AC] text-white text-base font-semibold px-4 py-3 rounded-full hover:bg-[#e07f2f] hover:drop-shadow-[4px_8px_0_#2A61AC] transition-all transform hover:scale-105 duration-300 flex items-center justify-center"
+                  className="w-fit bg-[#F3954A] drop-shadow-[3px_4px_0_#2A61AC] text-white px-4 py-4 text-base font-semibold px-4 py-3 rounded-full hover:bg-[#e07f2f] hover:drop-shadow-[4px_8px_0_#2A61AC] transition-all transform hover:scale-105 duration-300 flex items-center justify-center"
                 >
                   Donate Now
                 </a>
