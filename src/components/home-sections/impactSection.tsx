@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { motion, useInView, useAnimation } from "framer-motion";
 import {
   CalendarCheck,
   Users,
@@ -39,15 +39,28 @@ const impactItems = [
 
 export default function AboutImpactSection() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+const isInView = useInView(ref, { once: true, margin: "-100px" });
+const controls = useAnimation();
+
+useEffect(() => {
+  const hash = window.location.hash;
+
+  if (isInView || hash === "#core") {
+    controls.start({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    });
+  }
+}, [isInView, controls]);
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-white" id="events">
       <div className="container mx-auto px-4 max-w-7xl">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={controls}
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
@@ -65,7 +78,7 @@ export default function AboutImpactSection() {
           transition={{ duration: 0.8 }}
           className="mb-20"
         >
-          <div className="relative rounded-3xl outline-2 outline-blue-500 overflow-hidden shadow-2xl">
+          <div className="relative rounded-3xl outline-2 outline-blue-500 overflow-hidden shadow-2xl" id="events">
             <img
               src="/together.png"
               alt="Community volunteers working together"

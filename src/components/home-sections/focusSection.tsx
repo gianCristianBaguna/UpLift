@@ -193,6 +193,7 @@ export default function ServicesSection() {
       <section
         ref={sectionRef}
         className="relative py-24 px-6 lg:px-8 mt-10 bg-gradient-to-b from-gray-50 to-white overflow-hidden"
+        id="impact"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-transparent to-blue-50/30"></div>
         <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-orange-200/20 to-blue-200/20 rounded-full blur-3xl"></div>

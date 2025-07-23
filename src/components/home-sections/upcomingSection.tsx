@@ -77,7 +77,6 @@ export default function UpcomingEventsSection() {
   return (
     <section className="py-24 bg-gray-50">
       <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
@@ -95,7 +94,6 @@ export default function UpcomingEventsSection() {
           </p>
         </motion.div>
 
-        {/* Main Event Display */}
         <div className="relative mb-12">
           <AnimatePresence mode="wait">
             <motion.div
@@ -107,7 +105,6 @@ export default function UpcomingEventsSection() {
               className="bg-white rounded-3xl shadow-xl overflow-hidden"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Image Section */}
                 <div className="relative h-80 lg:h-full">
                   <img
                     src={currentEvent.image || "/placeholder.svg"}
@@ -128,13 +125,11 @@ export default function UpcomingEventsSection() {
                   </div>
                 </div>
 
-                {/* Content Section */}
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
                   <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">{currentEvent.title}</h3>
 
                   <p className="text-gray-600 text-lg leading-relaxed mb-8">{currentEvent.description}</p>
 
-                  {/* Event Details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <CalendarDays className="h-5 w-5 text-[#F3954A]" />
@@ -169,7 +164,6 @@ export default function UpcomingEventsSection() {
                     </div>
                   </div>
 
-                  {/* Call to Action */}
                   <div className="flex flex-col sm:flex-row gap-4">
                     <button
                       className="border-2 border-[#F3954A] text-[#F3954A] hover:bg-[#F3954A] hover:text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 flex-1 sm:flex-none bg-transparent"
@@ -182,7 +176,6 @@ export default function UpcomingEventsSection() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation */}
           <div className="flex justify-center items-center gap-6 mt-8">
             <button
               onClick={goToPrev}
@@ -192,7 +185,6 @@ export default function UpcomingEventsSection() {
               <ChevronLeft className="h-6 w-6" />
             </button>
 
-            {/* Dots Indicator */}
             <div className="flex gap-2">
               {eventData.map((_, index) => (
                 <button
@@ -216,7 +208,6 @@ export default function UpcomingEventsSection() {
           </div>
         </div>
 
-        {/* All Events Preview */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -243,7 +234,6 @@ export default function UpcomingEventsSection() {
           ))}
         </motion.div>
 
-        {/* Bottom CTA */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}

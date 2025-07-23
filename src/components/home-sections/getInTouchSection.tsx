@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function GetInTouchSection() {
   return (
     <div className="bg-white ">
-      <section className="relative min-h-screen bg-white text-white py-20 overflow-hidden px-4">
+      <section className="relative min-h-screen bg-white text-white py-20 overflow-hidden px-4" id="get-in-touch">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F3954A]/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#F3954A]/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
