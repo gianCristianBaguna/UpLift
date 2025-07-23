@@ -23,7 +23,8 @@ import {
   Clock,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect} from "react";
+
 
 export default function ServicesSection() {
   const focusAreas = [
@@ -176,7 +177,15 @@ export default function ServicesSection() {
 
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { amount: 0.2 });
-  const [activeTab, setActiveTab] = useState(0);
+
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const [activeTab, setActiveTab] = useState(0); 
+
+  useEffect(() => {
+    if (isInView && !hasAnimated) {
+      setHasAnimated(true); 
+    }
+  }, [isInView, hasAnimated]);
   const [showVolunteerModal, setShowVolunteerModal] = useState(false);
 
   return (
@@ -192,7 +201,7 @@ export default function ServicesSection() {
         <div className="relative z-10 -mt-20 max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            animate={hasAnimated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
           >
@@ -218,7 +227,7 @@ export default function ServicesSection() {
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            animate={hasAnimated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-wrap justify-center gap-4 mb-16"
           >
@@ -346,7 +355,7 @@ export default function ServicesSection() {
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            animate={hasAnimated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-center mt-20"
           >
