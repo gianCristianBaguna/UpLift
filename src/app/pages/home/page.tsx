@@ -24,6 +24,10 @@ export default function HomePage() {
     }
   }, []);
 
+  useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
+
   return (
     <Shell>
       <main className="pt-10 font-poppins bg-gray-50 min-h-screen w-full relative">
@@ -54,7 +58,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Animated Sections */}
         <motion.div
           key={heroKey}
           initial={{ opacity: 0, y: 30 }}
