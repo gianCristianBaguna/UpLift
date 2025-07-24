@@ -34,7 +34,7 @@ export default function ServicesSection() {
       subtitle: "Building Tomorrow's Leaders",
       icon: <GraduationCap className="w-8 h-8" />,
       color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50",
+      bgColor: "bg-blue-200",
       textColor: "text-blue-600",
       accentColor: "bg-blue-500",
       description:
@@ -84,7 +84,7 @@ export default function ServicesSection() {
       subtitle: "Strengthening Family Bonds",
       icon: <Home className="w-8 h-8" />,
       color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
+      bgColor: "bg-green-200",
       textColor: "text-green-600",
       accentColor: "bg-green-500",
       description:
@@ -114,7 +114,7 @@ export default function ServicesSection() {
       subtitle: "Caring for Our Neighbors",
       icon: <Heart className="w-8 h-8" />,
       color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50",
+      bgColor: "bg-purple-200",
       textColor: "text-purple-600",
       accentColor: "bg-purple-500",
       description:
@@ -144,7 +144,7 @@ export default function ServicesSection() {
       subtitle: "Honoring Our Elders",
       icon: <Clock className="w-8 h-8" />,
       color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50",
+      bgColor: "bg-orange-200",
       textColor: "text-orange-600",
       accentColor: "bg-orange-500",
       description:
@@ -238,8 +238,8 @@ export default function ServicesSection() {
                 onClick={() => setActiveTab(index)}
                 className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-semibold transition-all duration-300 ${
                   activeTab === index
-                    ? `bg-gradient-to-r ${area.color} text-white shadow-lg scale-105`
-                    : "bg-white text-gray-600 hover:bg-gray-50 shadow-md hover:shadow-lg"
+                    ? `bg-gradient-to-r ${area.color} text-white shadow-2xl scale-105`
+                    : "bg-white text-gray-600 hover:bg-gray-50 shadow-2xl hover:shadow-2xl"
                 }`}
               >
                 <span
@@ -259,7 +259,7 @@ export default function ServicesSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="bg-blue-400 rounded-3xl shadow-2xl overflow-hidden"
           >
             <div className={`${focusAreas[activeTab].bgColor} p-8 lg:p-12`}>
               <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -304,7 +304,7 @@ export default function ServicesSection() {
                   <div className="pt-4">
                     <a
                       href="/pages/donation"
-                      className="inline-flex items-center gap-2 bg-[#F3954A] text-white px-8 py-4 rounded-full font-semibold hover:bg-[#e07f2f] transition-all duration-300 hover:scale-105 shadow-lg"
+                      className="inline-flex items-center gap-2 bg-[#F3954A] text-white px-8 py-4 rounded-full font-semibold hover:bg-[#e07f2f] transition-all duration-300 hover:scale-105 shadow-2xl"
                     >
                       Support This Cause
                       <ArrowRight className="w-5 h-5" />

@@ -1,5 +1,4 @@
 "use client"
-
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -21,7 +20,7 @@ import {
   Star,
 } from "lucide-react"
 import Footer from "@/components/navbar/footer"
-import clsx from "clsx";
+import clsx from "clsx"
 
 const allEvents: any[] = [
   {
@@ -105,12 +104,10 @@ export default function EventsPage() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "")
-
       // Handle tab switching from navbar dropdown
       if (hash === "upcoming" || hash === "past") {
         setSelectedTab(hash as "upcoming" | "past")
       }
-
       // Close modal when navigating
       setShowModal(false)
       setSelectedEvent(null)
@@ -121,7 +118,6 @@ export default function EventsPage() {
 
     // Listen for hash changes (from navbar dropdown clicks)
     window.addEventListener("hashchange", handleHashChange)
-
     return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
 
@@ -143,7 +139,7 @@ export default function EventsPage() {
     return isUpcoming && matchesCategory && matchesSearch
   })
 
-   const bubbles = [
+  const bubbles = [
     {
       className: "top-1/3 left-8 w-14 h-14",
       colors: "from-[#F3954A]/25 to-orange-300/35",
@@ -204,7 +200,7 @@ export default function EventsPage() {
       colors: "from-[#2A61AC]/35 to-amber-300/35",
       animation: "animate-float-3 delay-300",
     },
-  ];
+  ]
 
   return (
     <Shell>
@@ -212,19 +208,13 @@ export default function EventsPage() {
         {/* Hero Section */}
         <section className="relative py-24 bg-gradient-to-br from-gray-50 to-white overflow-hidden mt-10">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                      {bubbles.map((b, idx) => (
-                        <div
-                          key={idx}
-                          className={clsx(
-                            "absolute rounded-full",
-                            b.className,
-                            "bg-gradient-to-br",
-                            b.colors,
-                            b.animation
-                          )}
-                        ></div>
-                      ))}
-                    </div>
+            {bubbles.map((b, idx) => (
+              <div
+                key={idx}
+                className={clsx("absolute rounded-full", b.className, "bg-gradient-to-br", b.colors, b.animation)}
+              ></div>
+            ))}
+          </div>
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="text-center">
               <motion.div
@@ -233,7 +223,7 @@ export default function EventsPage() {
                 transition={{ duration: 0.6 }}
                 className="mb-6"
               >
-                <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="flex items-center justify-center gap-2 mb-4 mt-10">
                   <Sparkles className="h-6 w-6 text-[#F3954A]" />
                   <span className="text-[#F3954A] font-semibold uppercase tracking-wide text-sm">Our Events</span>
                 </div>
@@ -270,25 +260,25 @@ export default function EventsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto"
+                className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto -mb-10"
               >
-                <div className="relative flex-1 w-full md:w-auto border-1 border-black rounded-full">
+                <div className="relative flex-1 w-full md:w-auto border-2 border-black rounded-full">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search events..."  
+                    placeholder="Search events..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3  rounded-full text-black"
+                    className="w-full pl-10 pr-4 py-3 rounded-full text-black"
                   />
                 </div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-3 border-1 border-black rounded-full focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all text-black bg-white"
+                  className="px-4 py-3 border-2 border-black rounded-full text-black  bg-transparent transition-all"
                 >
                   {categories.map((category) => (
-                    <option key={category} value={category}>
+                    <option key={category} value={category}> 
                       {category}
                     </option>
                   ))}
@@ -310,10 +300,10 @@ export default function EventsPage() {
                 transition={{ duration: 0.4 }}
               >
                 <div className="text-center mb-12">
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                    {selectedTab === "upcoming" ? "Upcoming Events" : "Past Events"}
+                  <h2 className="py-10 text-2xl md:text-2xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-violet-500 to-blue-600 bg-clip-text text-transparent">
+                    {selectedTab === "upcoming" ? "Upcoming Events" :  "Past Events"}
                   </h2>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-gray-600 mt-5">
                     {selectedTab === "upcoming"
                       ? "Join us in our upcoming community initiatives"
                       : "Celebrating our community impact and achievements"}
@@ -330,7 +320,6 @@ export default function EventsPage() {
             </AnimatePresence>
           </div>
         </section>
-
 
         {/* Enhanced Modal */}
         <AnimatePresence>
@@ -397,7 +386,6 @@ export default function EventsPage() {
                       </p>
                       <p className="text-gray-600">{selectedEvent.time}</p>
                     </div>
-
                     <div className="bg-gray-50 rounded-2xl p-6">
                       <div className="flex items-center gap-3 mb-3">
                         <MapPin className="w-5 h-5 text-[#F3954A]" />
@@ -405,7 +393,6 @@ export default function EventsPage() {
                       </div>
                       <p className="text-gray-600">{selectedEvent.location}</p>
                     </div>
-
                     <div className="bg-gray-50 rounded-2xl p-6">
                       <div className="flex items-center gap-3 mb-3">
                         <Users className="w-5 h-5 text-[#F3954A]" />
@@ -413,7 +400,6 @@ export default function EventsPage() {
                       </div>
                       <p className="text-gray-600">{selectedEvent.participants}</p>
                     </div>
-
                     <div className="bg-gray-50 rounded-2xl p-6">
                       <div className="flex items-center gap-3 mb-3">
                         <Heart className="w-5 h-5 text-[#F3954A]" />
@@ -429,14 +415,13 @@ export default function EventsPage() {
                       <Star className="w-6 h-6 text-[#F3954A]" />
                       Register for This Event
                     </h3>
-
                     <form className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                           <input
                             type="text"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all focus:outline-none"
                             placeholder="Your full name"
                           />
                         </div>
@@ -444,18 +429,17 @@ export default function EventsPage() {
                           <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                           <input
                             type="email"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all focus:outline-none"
                             placeholder="you@email.com"
                           />
                         </div>
                       </div>
-
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
                           <input
                             type="tel"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all focus:outline-none"
                             placeholder="+63 XXX XXX XXXX"
                           />
                         </div>
@@ -465,21 +449,19 @@ export default function EventsPage() {
                           </label>
                           <input
                             type="text"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all focus:outline-none"
                             placeholder="Your organization"
                           />
                         </div>
                       </div>
-
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Special Requirements</label>
                         <textarea
                           rows={3}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all resize-none"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all resize-none focus:outline-none"
                           placeholder="Any dietary restrictions, accessibility needs, etc."
                         />
                       </div>
-
                       <div className="flex flex-col sm:flex-row gap-4">
                         <button
                           type="button"
@@ -504,7 +486,7 @@ export default function EventsPage() {
           )}
         </AnimatePresence>
       </main>
-    <Footer />
+      <Footer />
     </Shell>
   )
 }
@@ -557,12 +539,10 @@ function EventsGrid({ events, onEventClick }: { events: any[]; onEventClick: (ev
                 </div>
               </div>
             </div>
-
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#F3954A] transition-colors">
                 {event.title}
               </h3>
-
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Calendar className="w-4 h-4 text-[#F3954A]" />
@@ -581,9 +561,7 @@ function EventsGrid({ events, onEventClick }: { events: any[]; onEventClick: (ev
                   {event.participants}
                 </div>
               </div>
-
               <p className="text-gray-600 text-sm leading-relaxed mb-4">{event.description}</p>
-
               <button className="w-full py-3 bg-[#F3954A] hover:bg-[#F3954A]/90 text-white rounded-xl font-semibold transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2">
                 Learn More
                 <ArrowRight className="h-4 w-4" />

@@ -37,13 +37,12 @@ const navLinks = [
   {
     label: "Gallery",
     href: "/pages/gallery",
-    sections: [
-    ],
-  },{
+    sections: [],
+  },
+  {
     label: "Donation",
     href: "/pages/donation",
-    sections: [
-    ],
+    sections: [],
   },
 ];
 
@@ -74,8 +73,8 @@ export default function Navbar() {
     <>
       <header className="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md text-black shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto flex justify-between items-center h-20 px-6 h-[120]">
-          {/* Logo */}
-          <Link href="/" className="flex items-center ml-20">
+          {/* Desktop Logo */}
+          <Link href="/" className="hidden md:flex items-center ml-20">
             <Image
               src="/uplift-logo.png"
               alt="Uplift Foundation International"
@@ -83,6 +82,18 @@ export default function Navbar() {
               height={80}
               priority
               className="h-14 w-auto"
+            />
+          </Link>
+
+          {/* Mobile Logo */}
+          <Link href="/" className="flex md:hidden items-center ml-4">
+            <Image
+              src="/uplift-logo.png" 
+              alt="Uplift Foundation"
+              width={160}
+              height={80}
+              priority
+              className="h-10 w-auto"
             />
           </Link>
 
@@ -247,17 +258,6 @@ export default function Navbar() {
               </div>
             </div>
           ))}
-
-          {/* Mobile Donation Button */}
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <Link
-              href="/pages/donation"
-              onClick={() => setIsOpen(false)}
-              className="block w-full text-center font-semibold text-white bg-[#F3954A] hover:bg-[#F3954A]/90 py-4 px-6 rounded-xl transition-colors shadow-lg"
-            >
-              Make a Donation
-            </Link>
-          </div>
         </nav>
       </aside>
     </>

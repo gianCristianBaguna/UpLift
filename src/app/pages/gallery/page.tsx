@@ -1,14 +1,32 @@
 "use client"
-
 import type React from "react"
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useMemo, memo, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, ChevronLeft, ChevronRight, Eye, Filter, Search, Loader2, AlertCircle, Sparkles } from "lucide-react"
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Filter,
+  Search,
+  Heart,
+  Star,
+  Camera,
+  MapPin,
+  Calendar,
+  Zap,
+  Share2,
+  Download,
+  Sparkles,
+} from "lucide-react"
 import Shell from "@/components/navbar/shell"
 import Footer from "@/components/navbar/footer"
+import CreativeBackground from "@/components/creativeBackground"
+import { useDebounce as useDebounceHook } from "@/components/hooks/useDebounce"
 
 interface GalleryItem {
+  id: string // Add stable ID
   cover: string
   title: string
   description: string
@@ -16,72 +34,91 @@ interface GalleryItem {
   category: string[]
   date?: string
   location?: string
+  likes?: number
+  featured?: boolean
 }
 
 interface CategoryItem {
   title: string
   description: string
-  image: string
-  projects: string[]
   count: number
+  color: string
+  icon: React.ReactNode
 }
 
+// Pre-compute stable data with IDs
 const fallbackGallery: GalleryItem[] = [
   {
+    id: "cr-donation-district",
     title: "CR Donation - District Office",
     cover: "/gallery/gallery1.png",
-    description: "New comfort room donated to La Castellana I District Office.",
+    description: "New comfort room donated to La Castellana I District Office with modern facilities.",
     images: ["/gallery/gallery1.png", "/gallery/gallery2.png", "/gallery/gallery3.png"],
     category: ["Infrastructure", "Housing Assistance"],
     date: "2024-03-15",
     location: "La Castellana I District Office",
+    likes: 124,
+    featured: true,
   },
   {
+    id: "values-literacy-drive",
     title: "VALUES Literacy Drive",
     cover: "/gallery/gallery4.png",
-    description: "Books and storytelling activities in rural schools.",
+    description: "Comprehensive books and storytelling activities bringing education to rural schools.",
     images: ["/gallery/gallery4.png", "/gallery/gallery5.png", "/gallery/gallery6.png"],
     category: ["Education"],
     date: "2024-02-20",
-    location: "Rural Schools",
+    location: "Rural Schools Network",
+    likes: 89,
   },
   {
+    id: "back-to-school-kits",
     title: "Back-to-School Kits",
     cover: "/gallery/gallery7.png",
-    description: "Distribution of 100+ school supply kits.",
+    description: "Distribution of 100+ comprehensive school supply kits to underprivileged students.",
     images: ["/gallery/gallery7.png", "/gallery/gallery8.png", "/gallery/gallery9.png"],
     category: ["Educational Assistance", "School Outreach"],
     date: "2024-08-10",
     location: "Various Schools",
+    likes: 156,
+    featured: true,
   },
   {
+    id: "feeding-evacuees",
     title: "Feeding for Evacuees",
     cover: "/gallery/feeding.jpg",
-    description: "Nutritional meals served to disaster-affected families.",
+    description: "Nutritional meals served to disaster-affected families during critical times.",
     images: ["/gallery/feeding.jpg", "/gallery/gallery2.png"],
     category: ["Feeding Program"],
     date: "2024-01-15",
     location: "Evacuation Centers",
+    likes: 203,
   },
   {
+    id: "medical-outreach",
     title: "Medical Outreach",
     cover: "/gallery/medical.jpg",
-    description: "Free health consultations in underserved areas.",
+    description: "Free health consultations and medical services in underserved communities.",
     images: ["/gallery/medical.jpg"],
     category: ["Medical Mission"],
     date: "2024-05-12",
     location: "Remote Communities",
+    likes: 78,
   },
   {
+    id: "typhoon-relief",
     title: "Typhoon Relief Goods",
     cover: "/gallery/relief.jpg",
-    description: "Emergency aid distributed to typhoon victims.",
+    description: "Emergency aid and essential supplies distributed to typhoon-affected families.",
     images: ["/gallery/relief.jpg", "/gallery/gallery3.png"],
     category: ["Relief Operations", "Feeding Program"],
     date: "2024-11-08",
     location: "Affected Areas",
+    likes: 267,
+    featured: true,
   },
   {
+    id: "housing-support",
     title: "Housing Support - 80 Families",
     cover: "/gallery/gallery6.png",
     description: "Post-disaster materials for family homes.",
@@ -89,8 +126,10 @@ const fallbackGallery: GalleryItem[] = [
     category: ["Housing Assistance", "Infrastructure"],
     date: "2024-04-22",
     location: "Disaster-Affected Communities",
+    likes: 145,
   },
   {
+    id: "tipolo-elementary",
     title: "Tipolo Elementary Outreach",
     cover: "/gallery/gallery2.png",
     description: "School supplies and support to rural schools.",
@@ -98,8 +137,10 @@ const fallbackGallery: GalleryItem[] = [
     category: ["School Outreach"],
     date: "2024-09-05",
     location: "Tipolo Elementary School",
+    likes: 92,
   },
   {
+    id: "african-parish",
     title: "African Parish Aid",
     cover: "/gallery/gallery3.png",
     description: "International donation support to Africa.",
@@ -107,759 +148,783 @@ const fallbackGallery: GalleryItem[] = [
     category: ["International Outreach"],
     date: "2024-06-18",
     location: "Africa",
+    likes: 178,
   },
 ]
 
+// Pre-compute category configuration - MOVED OUTSIDE COMPONENT
+const CATEGORY_CONFIG = {
+  Infrastructure: { color: "bg-blue-500", icon: <Zap className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Education: { color: "bg-purple-500", icon: <Star className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "Feeding Program": { color: "bg-green-500", icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "Educational Assistance": { color: "bg-indigo-500", icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "School Outreach": { color: "bg-orange-500", icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "Relief Operations": { color: "bg-red-500", icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "Housing Assistance": { color: "bg-teal-500", icon: <Download className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "Medical Mission": { color: "bg-rose-500", icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  "International Outreach": { color: "bg-cyan-500", icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" /> },
+} as const
+
+// Optimized category data computation - MOVED OUTSIDE COMPONENT
 const getCategoriesData = (gallery: GalleryItem[]): CategoryItem[] => {
   const categoryMap = new Map<string, number>()
 
-  gallery.forEach((item) => {
-    item.category.forEach((cat) => {
+  // Single loop through gallery items
+  for (const item of gallery) {
+    for (const cat of item.category) {
       categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1)
-    })
+    }
+  }
+
+  return Object.entries(CATEGORY_CONFIG).map(([title, config]) => ({
+    title,
+    description: `${title} Programs`,
+    count: categoryMap.get(title) || 0,
+    color: config.color,
+    icon: config.icon,
+  }))
+}
+
+// Pre-compute category lookup map - MOVED OUTSIDE COMPONENT
+const createCategoryLookupMap = (categoriesData: CategoryItem[]) => {
+  const map = new Map<string, CategoryItem>()
+  for (const cat of categoriesData) {
+    map.set(cat.title, cat)
+  }
+  return map
+}
+
+// Optimized date formatting - MOVED OUTSIDE COMPONENT
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+}
+
+const formatFullDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
-
-  return [
-    {
-      title: "Infrastructure",
-      description: "Comfort Room Donations & Facilities",
-      image: "/gallery/gallery1.png",
-      projects: [],
-      count: categoryMap.get("Infrastructure") || 0,
-    },
-    {
-      title: "Education",
-      description: "VALUES & Educational Programs",
-      image: "/gallery/gallery4.png",
-      projects: [],
-      count: categoryMap.get("Education") || 0,
-    },
-    {
-      title: "Feeding Program",
-      description: "Nutrition & Food Security",
-      image: "/gallery/feeding.jpg",
-      projects: [],
-      count: categoryMap.get("Feeding Program") || 0,
-    },
-    {
-      title: "Educational Assistance",
-      description: "Scholarships & School Supplies",
-      image: "/gallery/gallery7.png",
-      projects: [],
-      count: categoryMap.get("Educational Assistance") || 0,
-    },
-    {
-      title: "School Outreach",
-      description: "Rural School Programs",
-      image: "/gallery/gallery2.png",
-      projects: [],
-      count: categoryMap.get("School Outreach") || 0,
-    },
-    {
-      title: "Relief Operations",
-      description: "Disaster Response & Emergency Aid",
-      image: "/gallery/relief.jpg",
-      projects: [],
-      count: categoryMap.get("Relief Operations") || 0,
-    },
-    {
-      title: "Housing Assistance",
-      description: "Shelter & Construction Materials",
-      image: "/gallery/housing.jpg",
-      projects: [],
-      count: categoryMap.get("Housing Assistance") || 0,
-    },
-    {
-      title: "Medical Mission",
-      description: "Healthcare & Medical Services",
-      image: "/gallery/medical.jpg",
-      projects: [],
-      count: categoryMap.get("Medical Mission") || 0,
-    },
-    {
-      title: "International Outreach",
-      description: "Global Community Support",
-      image: "/gallery/international.jpg",
-      projects: [],
-      count: categoryMap.get("International Outreach") || 0,
-    },
-  ]
 }
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.9 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.6,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  }),
-  hover: {
-    y: -10,
-    scale: 1.02,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-    },
-  },
-}
+// Ultra-optimized Gallery Card - MOVED OUTSIDE MAIN COMPONENT
+const GalleryCard = memo(
+  ({
+    item,
+    index,
+    onOpenModal,
+    onToggleLike,
+    isLiked,
+    categoryLookupMap,
+  }: {
+    item: GalleryItem
+    index: number
+    onOpenModal: (index: number) => void
+    onToggleLike: (itemId: string, e: React.MouseEvent) => void
+    isLiked: boolean
+    categoryLookupMap: Map<string, CategoryItem>
+  }) => {
+    // Pre-compute expensive operations
+    const formattedDate = useMemo(() => (item.date ? formatDate(item.date) : null), [item.date])
+    const photoCountText = useMemo(
+      () => `${item.images.length} ${item.images.length === 1 ? "photo" : "photos"}`,
+      [item.images.length],
+    )
 
-const modalVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 50 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.8,
-    y: 50,
-    transition: {
-      duration: 0.3,
-    },
-  },
-}
+    // Pre-compute category tags to avoid repeated lookups
+    const categoryTags = useMemo(() => {
+      const visibleCategories = item.category.slice(0, 2)
+      const remainingCount = item.category.length - 2
 
-const GallerySection: React.FC = () => {
+      return {
+        visible: visibleCategories.map((cat) => ({
+          name: cat,
+          color: categoryLookupMap.get(cat)?.color || "bg-gray-500",
+        })),
+        remaining: remainingCount > 0 ? remainingCount : null,
+      }
+    }, [item.category, categoryLookupMap])
+
+    // Stable click handlers
+    const handleCardClick = useCallback(() => onOpenModal(index), [onOpenModal, index])
+    const handleLikeClick = useCallback(
+      (e: React.MouseEvent) => {
+        onToggleLike(item.id, e)
+      },
+      [onToggleLike, item.id],
+    )
+
+    return (
+      <div
+        className="group cursor-pointer transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        onClick={handleCardClick}
+      >
+        <div className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-300 transition-colors duration-200 shadow-md hover:shadow-xl">
+          {/* Featured Badge - Only render if featured */}
+          {item.featured && (
+            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span className="hidden xs:inline">Featured</span>
+            </div>
+          )}
+
+          {/* Image Container */}
+          <div className="relative h-40 sm:h-48 md:h-52 overflow-hidden bg-gray-100">
+            <Image
+              src={item.cover || "/placeholder.svg?height=200&width=300"}
+              alt={item.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={index < 6}
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+
+            {/* Hover Overlay - Hidden on mobile for better touch experience */}
+            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden sm:flex">
+              <div className="text-center">
+                <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 mx-auto mb-1" />
+                <span className="text-orange-500 font-medium text-xs sm:text-sm">View Gallery</span>
+              </div>
+            </div>
+
+            {/* Photo count badge */}
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-gray-700 font-medium">
+              {photoCountText}
+            </div>
+
+            {/* Date badge - Only render if date exists */}
+            {formattedDate && (
+              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-orange-500/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-white font-medium flex items-center gap-1">
+                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span className="hidden xs:inline">{formattedDate}</span>
+              </div>
+            )}
+
+            {/* Like Button */}
+            <button
+              onClick={handleLikeClick}
+              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/90 p-1 sm:p-1.5 rounded-full shadow-md hover:bg-white transition-all hover:scale-110 active:scale-95"
+            >
+              <Heart
+                className={`w-3 h-3 sm:w-4 sm:h-4 transition-colors ${
+                  isLiked ? "text-red-500 fill-red-500" : "text-gray-600"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-1">
+              {item.title}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">{item.description}</p>
+
+            {/* Location and Stats */}
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              {item.location && (
+                <div className="flex items-center gap-1 flex-1 min-w-0">
+                  <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                  <span className="truncate text-xs">{item.location}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                <Heart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span className="text-xs">{item.likes || 0}</span>
+              </div>
+            </div>
+
+            {/* Category Tags - Pre-computed */}
+            <div className="flex flex-wrap gap-1 pt-1">
+              {categoryTags.visible.map((cat) => (
+                <span
+                  key={cat.name}
+                  className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-medium rounded-full text-white ${cat.color}`}
+                >
+                  {cat.name}
+                </span>
+              ))}
+              {categoryTags.remaining && (
+                <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
+                  +{categoryTags.remaining}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+)
+
+GalleryCard.displayName = "GalleryCard"
+
+const UltraOptimizedGallery: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [modalIndex, setModalIndex] = useState<number | null>(null)
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState<number>(0)
   const [showFilters, setShowFilters] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({})
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
-  const [isLoading, setIsLoading] = useState(true)
-
+  const [likedItems, setLikedItems] = useState<Set<string>>(new Set())
   const modalRef = useRef<HTMLDivElement>(null)
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const keydownCleanupRef = useRef<(() => void) | null>(null)
 
-  const galleryData = fallbackGallery
-  const categoriesData = getCategoriesData(galleryData)
+  // Pre-compute static data - ONLY COMPUTED ONCE
+  const galleryData = useMemo(() => fallbackGallery, [])
+  const categoriesData = useMemo(() => getCategoriesData(galleryData), [galleryData])
+  const categoryLookupMap = useMemo(() => createCategoryLookupMap(categoriesData), [categoriesData])
 
-  // Enhanced filtering with search
-  const filteredGallery = galleryData.filter((item) => {
-    const matchesCategory = selectedCategory ? item.category.includes(selectedCategory) : true
-    const matchesSearch = searchQuery
-      ? item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.some((cat) => cat.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        item.location?.toLowerCase().includes(searchQuery.toLowerCase())
-      : true
-    return matchesCategory && matchesSearch
-  })
+  // Optimized debounced search
+  const debouncedSearchQuery = useDebounceHook(searchQuery, 300)
 
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000)
-    return () => clearTimeout(timer)
+  // Highly optimized filtering - SINGLE PASS THROUGH DATA
+  const filteredGallery = useMemo(() => {
+    if (!selectedCategory && !debouncedSearchQuery) {
+      return galleryData // Return original if no filters
+    }
+
+    const searchLower = debouncedSearchQuery.toLowerCase()
+
+    return galleryData.filter((item) => {
+      // Category filter - early return if doesn't match
+      if (selectedCategory && !item.category.includes(selectedCategory)) {
+        return false
+      }
+
+      // Search filter - early return if doesn't match
+      if (debouncedSearchQuery) {
+        const matchesTitle = item.title.toLowerCase().includes(searchLower)
+        const matchesDescription = item.description.toLowerCase().includes(searchLower)
+        const matchesLocation = item.location?.toLowerCase().includes(searchLower)
+        const matchesCategory = item.category.some((cat) => cat.toLowerCase().includes(searchLower))
+
+        if (!matchesTitle && !matchesDescription && !matchesLocation && !matchesCategory) {
+          return false
+        }
+      }
+
+      return true
+    })
+  }, [selectedCategory, debouncedSearchQuery, galleryData])
+
+  // FIXED: Proper cleanup for keyboard listeners
+  const cleanupKeyboardListener = useCallback(() => {
+    if (keydownCleanupRef.current) {
+      keydownCleanupRef.current()
+      keydownCleanupRef.current = null
+    }
   }, [])
 
-  // Image loading handlers
-  const handleImageLoad = useCallback((src: string) => {
-    setImageLoadingStates((prev) => ({ ...prev, [src]: false }))
-  }, [])
+  // FIXED: Optimized modal functions - NO DEPENDENCIES ON FILTERED GALLERY
+  const openModal = useCallback(
+    (index: number) => {
+      // Clean up any existing listener first
+      cleanupKeyboardListener()
 
-  const handleImageError = useCallback((src: string) => {
-    setImageLoadingStates((prev) => ({ ...prev, [src]: false }))
-    setImageErrors((prev) => ({ ...prev, [src]: true }))
-  }, [])
+      setModalIndex(index)
+      setCurrentPreviewIndex(0)
 
-  const handleImageLoadStart = useCallback((src: string) => {
-    setImageLoadingStates((prev) => ({ ...prev, [src]: true }))
-  }, [])
+      const handleKeyDown = (e: KeyboardEvent) => {
+        switch (e.key) {
+          case "Escape":
+            closeModal()
+            break
+          case "ArrowLeft":
+            e.preventDefault()
+            setCurrentPreviewIndex((prev) => {
+              // Get current item from filtered gallery at time of key press
+              const currentItem = filteredGallery[index]
+              if (!currentItem) return prev
+              const total = currentItem.images.length
+              return (prev - 1 + total) % total
+            })
+            break
+          case "ArrowRight":
+            e.preventDefault()
+            setCurrentPreviewIndex((prev) => {
+              // Get current item from filtered gallery at time of key press
+              const currentItem = filteredGallery[index]
+              if (!currentItem) return prev
+              const total = currentItem.images.length
+              return (prev + 1) % total
+            })
+            break
+        }
+      }
 
-  // Modal functions
-  const openModal = useCallback((index: number) => {
-    setModalIndex(index)
-    setCurrentPreviewIndex(0)
-    document.body.style.overflow = "hidden"
-  }, [])
+      document.addEventListener("keydown", handleKeyDown)
+      keydownCleanupRef.current = () => document.removeEventListener("keydown", handleKeyDown)
+    },
+    [cleanupKeyboardListener],
+  ) // Remove filteredGallery dependency
 
   const closeModal = useCallback(() => {
+    cleanupKeyboardListener()
     setModalIndex(null)
-    document.body.style.overflow = "unset"
-  }, [])
+  }, [cleanupKeyboardListener])
 
+  // FIXED: Optimized navigation functions
   const prevImage = useCallback(() => {
-    if (modalIndex === null) return
-    const total = filteredGallery[modalIndex].images.length
-    setCurrentPreviewIndex((prev) => (prev - 1 + total) % total)
+    setCurrentPreviewIndex((prev) => {
+      if (modalIndex === null) return prev
+      const currentItem = filteredGallery[modalIndex]
+      if (!currentItem) return prev
+      const total = currentItem.images.length
+      return (prev - 1 + total) % total
+    })
   }, [modalIndex, filteredGallery])
 
   const nextImage = useCallback(() => {
-    if (modalIndex === null) return
-    const total = filteredGallery[modalIndex].images.length
-    setCurrentPreviewIndex((prev) => (prev + 1) % total)
+    setCurrentPreviewIndex((prev) => {
+      if (modalIndex === null) return prev
+      const currentItem = filteredGallery[modalIndex]
+      if (!currentItem) return prev
+      const total = currentItem.images.length
+      return (prev + 1) % total
+    })
   }, [modalIndex, filteredGallery])
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (modalIndex === null) return
-
-      switch (e.key) {
-        case "Escape":
-          closeModal()
-          break
-        case "ArrowLeft":
-          e.preventDefault()
-          prevImage()
-          break
-        case "ArrowRight":
-          e.preventDefault()
-          nextImage()
-          break
+  // FIXED: Optimized like toggle - USE STABLE ID INSTEAD OF TITLE
+  const toggleLike = useCallback((itemId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setLikedItems((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId)
+      } else {
+        newSet.add(itemId)
       }
-    }
+      return newSet
+    })
+  }, [])
 
-    if (modalIndex !== null) {
-      document.addEventListener("keydown", handleKeyDown)
-      return () => document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [modalIndex, closeModal, prevImage, nextImage])
-
-  // Focus management
+  // FIXED: Proper body overflow management
   useEffect(() => {
-    if (modalIndex !== null && modalRef.current) {
-      modalRef.current.focus()
+    if (modalIndex !== null) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "unset"
     }
   }, [modalIndex])
 
-  // Search shortcut
+  // FIXED: Cleanup keyboard listeners on unmount
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === "k") {
-        e.preventDefault()
-        searchInputRef.current?.focus()
-      }
+    return () => {
+      cleanupKeyboardListener()
     }
+  }, [cleanupKeyboardListener])
 
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
+  // FIXED: Stable filter handlers
+  const handleCategorySelect = useCallback((category: string | null) => {
+    setSelectedCategory(category)
+    setShowFilters(false)
   }, [])
 
-  if (isLoading) {
-    return (
-      <Shell>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 text-[#F3954A] animate-spin mx-auto" />
-            <p className="text-gray-700 text-lg">Loading gallery...</p>
-          </div>
-        </div>
-      </Shell>
-    )
-  }
+  const handleSearchClear = useCallback(() => {
+    setSearchQuery("")
+  }, [])
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }, [])
+
+  // Pre-compute current modal item to avoid repeated lookups
+  const currentModalItem = useMemo(() => {
+    return modalIndex !== null ? filteredGallery[modalIndex] : null
+  }, [modalIndex, filteredGallery])
 
   return (
     <Shell>
-      <section className="relative w-full min-h-screen px-4 py-20 space-y-16 bg-gradient-to-br from-blue-50 via-white to-orange-50 text-gray-900 overflow-hidden">
-        {/* Light Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F3954A]/5 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#2A61AC]/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#F3954A]/3 rounded-full blur-3xl animate-pulse delay-500"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(243,149,74,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(243,149,74,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
-          <div className="absolute top-20 left-10 w-2 h-2 bg-[#F3954A]/20 rounded-full animate-bounce delay-300"></div>
-          <div className="absolute top-40 right-20 w-3 h-3 bg-[#2A61AC]/20 rounded-full animate-bounce delay-700"></div>
-          <div className="absolute bottom-32 left-1/4 w-2 h-2 bg-[#F3954A]/30 rounded-full animate-bounce delay-1000"></div>
+      <div className="relative w-full overflow-hidden mt-10">
+        <CreativeBackground />
+
+        {/* Simplified floating elements - CSS only */}
+        <div className="absolute top-20 left-4 sm:left-10 w-6 h-6 sm:w-8 sm:h-8 text-orange-200/30 animate-pulse">
+          <Sparkles className="w-full h-full" />
+        </div>
+        <div className="absolute top-32 right-4 sm:right-20 w-5 h-5 sm:w-6 sm:h-6 text-blue-200/30 animate-bounce">
+          <Star className="w-full h-full" />
         </div>
 
-        {/* Hero Section */}
-        <div className="relative container mx-auto px-4 mt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center space-y-6 mb-16"
-          >
-            <div className="relative">
-              <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-[#F3954A] via-[#ff7b3d] to-[#2A61AC] bg-clip-text text-transparent mb-4">
+        <section className="relative z-10 w-full px-3 sm:px-4 py-12 sm:py-20 space-y-8 sm:space-y-12 text-gray-900">
+          <div className="container mx-auto px-2 sm:px-4 mt-6 sm:mt-10">
+            {/* Hero Section */}
+            <motion.div
+              className="text-center space-y-4 sm:space-y-6 mb-8 sm:mb-12"
+            >
+              <h1 className="py-6 sm:py-10 text-4xl sm:text-6xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-orange-500 to-blue-600 bg-clip-text text-transparent mb-2 sm:mb-4">
                 Gallery
               </h1>
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-[#F3954A]/5 rounded-full blur-2xl"></div>
-            </div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Witness the transformative power of community action through our visual journey of impact and hope
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-[#F3954A] to-[#ff7b3d] mx-auto rounded-full"></div>
-          </motion.div>
+              <div className="w-24 sm:w-32 h-1.5 sm:h-2 bg-gradient-to-r from-orange-500 via-violet-500 to-blue-600 rounded-full mx-auto" />
 
-          {/* Enhanced Search Bar - Prominent Position */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-12"
-          >
-            <div className="max-w-2xl mx-auto">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#F3954A]/20 to-[#2A61AC]/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-xl hover:shadow-2xl transition-all duration-300">
-                  <div className="flex items-center p-2">
-                    <div className="flex items-center flex-1">
-                      <div className="p-3 text-[#F3954A]">
-                        <Search className="w-6 h-6" />
-                      </div>
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder="Search projects, categories, locations... (Ctrl+K)"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="flex-1 px-2 py-3 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none text-lg"
-                      />
-                      {searchQuery && (
-                        <button
-                          onClick={() => setSearchQuery("")}
-                          className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-100/50 rounded-xl text-sm text-gray-500">
-                      <span>Ctrl</span>
-                      <span className="text-xs">+</span>
-                      <span>K</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+              <div className="relative max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto">
+                {/* Decorative elements - Hidden on mobile */}
+                <div className="hidden sm:block absolute -top-3 -left-3 w-4 h-4 sm:w-6 sm:h-6 border-2 border-orange-300 rounded-full animate-spin"></div>
+                <div className="hidden sm:block absolute -top-3 -right-3 w-3 h-3 sm:w-4 sm:h-4 bg-blue-300 rounded-full animate-bounce"></div>
+                <div className="hidden sm:block absolute -bottom-3 -left-3 w-4 h-4 sm:w-5 sm:h-5 bg-purple-300 rounded-full animate-pulse"></div>
+                <div className="hidden sm:block absolute -bottom-3 -right-3 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-pink-300 rounded-full animate-ping"></div>
 
-          {/* Filter Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mb-12"
-          >
-            {/* Mobile Filter Toggle */}
-            <div className="block lg:hidden mb-6">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full flex items-center justify-center gap-3 p-4 bg-white/60 backdrop-blur-xl rounded-2xl border border-gray-200/50 hover:border-[#F3954A]/30 transition-all duration-300 shadow-lg hover:shadow-xl"
-                aria-expanded={showFilters}
-                aria-controls="mobile-filters"
-              >
-                <Filter className="w-5 h-5 text-[#F3954A]" />
-                <span className="font-medium text-gray-700">
-                  {selectedCategory ? `Filter: ${selectedCategory}` : "All Categories"}
-                </span>
-              </button>
-
-              <AnimatePresence>
-                {showFilters && (
-                  <motion.div
-                    id="mobile-filters"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-4 space-y-2 overflow-hidden"
-                  >
-                    <button
-                      onClick={() => {
-                        setSelectedCategory(null)
-                        setShowFilters(false)
-                      }}
-                      className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
-                        selectedCategory === null
-                          ? "bg-[#F3954A]/10 border border-[#F3954A]/30 text-[#F3954A] shadow-lg"
-                          : "bg-white/60 border border-gray-200/50 text-gray-700 hover:border-[#F3954A]/30 hover:bg-[#F3954A]/5"
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">All Categories</span>
-                        <span className="text-sm text-gray-500">({galleryData.length})</span>
-                      </div>
-                    </button>
-                    {categoriesData.map((cat) => (
-                      <button
-                        key={cat.title}
-                        onClick={() => {
-                          setSelectedCategory(cat.title)
-                          setShowFilters(false)
-                        }}
-                        className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
-                          selectedCategory === cat.title
-                            ? "bg-[#2A61AC]/10 border border-[#2A61AC]/30 text-[#2A61AC] shadow-lg"
-                            : "bg-white/60 border border-gray-200/50 text-gray-700 hover:border-[#2A61AC]/30 hover:bg-[#2A61AC]/5"
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <div className="font-medium">{cat.title}</div>
-                            <div className="text-sm text-gray-500">{cat.description}</div>
-                          </div>
-                          <span className="text-sm text-gray-500">({cat.count})</span>
-                        </div>
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Desktop Filter Pills */}
-            <div className="hidden lg:flex flex-wrap gap-4 justify-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(null)}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 backdrop-blur-xl border-2 shadow-lg hover:shadow-xl ${
-                  selectedCategory === null
-                    ? "bg-[#F3954A]/10 border-[#F3954A] text-[#F3954A] shadow-[#F3954A]/20"
-                    : "bg-white/60 border-gray-200/50 text-gray-700 hover:border-[#F3954A]/50 hover:bg-[#F3954A]/5"
-                }`}
-              >
-                All Categories ({galleryData.length})
-              </motion.button>
-              {categoriesData.map((cat, index) => (
-                <motion.button
-                  key={cat.title}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => setSelectedCategory(cat.title)}
-                  className={`px-6 py-3 rounded-full font-medium transition-all duration-300 backdrop-blur-xl border-2 shadow-lg hover:shadow-xl ${
-                    selectedCategory === cat.title
-                      ? "bg-[#2A61AC]/10 border-[#2A61AC] text-[#2A61AC] shadow-[#2A61AC]/20"
-                      : "bg-white/60 border-gray-200/50 text-gray-700 hover:border-[#2A61AC]/50 hover:bg-[#2A61AC]/5"
-                  }`}
-                  title={cat.description}
-                >
-                  {cat.title} ({cat.count})
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Results Summary */}
-          {(selectedCategory || searchQuery) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-xl rounded-full border border-gray-200/50 shadow-lg">
-                <Sparkles className="w-4 h-4 text-[#F3954A]" />
-                <p className="text-gray-700 font-medium">
-                  Showing {filteredGallery.length} project{filteredGallery.length !== 1 ? "s" : ""}
-                  {selectedCategory && ` in "${selectedCategory}"`}
-                  {searchQuery && ` matching "${searchQuery}"`}
+                <p className="text-base sm:text-xl lg:text-2xl text-gray-700 leading-relaxed font-medium bg-white/80 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+                  Witness the transformative power of community action through our visual journey of impact and hope
                 </p>
               </div>
             </motion.div>
-          )}
 
-          {/* Enhanced Gallery Grid */}
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence mode="popLayout">
-              {filteredGallery.map((item, index) => (
-                <motion.div
-                  key={`${item.title}-${selectedCategory}-${searchQuery}`}
-                  custom={index}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  whileHover="hover"
-                  className="group cursor-pointer"
-                  onClick={() => openModal(index)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      openModal(index)
-                    }
-                  }}
-                  aria-label={`View ${item.title} gallery`}
-                >
-                  <div className="relative bg-white/70 backdrop-blur-xl rounded-3xl overflow-hidden border border-gray-200/50 hover:border-[#F3954A]/30 transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-[#F3954A]/10">
-                    {/* Image Container */}
-                    <div className="relative h-64 overflow-hidden bg-gray-100/50">
-                      {imageLoadingStates[item.cover] && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 text-[#F3954A] animate-spin" />
-                        </div>
-                      )}
-
-                      {imageErrors[item.cover] ? (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80">
-                          <div className="text-center space-y-2">
-                            <AlertCircle className="w-8 h-8 text-gray-400 mx-auto" />
-                            <p className="text-gray-500 text-sm">Image unavailable</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <Image
-                          src={item.cover || "/placeholder.svg"}
-                          alt={item.title}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          onLoadingComplete={() => handleImageLoad(item.cover)}
-                          onError={() => handleImageError(item.cover)}
-                          onLoadStart={() => handleImageLoadStart(item.cover)}
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          priority={index < 6}
-                        />
-                      )}
-
-                      {/* Light Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#F3954A]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                      {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="text-center space-y-2">
-                          <Eye className="w-8 h-8 text-[#F3954A] mx-auto" />
-                          <span className="text-[#F3954A] font-medium">View Gallery</span>
-                        </div>
-                      </div>
-
-                      {/* Image Count Badge */}
-                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm text-gray-700 font-medium shadow-lg">
-                        {item.images.length} {item.images.length === 1 ? "photo" : "photos"}
-                      </div>
-
-                      {/* Date Badge */}
-                      {item.date && (
-                        <div className="absolute top-4 left-4 bg-[#F3954A]/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm text-white font-medium shadow-lg">
-                          {new Date(item.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </div>
-                      )}
+            {/* Search Bar */}
+            <motion.div
+              className="mb-6 sm:mb-8"
+            >
+              <div className="max-w-full sm:max-w-2xl mx-auto">
+                <div className="relative bg-white/95 rounded-xl sm:rounded-2xl border-2 border-gray-200 shadow-xl">
+                  <div className="flex items-center p-2 sm:p-2">
+                    <div className="p-2 sm:p-3 text-orange-500">
+                      <Search className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
+                    <input
+                      type="text"
+                      placeholder="Search projects..."
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      className="flex-1 px-2 py-2 sm:py-3 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none text-base sm:text-lg font-medium"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={handleSearchClear}
+                        className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 active:scale-95"
+                      >
+                        <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
-                    {/* Content */}
-                    <div className="p-6 space-y-3">
-                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#F3954A] transition-colors duration-300">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">{item.description}</p>
+            {/* Filter Section */}
+            <motion.div
+              className="mb-6 sm:mb-8"
+            >
+              {/* Mobile Filter Toggle */}
+              <div className="block lg:hidden mb-4">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="w-full flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/95 rounded-xl sm:rounded-2xl border-2 border-gray-200 hover:border-orange-300 transition-all duration-300 shadow-xl active:scale-[0.98]"
+                >
+                  <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                  <span className="font-bold text-gray-700 text-sm sm:text-base">
+                    {selectedCategory ? `Filter: ${selectedCategory}` : "All Categories"}
+                  </span>
+                </button>
 
-                      {/* Location */}
-                      {item.location && <p className="text-gray-500 text-xs">📍 {item.location}</p>}
-
-                      {/* Category Tags */}
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {item.category.slice(0, 2).map((cat) => (
-                          <span
-                            key={cat}
-                            className="px-3 py-1 bg-[#2A61AC]/10 text-[#2A61AC] text-xs font-medium rounded-full border border-[#2A61AC]/20"
-                          >
-                            {cat}
+                <AnimatePresence>
+                  {showFilters && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 sm:mt-4 space-y-2 sm:space-y-3"
+                    >
+                      <button
+                        onClick={() => handleCategorySelect(null)}
+                        className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl text-left transition-all duration-300 active:scale-[0.98] ${
+                          selectedCategory === null
+                            ? "bg-gradient-to-r from-orange-100 to-violet-100 border-2 border-violet-300 text-orange-700 shadow-lg"
+                            : "bg-white/90 border-2 border-gray-200 text-gray-700 hover:border-orange-300 hover:shadow-lg"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-sm sm:text-base">All Categories</span>
+                          <span className="text-xs sm:text-sm text-gray-500 bg-white/80 px-2 py-1 rounded-full">
+                            ({galleryData.length})
                           </span>
-                        ))}
-                        {item.category.length > 2 && (
-                          <span className="px-3 py-1 bg-gray-200/50 text-gray-600 text-xs font-medium rounded-full">
-                            +{item.category.length - 2} more
-                          </span>
+                        </div>
+                      </button>
+                      {categoriesData.map((cat) => (
+                        <button
+                          key={cat.title}
+                          onClick={() => handleCategorySelect(cat.title)}
+                          className={`w-full p-3 sm:p-4 rounded-lg sm:rounded-xl text-left transition-all duration-300 active:scale-[0.98] ${
+                            selectedCategory === cat.title
+                              ? "bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-300 text-blue-700 shadow-lg"
+                              : "bg-white/90 border-2 border-gray-200 text-gray-700 hover:border-blue-300 hover:shadow-lg"
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              {cat.icon}
+                              <div>
+                                <div className="font-bold text-sm sm:text-base">{cat.title}</div>
+                                <div className="text-xs sm:text-sm text-gray-500">{cat.description}</div>
+                              </div>
+                            </div>
+                            <span className="text-xs sm:text-sm text-gray-500 bg-white/80 px-2 py-1 rounded-full">
+                              ({cat.count})
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Desktop Filter Pills */}
+              <div className="hidden lg:flex flex-wrap gap-3 sm:gap-4 justify-center">
+                <button
+                  onClick={() => handleCategorySelect(null)}
+                  className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold transition-all duration-300 border-2 shadow-xl hover:scale-105 active:scale-95 ${
+                    selectedCategory === null
+                      ? "bg-gradient-to-r from-orange-500 to-pink-500 border-orange-500 text-white shadow-orange-200"
+                      : "bg-white/90 border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-lg"
+                  }`}
+                >
+                  All Categories ({galleryData.length})
+                </button>
+                {categoriesData.map((cat) => (
+                  <button
+                    key={cat.title}
+                    onClick={() => handleCategorySelect(cat.title)}
+                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold transition-all duration-300 border-2 shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 ${
+                      selectedCategory === cat.title
+                        ? `${cat.color} border-transparent text-white`
+                        : "bg-white/90 border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-lg"
+                    }`}
+                  >
+                    {cat.icon}
+                    <span className="hidden sm:inline">{cat.title}</span>
+                    <span className="sm:hidden">{cat.title.split(" ")[0]}</span>({cat.count})
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Results Summary */}
+            {(selectedCategory || searchQuery) && (
+              <motion.div
+                className="text-center mb-6 sm:mb-8"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-white/90 to-gray-50/90 rounded-full border-2 border-gray-200 shadow-xl">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                  <p className="text-gray-700 font-bold text-sm sm:text-base">
+                    Showing {filteredGallery.length} project{filteredGallery.length !== 1 ? "s" : ""}
+                    {selectedCategory && ` in "${selectedCategory}"`}
+                    {searchQuery && ` matching "${searchQuery}"`}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Gallery Grid - FIXED: Use stable keys */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              {filteredGallery.map((item, index) => (
+                <GalleryCard
+                  key={item.id} // FIXED: Use stable ID instead of computed string
+                  item={item}
+                  index={index}
+                  onOpenModal={openModal}
+                  onToggleLike={toggleLike}
+                  isLiked={likedItems.has(item.id)} // FIXED: Use ID instead of title
+                  categoryLookupMap={categoryLookupMap}
+                />
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {filteredGallery.length === 0 && (
+              <motion.div
+                className="text-center py-12 sm:py-20"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-xl">
+                  <Filter className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-500 mb-2 sm:mb-3">No projects found</h3>
+                <p className="text-gray-400 mb-4 sm:mb-6 text-base sm:text-lg px-4">
+                  {searchQuery
+                    ? `No projects match "${searchQuery}"`
+                    : selectedCategory
+                      ? `No projects found in "${selectedCategory}"`
+                      : "No projects available"}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+                  {searchQuery && (
+                    <button
+                      onClick={handleSearchClear}
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-100 to-pink-100 text-orange-600 rounded-full hover:from-orange-200 hover:to-pink-200 transition-all font-bold border-2 border-orange-200 shadow-lg active:scale-95"
+                    >
+                      Clear Search
+                    </button>
+                  )}
+                  {selectedCategory && (
+                    <button
+                      onClick={() => handleCategorySelect(null)}
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-600 rounded-full hover:from-blue-200 hover:to-purple-200 transition-all font-bold border-2 border-blue-200 shadow-lg active:scale-95"
+                    >
+                      View All Categories
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Modal - FIXED: Use pre-computed current item */}
+          <AnimatePresence>
+            {modalIndex !== null && currentModalItem && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4"
+                onClick={closeModal}
+              >
+                <motion.div
+                  ref={modalRef}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="relative rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] bg-white shadow-2xl text-gray-900 overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white hover:bg-gray-100 rounded-full p-1.5 sm:p-2 transition-colors shadow-md active:scale-95"
+                    onClick={closeModal}
+                  >
+                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+                  </button>
+
+                  <div className="p-4 sm:p-6">
+                    <div className="mb-4 sm:mb-6">
+                      <div className="flex items-start justify-between mb-3 sm:mb-4">
+                        <div className="flex-1 pr-8 sm:pr-12">
+                          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-500 mb-2">
+                            {currentModalItem.title}
+                          </h2>
+                          <p className="text-gray-600 mb-3 text-sm sm:text-base">{currentModalItem.description}</p>
+                        </div>
+                        {currentModalItem.featured && (
+                          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1">
+                            <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span className="hidden xs:inline">Featured</span>
+                          </div>
                         )}
                       </div>
+
+                      <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500">
+                        {currentModalItem.location && (
+                          <div className="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 py-1 sm:px-3 sm:py-1 rounded-full">
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>{currentModalItem.location}</span>
+                          </div>
+                        )}
+                        {currentModalItem.date && (
+                          <div className="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 py-1 sm:px-3 sm:py-1 rounded-full">
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>{formatFullDate(currentModalItem.date)}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 py-1 sm:px-3 sm:py-1 rounded-full">
+                          <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span>{currentModalItem.likes || 0} likes</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] mb-4 sm:mb-6 rounded-lg sm:rounded-xl overflow-hidden bg-gray-100">
+                      <Image
+                        src={currentModalItem.images[currentPreviewIndex] || "/placeholder.svg"}
+                        alt={`${currentModalItem.title} - Image ${currentPreviewIndex + 1}`}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, 80vw"
+                        priority
+                      />
+
+                      {currentModalItem.images.length > 1 && (
+                        <>
+                          <button
+                            onClick={prevImage}
+                            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-2 transition-colors shadow-md active:scale-95"
+                          >
+                            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+                          </button>
+                          <button
+                            onClick={nextImage}
+                            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1.5 sm:p-2 transition-colors shadow-md active:scale-95"
+                          >
+                            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+                          </button>
+                        </>
+                      )}
+
+                      <div className="absolute bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium text-gray-700">
+                        {currentPreviewIndex + 1} of {currentModalItem.images.length}
+                      </div>
+                    </div>
+
+                    {currentModalItem.images.length > 1 && (
+                      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 mb-4 sm:mb-6">
+                        {currentModalItem.images.map((img, idx) => (
+                          <button
+                            key={`${currentModalItem.id}-thumb-${idx}`} // FIXED: Use stable key
+                            onClick={() => setCurrentPreviewIndex(idx)}
+                            className={`relative w-12 h-9 sm:w-16 sm:h-12 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all duration-300 flex-shrink-0 active:scale-95 ${
+                              currentPreviewIndex === idx
+                                ? "border-orange-500 scale-110"
+                                : "border-gray-300 hover:border-gray-400"
+                            }`}
+                          >
+                            <Image
+                              src={img || "/placeholder.svg?height=50&width=60"}
+                              alt={`Thumbnail ${idx + 1}`}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {currentModalItem.category.map((cat) => {
+                        const categoryData = categoryLookupMap.get(cat)
+                        return (
+                          <span
+                            key={cat}
+                            className={`px-2 py-1 sm:px-3 sm:py-1 text-xs sm:text-sm font-medium rounded-full text-white flex items-center gap-1 sm:gap-2 ${
+                              categoryData?.color || "bg-gray-500"
+                            }`}
+                          >
+                            {categoryData?.icon}
+                            {cat}
+                          </span>
+                        )
+                      })}
                     </div>
                   </div>
                 </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Empty State */}
-          {filteredGallery.length === 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-20">
-              <div className="w-24 h-24 bg-gray-100/50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Filter className="w-12 h-12 text-gray-400" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-500 mb-2">No projects found</h3>
-              <p className="text-gray-400 mb-6">
-                {searchQuery
-                  ? `No projects match "${searchQuery}"`
-                  : selectedCategory
-                    ? `No projects found in "${selectedCategory}"`
-                    : "No projects available"}
-              </p>
-              <div className="flex gap-4 justify-center">
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="px-6 py-3 bg-[#F3954A]/10 text-[#F3954A] rounded-full hover:bg-[#F3954A]/20 transition-colors border border-[#F3954A]/20"
-                  >
-                    Clear Search
-                  </button>
-                )}
-                {selectedCategory && (
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    className="px-6 py-3 bg-[#2A61AC]/10 text-[#2A61AC] rounded-full hover:bg-[#2A61AC]/20 transition-colors border border-[#2A61AC]/20"
-                  >
-                    View All Categories
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Enhanced Modal - Light Theme */}
-        <AnimatePresence>
-          {modalIndex !== null && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-              onClick={closeModal}
-            >
-              <motion.div
-                ref={modalRef}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="relative rounded-3xl max-w-6xl w-full max-h-[95vh] bg-white/95 backdrop-blur-xl shadow-2xl text-gray-900 border border-gray-200/50 overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-                tabIndex={-1}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-              >
-                {/* Close Button */}
-                <button
-                  className="absolute top-6 right-6 z-10 bg-white/80 hover:bg-white rounded-full p-2 transition-all duration-300 hover:scale-110 shadow-lg border border-gray-200/50"
-                  onClick={closeModal}
-                  aria-label="Close gallery"
-                >
-                  <X className="w-6 h-6 text-gray-700" />
-                </button>
-
-                <div className="p-4 md:p-8">
-                  {/* Modal Header */}
-                  <div className="mb-6">
-                    <h2 id="modal-title" className="text-2xl md:text-3xl font-bold text-[#F3954A] mb-2">
-                      {filteredGallery[modalIndex].title}
-                    </h2>
-                    <p id="modal-description" className="text-gray-600 mb-2">
-                      {filteredGallery[modalIndex].description}
-                    </p>
-                    {filteredGallery[modalIndex].location && (
-                      <p className="text-gray-500 text-sm">📍 {filteredGallery[modalIndex].location}</p>
-                    )}
-                    {filteredGallery[modalIndex].date && (
-                      <p className="text-gray-500 text-sm">
-                        📅{" "}
-                        {new Date(filteredGallery[modalIndex].date!).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Main Image */}
-                  <div className="relative w-full h-[300px] md:h-[500px] mb-6 rounded-2xl overflow-hidden bg-gray-100/50">
-                    {imageLoadingStates[filteredGallery[modalIndex].images[currentPreviewIndex]] && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader2 className="w-12 h-12 text-[#F3954A] animate-spin" />
-                      </div>
-                    )}
-
-                    <Image
-                      src={filteredGallery[modalIndex].images[currentPreviewIndex] || "/placeholder.svg"}
-                      alt={`${filteredGallery[modalIndex].title} - Image ${currentPreviewIndex + 1}`}
-                      fill
-                      className="object-contain"
-                      onLoadingComplete={() => handleImageLoad(filteredGallery[modalIndex].images[currentPreviewIndex])}
-                      onError={() => handleImageError(filteredGallery[modalIndex].images[currentPreviewIndex])}
-                      onLoadStart={() => handleImageLoadStart(filteredGallery[modalIndex].images[currentPreviewIndex])}
-                      sizes="(max-width: 768px) 100vw, 90vw"
-                      priority
-                    />
-
-                    {/* Navigation Arrows */}
-                    {filteredGallery[modalIndex].images.length > 1 && (
-                      <>
-                        <button
-                          onClick={prevImage}
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 shadow-lg border border-gray-200/50"
-                          aria-label="Previous image"
-                        >
-                          <ChevronLeft className="w-6 h-6 text-gray-700" />
-                        </button>
-                        <button
-                          onClick={nextImage}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 shadow-lg border border-gray-200/50"
-                          aria-label="Next image"
-                        >
-                          <ChevronRight className="w-6 h-6 text-gray-700" />
-                        </button>
-                      </>
-                    )}
-
-                    {/* Image Counter */}
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-lg border border-gray-200/50">
-                      {currentPreviewIndex + 1} of {filteredGallery[modalIndex].images.length}
-                    </div>
-                  </div>
-
-                  {/* Thumbnail Strip */}
-                  {filteredGallery[modalIndex].images.length > 1 && (
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                      {filteredGallery[modalIndex].images.map((img, idx) => (
-                        <button
-                          key={`${img}-${idx}`}
-                          onClick={() => setCurrentPreviewIndex(idx)}
-                          className={`relative w-20 h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 flex-shrink-0 ${
-                            currentPreviewIndex === idx
-                              ? "border-[#F3954A] scale-110 shadow-lg"
-                              : "border-gray-300 hover:border-gray-400"
-                          }`}
-                          aria-label={`View image ${idx + 1}`}
-                        >
-                          <Image
-                            src={img || "/placeholder.svg"}
-                            alt={`Thumbnail ${idx + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="80px"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Category Tags in Modal */}
-                  <div className="flex flex-wrap gap-2 mt-6">
-                    {filteredGallery[modalIndex].category.map((cat) => (
-                      <span
-                        key={cat}
-                        className="px-3 py-1 bg-[#2A61AC]/10 text-[#2A61AC] text-sm font-medium rounded-full border border-[#2A61AC]/20"
-                      >
-                        {cat}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
-      <Footer />
+            )}
+          </AnimatePresence>
+        </section>
+
+        <div className="relative z-10">
+          <Footer />
+        </div>
+      </div>
     </Shell>
   )
 }
 
-export default GallerySection
+export default UltraOptimizedGallery
