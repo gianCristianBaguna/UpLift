@@ -206,7 +206,7 @@ export default function ServicesSection() {
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
           >
-            <div className="inline-flex items-center gap-2 bg-[#F3954A]/10 text-[#F3954A] px-6 py-3 rounded-full text-sm font-semibold mb-6 ">
+            <div className="inline-flex items-center gap-2 bg-[#F3954A]/10 text-[#F3954A] px-6 py-3 rounded-full text-sm font-semibold mb-10 ">
               <Users className="w-4 h-4" />
               Our Impact Areas
             </div>

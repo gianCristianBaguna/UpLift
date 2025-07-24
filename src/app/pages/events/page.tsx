@@ -21,6 +21,7 @@ import {
   Star,
 } from "lucide-react"
 import Footer from "@/components/navbar/footer"
+import clsx from "clsx";
 
 const allEvents: any[] = [
   {
@@ -142,11 +143,88 @@ export default function EventsPage() {
     return isUpcoming && matchesCategory && matchesSearch
   })
 
+   const bubbles = [
+    {
+      className: "top-1/3 left-8 w-14 h-14",
+      colors: "from-[#F3954A]/25 to-orange-300/35",
+      animation: "animate-float-1",
+    },
+    {
+      className: "bottom-1/20 left-8 w-14 h-14",
+      colors: "from-[#F3954A]/25 to-orange-300/35",
+      animation: "animate-float-1",
+    },
+    {
+      className: "top-1/2 right-12 w-11 h-11",
+      colors: "from-[#2A61AC]/30 to-blue-300/30",
+      animation: "animate-bounce-slow delay-500",
+    },
+    {
+      className: "top-2/3 left-1/3 w-13 h-13",
+      colors: "from-amber-300/25 to-orange-200/35",
+      animation: "animate-float-2 delay-800",
+    },
+    {
+      className: "top-3/4 right-3/4 w-13 h-13",
+      colors: "from-[#F3954A]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "top-1/8 left-8 w-10 h-10",
+      colors: "from-[#F3954A]/25 to-orange-300/35",
+      animation: "animate-float-1",
+    },
+    {
+      className: "top-1/6 right-12 w-15 h-15",
+      colors: "from-[#2A61AC]/30 to-blue-300/30",
+      animation: "animate-bounce-slow delay-500",
+    },
+    {
+      className: "top-2/5 left-1/3 w-11 h-11",
+      colors: "from-amber-300/25 to-orange-200/35",
+      animation: "animate-float-2 delay-800",
+    },
+    {
+      className: "top-4/10 right-3/4 w-9 h-9",
+      colors: "from-[#F3954A]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "bottom-1/20 right-1/4 w-10 h-10",
+      colors: "from-[#2A61AC]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "top-3/6 right-1/4 w-9 h-9",
+      colors: "from-[#F3954A]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "bottom-1/6 right-2/4 w-10 h-10",
+      colors: "from-[#2A61AC]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+  ];
+
   return (
     <Shell>
       <main className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="relative py-24 bg-gradient-to-br from-gray-50 to-white overflow-hidden mt-10">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      {bubbles.map((b, idx) => (
+                        <div
+                          key={idx}
+                          className={clsx(
+                            "absolute rounded-full",
+                            b.className,
+                            "bg-gradient-to-br",
+                            b.colors,
+                            b.animation
+                          )}
+                        ></div>
+                      ))}
+                    </div>
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="text-center">
               <motion.div
@@ -194,20 +272,20 @@ export default function EventsPage() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto"
               >
-                <div className="relative flex-1 w-full md:w-auto">
+                <div className="relative flex-1 w-full md:w-auto border-1 border-black rounded-full">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search events..."
+                    placeholder="Search events..."  
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all"
+                    className="w-full pl-10 pr-4 py-3  rounded-full text-black"
                   />
                 </div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-3 border border-gray-200 rounded-full focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all text-black bg-white"
+                  className="px-4 py-3 border-1 border-black rounded-full focus:ring-2 focus:ring-[#F3954A]/20 focus:border-[#F3954A] transition-all text-black bg-white"
                 >
                   {categories.map((category) => (
                     <option key={category} value={category}>
