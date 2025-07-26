@@ -1,19 +1,8 @@
-"use client";
-
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
-import {
-  CalendarDays,
-  MapPin,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  ArrowRight,
-  Heart,
-  Sparkles,
-} from "lucide-react";
-import { PanInfo } from "framer-motion";
+"use client"
+import { useState, useRef, useEffect } from "react"
+import { motion, AnimatePresence, useInView } from "framer-motion"
+import { CalendarDays, MapPin, Users, ChevronLeft, ChevronRight, Clock, Heart, Sparkles } from "lucide-react"
+import type { PanInfo } from "framer-motion"
 
 const eventData = [
   {
@@ -58,44 +47,41 @@ const eventData = [
     impact: "Planting 1,000+ trees",
     color: "from-green-600 to-teal-600",
   },
-];
+]
 
 export default function UpcomingEventsSection() {
-  const [current, setCurrent] = useState(0);
-
-  const [index, setIndex] = useState(0);
-
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  // Remove the redundant 'current' state - only use 'index'
+  const [index, setIndex] = useState(0)
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   const goToNext = () => {
-    setIndex((prev) => (prev + 1) % eventData.length);
-  };
+    setIndex((prev) => (prev + 1) % eventData.length)
+  }
 
   const goToPrev = () => {
-    setIndex((prev) => (prev - 1 + eventData.length) % eventData.length);
-  };
+    setIndex((prev) => (prev - 1 + eventData.length) % eventData.length)
+  }
 
   const handleSwipe = (_: MouseEvent | TouchEvent, info: PanInfo) => {
-    const { offset, velocity } = info;
-    const swipePower = Math.abs(offset.x) * velocity.x;
-
+    const { offset, velocity } = info
+    const swipePower = Math.abs(offset.x) * velocity.x
     if (swipePower < -500) {
-      setIndex((prev) => (prev + 1) % eventData.length);
+      setIndex((prev) => (prev + 1) % eventData.length)
     } else if (swipePower > 500) {
-      setIndex((prev) => (prev - 1 + eventData.length) % eventData.length);
+      setIndex((prev) => (prev - 1 + eventData.length) % eventData.length)
     }
-  };
-  const currentEvent = eventData[index];
+  }
 
-  const [isMobile, setIsMobile] = useState(false);
+  const currentEvent = eventData[index]
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   return (
     <section className="py-24 bg-gray-50">
@@ -109,16 +95,11 @@ export default function UpcomingEventsSection() {
         >
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="h-6 w-6 text-[#F3954A]" />
-            <span className="text-[#F3954A] font-semibold uppercase tracking-wide text-sm">
-              Upcoming Events
-            </span>
+            <span className="text-[#F3954A] font-semibold uppercase tracking-wide text-sm">Upcoming Events</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Join Our Latest Initiatives
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Join Our Latest Initiatives</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Be part of meaningful change in our community. Every event is an
-            opportunity to make a difference.
+            Be part of meaningful change in our community. Every event is an opportunity to make a difference.
           </p>
         </motion.div>
 
@@ -126,7 +107,7 @@ export default function UpcomingEventsSection() {
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
-              drag={isMobile ? "x" : false} // <- only drag on mobile
+              drag={isMobile ? "x" : false}
               dragConstraints={isMobile ? { left: 0, right: 0 } : undefined}
               onDragEnd={isMobile ? handleSwipe : undefined}
               initial={{ opacity: 0, x: 100 }}
@@ -142,9 +123,7 @@ export default function UpcomingEventsSection() {
                     alt={currentEvent.title}
                     className="w-full h-full object-cover"
                   />
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${currentEvent.color} opacity-20`}
-                  />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${currentEvent.color} opacity-20`} />
                   <div className="absolute top-6 left-6">
                     <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
                       {currentEvent.category}
@@ -153,70 +132,43 @@ export default function UpcomingEventsSection() {
                   <div className="absolute bottom-6 left-6 text-white">
                     <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
                       <Heart className="h-4 w-4 text-red-400" />
-                      <span className="text-sm font-medium">
-                        {currentEvent.impact}
-                      </span>
+                      <span className="text-sm font-medium">{currentEvent.impact}</span>
                     </div>
                   </div>
                 </div>
-
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
-                  <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                    {currentEvent.title}
-                  </h3>
-
-                  <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                    {currentEvent.description}
-                  </p>
-
+                  <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">{currentEvent.title}</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed mb-8">{currentEvent.description}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <CalendarDays className="h-5 w-5 text-[#F3954A]" />
                       <div>
-                        <div className="font-semibold text-gray-900">
-                          {currentEvent.date}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {currentEvent.time}
-                        </div>
+                        <div className="font-semibold text-gray-900">{currentEvent.date}</div>
+                        <div className="text-sm text-gray-600">{currentEvent.time}</div>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <MapPin className="h-5 w-5 text-[#F3954A]" />
                       <div>
-                        <div className="font-semibold text-gray-900">
-                          Location
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {currentEvent.location}
-                        </div>
+                        <div className="font-semibold text-gray-900">Location</div>
+                        <div className="text-sm text-gray-600">{currentEvent.location}</div>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <Users className="h-5 w-5 text-[#F3954A]" />
                       <div>
-                        <div className="font-semibold text-gray-900">
-                          Expected
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {currentEvent.attendees}
-                        </div>
+                        <div className="font-semibold text-gray-900">Expected</div>
+                        <div className="text-sm text-gray-600">{currentEvent.attendees}</div>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <Clock className="h-5 w-5 text-[#F3954A]" />
                       <div>
-                        <div className="font-semibold text-gray-900">
-                          Duration
-                        </div>
+                        <div className="font-semibold text-gray-900">Duration</div>
                         <div className="text-sm text-gray-600">4 hours</div>
                       </div>
                     </div>
                   </div>
-
                   <div className="flex flex-col sm:flex-row gap-4">
                     <button className="border-2 border-[#F3954A] text-[#F3954A] hover:bg-[#F3954A] hover:text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 flex-1 sm:flex-none bg-transparent">
                       <a href="/pages/event">Learn More</a>
@@ -227,6 +179,7 @@ export default function UpcomingEventsSection() {
             </motion.div>
           </AnimatePresence>
 
+          {/* Navigation controls - fixed to use 'index' consistently */}
           <div className="hidden md:flex justify-center items-center gap-6 mt-8">
             <button
               onClick={goToPrev}
@@ -235,22 +188,20 @@ export default function UpcomingEventsSection() {
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
-
             <div className="flex gap-2">
-              {eventData.map((_, index) => (
+              {eventData.map((_, dotIndex) => (
                 <button
-                  key={current}
-                  onClick={() => setIndex(index)}
+                  key={dotIndex} // Fixed: use dotIndex instead of current
+                  onClick={() => setIndex(dotIndex)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === current
+                    dotIndex === index // Fixed: compare dotIndex with index
                       ? "bg-[#F3954A] w-8"
                       : "bg-gray-300 hover:bg-gray-400"
                   }`}
-                  aria-label={`Go to event ${index + 1}`}
+                  aria-label={`Go to event ${dotIndex + 1}`}
                 />
               ))}
             </div>
-
             <button
               onClick={goToNext}
               className="bg-white hover:bg-gray-50 text-gray-700 p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
@@ -261,31 +212,26 @@ export default function UpcomingEventsSection() {
           </div>
         </div>
 
+        {/* Thumbnail carousel - fixed to use 'index' consistently */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="hidden md:grid md:grid-cols-3 gap-6"
         >
-          {eventData.map((event, index) => (
+          {eventData.map((event, eventIndex) => (
             <div
               key={event.id}
-              onClick={() => setIndex(index)}
+              onClick={() => setIndex(eventIndex)}
               className={`cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 ${
-                index === current
+                eventIndex === index // Fixed: compare eventIndex with index
                   ? "ring-2 ring-[#F3954A] shadow-lg scale-105"
                   : "hover:shadow-md hover:scale-102"
               }`}
             >
               <div className="relative h-48">
-                <img
-                  src={event.image || "/placeholder.svg"}
-                  alt={event.title}
-                  className="w-full h-full object-cover"
-                />
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${event.color} opacity-20`}
-                />
+                <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" />
+                <div className={`absolute inset-0 bg-gradient-to-br ${event.color} opacity-20`} />
                 <div className="absolute bottom-4 left-4 text-white">
                   <h4 className="font-semibold text-lg">{event.title}</h4>
                   <p className="text-sm opacity-90">{event.date}</p>
@@ -302,12 +248,9 @@ export default function UpcomingEventsSection() {
           className="text-center mt-16"
         >
           <div className="bg-gradient-to-r from-[#F3954A]/10 to-[#F3954A]/5 rounded-3xl p-8 md:p-12">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              Can't Make It to These Events?
-            </h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{"Can't Make It to These Events?"}</h3>
             <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-lg">
-              Stay connected with our community and get notified about future
-              opportunities to make a difference.
+              Stay connected with our community and get notified about future opportunities to make a difference.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="border-2 border-[#F3954A] text-[#F3954A] hover:bg-[#F3954A] hover:text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 bg-transparent">
@@ -318,5 +261,5 @@ export default function UpcomingEventsSection() {
         </motion.div>
       </div>
     </section>
-  );
+  )
 }
