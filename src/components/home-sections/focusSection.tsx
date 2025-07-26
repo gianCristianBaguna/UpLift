@@ -307,7 +307,6 @@ export default function ServicesSection() {
                       className="inline-flex items-center gap-2 bg-[#F3954A] text-white px-8 py-4 rounded-full font-semibold hover:bg-[#e07f2f] transition-all duration-300 hover:scale-105 shadow-2xl"
                     >
                       Support This Cause
-                      <ArrowRight className="w-5 h-5" />
                     </a>
                   </div>
                 </div>

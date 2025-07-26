@@ -10,6 +10,7 @@ const missionData = [
     title: "Our Vision",
     subtitle: "A World of Equal Opportunities",
     color: "#F3954A",
+    bgColor: "#FAF7F3",
     bgGradient: "from-orange-50 to-orange-100",
     Icon: Eye,
     image: "/vision.jpg?height=400&width=600",
@@ -26,6 +27,7 @@ const missionData = [
     title: "Our Mission",
     subtitle: "Empowering Communities Through Action",
     color: "#2A61AC",
+    bgColor: "#FAF7F3",
     bgGradient: "from-blue-50 to-blue-100",
     Icon: HeartHandshake,
     image: "/action.jpg?height=400&width=600",
@@ -37,6 +39,7 @@ const missionData = [
     title: "Our Goal",
     subtitle: "Building Thriving Communities",
     color: "#22C55E",
+    bgColor: "#FAF7F3",
     bgGradient: "from-green-50 to-green-100",
     Icon: Flag,
     image: "/communities.jpg?height=400&width=600",
@@ -99,7 +102,7 @@ export default function AboutMission() {
                   {/* Floating Icon */}
                   <div
                     className="absolute top-6 left-6 p-4 rounded-2xl shadow-lg backdrop-blur-sm"
-                    style={{ backgroundColor: `${item.color}20` }}
+                    style={{ backgroundColor: `${item.bgColor}` }}
                   >
                     <item.Icon className="h-8 w-8" style={{ color: item.color }} />
                   </div>
@@ -151,19 +154,7 @@ export default function AboutMission() {
                   ))}
                 </div>
 
-                {/* Action Button */}
-                <div className="pt-4">
-                  <button
-                    className="rounded-full px-8 py-3 font-semibold transition-all duration-300 hover:shadow-lg"
-                    style={{
-                      backgroundColor: item.color,
-                      color: "white",
-                    }}
-                  >
-                    Learn More
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </button>
-                </div>
+                
               </div>
             </motion.div>
           ))}

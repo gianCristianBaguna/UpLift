@@ -133,17 +133,9 @@ export default function AboutTeamSection() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent" />
 
-            <div className="absolute bottom-8 left-8 right-8 text-white">
-              <div className="max-w-3xl">
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                  United by Purpose, Driven by Compassion
-                </h3>
-                <p className="text-lg opacity-90 mb-6">
-                  From volunteers in Las Vegas to grassroots partners across the
-                  Philippines, each member brings unique strength and purpose to
-                  our movement.
-                </p>
-                <div className="flex flex-wrap gap-4">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white">
+              <div className="max-w-3xl text-center">
+                <div className="flex flex-wrap justify-center gap-4">
                   {stats.map((stat, index) => (
                     <div
                       key={index}

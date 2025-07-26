@@ -83,7 +83,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-gray-200 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
-        <p>&copy; {new Date().getFullYear()} Uplift Organization. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Wisdomoustech Solutions. All rights reserved.</p>
         <div className="flex space-x-4 mt-4 sm:mt-0">
           <a href="#" className="hover:text-[#1c5091]">Terms</a>
           <a href="#" className="hover:text-[#1c5091]">Privacy</a>

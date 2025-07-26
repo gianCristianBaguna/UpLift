@@ -571,9 +571,6 @@ const UltraOptimizedGallery: React.FC = () => {
                 <div className="hidden sm:block absolute -bottom-3 -left-3 w-4 h-4 sm:w-5 sm:h-5 bg-purple-300 rounded-full animate-pulse"></div>
                 <div className="hidden sm:block absolute -bottom-3 -right-3 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-pink-300 rounded-full animate-ping"></div>
 
-                <p className="text-base sm:text-xl lg:text-2xl text-gray-700 leading-relaxed font-medium bg-white/80 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
-                  Witness the transformative power of community action through our visual journey of impact and hope
-                </p>
               </div>
             </motion.div>
 
