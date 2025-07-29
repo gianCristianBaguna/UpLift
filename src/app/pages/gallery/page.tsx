@@ -782,7 +782,7 @@ const UltraOptimizedGallery: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4 mt-35"
                 onClick={closeModal}
               >
                 <motion.div
@@ -790,7 +790,7 @@ const UltraOptimizedGallery: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="relative rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] bg-white shadow-2xl text-gray-900 overflow-y-auto"
+                  className="relative rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[80vh] bg-white shadow-2xl text-gray-900 overflow-y-auto"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
