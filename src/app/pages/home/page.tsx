@@ -14,7 +14,7 @@ import { X } from "lucide-react";
 
 export default function HomePage() {
   const heroKey = useMemo(() => Date.now(), []);
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const hasSeenModal = sessionStorage.getItem("seenDonateModal");

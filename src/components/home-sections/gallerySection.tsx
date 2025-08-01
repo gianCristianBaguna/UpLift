@@ -111,6 +111,7 @@ function GalleryCard({
             fill
             src={galleryImages[frontIndex]}
             alt="Gallery Front"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-xl"
           />
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
@@ -126,6 +127,7 @@ function GalleryCard({
             fill
             src={galleryImages[backIndex]}
             alt="Gallery Back"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-xl"
           />
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
@@ -190,6 +192,7 @@ function GalleryCardMobile() {
             fill
             src={galleryImages[frontIndex]}
             alt="Mobile Gallery Front"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-xl"
           />
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
@@ -205,6 +208,7 @@ function GalleryCardMobile() {
             fill
             src={galleryImages[backIndex]}
             alt="Mobile Gallery Back"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-xl"
           />
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">

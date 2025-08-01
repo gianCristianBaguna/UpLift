@@ -17,7 +17,6 @@ export default function Footer() {
             alt="Uplift Logo"
             width={140}
             height={60}
-            priority
             className="mb-4"
           />
           <p className="text-sm text-gray-600 max-w-xs">

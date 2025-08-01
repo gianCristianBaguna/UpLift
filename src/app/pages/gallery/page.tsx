@@ -843,7 +843,7 @@ const UltraOptimizedGallery: React.FC = () => {
                         alt={`${currentModalItem.title} - Image ${currentPreviewIndex + 1}`}
                         fill
                         className="object-contain"
-                        sizes="(max-width: 768px) 100vw, 80vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         priority
                       />
 
@@ -886,7 +886,7 @@ const UltraOptimizedGallery: React.FC = () => {
                               alt={`Thumbnail ${idx + 1}`}
                               fill
                               className="object-cover"
-                              sizes="64px"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                           </button>
                         ))}
