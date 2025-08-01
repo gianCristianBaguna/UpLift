@@ -23,7 +23,7 @@ import {
 import Shell from "@/components/navbar/shell"
 import Footer from "@/components/navbar/footer"
 import CreativeBackground from "@/components/creativeBackground"
-import { useDebounce as useDebounceHook } from "@/components/hooks/useDebounce"
+import { useDebounce as useDebounceHook } from "@/utils/hooks/useDebounce"
 
 interface GalleryItem {
   id: string // Add stable ID

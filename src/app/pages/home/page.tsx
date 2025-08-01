@@ -21,6 +21,8 @@ export default function HomePage() {
     if (!hasSeenModal) {
       setShowModal(true);
       sessionStorage.setItem("seenDonateModal", "true");
+    } else {
+      setShowModal(false);
     }
   }, []);
 
