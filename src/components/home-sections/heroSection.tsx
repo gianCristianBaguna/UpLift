@@ -158,6 +158,7 @@ export default function HeroSection() {
                 src={img || "/placeholder.svg"}
                 alt={`Community service ${index + 1}`}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover"
                 priority
               />

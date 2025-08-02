@@ -72,12 +72,13 @@ export default function Navbar() {
   return (
     <>
       <header className="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md text-black shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto flex justify-between items-center h-20 px-6 h-[120]">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 h-[120]">
           {/* Desktop Logo */}
           <Link href="/" className="hidden md:flex items-center ml-20">
             <Image
               src="/uplift-logo.png"
               alt="Uplift Foundation International"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               width={160}
               height={80}
               priority
@@ -90,6 +91,7 @@ export default function Navbar() {
             <Image
               src="/uplift-logo.png" 
               alt="Uplift Foundation"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               width={160}
               height={80}
               priority
@@ -191,8 +193,10 @@ export default function Navbar() {
           <Image
             src="/uplift-logo.png"
             alt="Uplift Foundation"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             width={120}
             height={60}
+            priority
             className="h-10 w-auto"
           />
           <button
