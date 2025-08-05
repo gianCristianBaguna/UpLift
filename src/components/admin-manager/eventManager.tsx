@@ -1,69 +1,81 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
+import * as eventHandler from "@/utils/actions/event-actions";
+import { useRouter } from "next/navigation";
+import { type Event as OriginalEvent } from "@/utils/actions/event-actions";
+
+// TODO: refactor the form
+
+// Extend Event type to allow string indexing for form handling
+type Event = OriginalEvent & { [key: string]: any };
 
 const initialEvents = [
   {
-    id: 1,
+    id: "1",
     image: "/foodsecurity.jpg",
     title: "Community Feeding Program",
-    date: "August 10, 2025",
+    date: new Date("August 10, 2025"),
     time: "10:00 AM - 2:00 PM",
     location: "Brgy. Maligaya Community Hall",
-    attendees: "150+ families",
+    attendees: 150,
     category: "Food Security",
     description: "Join us in providing nutritious meals and essential supplies.",
     impact: "Expected to serve 500+ meals",
-    color: "from-green-500 to-emerald-600",
   },
   {
-    id: 2,
+    id: "2",
     image: "/back2school.jpg",
     title: "Back-to-School Drive",
-    date: "August 25, 2025",
+    date: new Date("August 25, 2025"),
     time: "1:00 PM - 5:00 PM",
     location: "Nueva Elementary School",
-    attendees: "300+ students",
+    attendees: 300,
     category: "Education",
     description: "Distribute school supplies for the new academic year.",
     impact: "Supporting 300+ students",
-    color: "from-blue-500 to-indigo-600",
   },
 ]
 
 export default function EventManager() {
   const [events, setEvents] = useState(initialEvents)
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState<Event>({
     id: null,
     image: "",
     title: "",
-    date: "",
+    date: new Date(),
     time: "",
     location: "",
-    attendees: "",
+    attendees: 0,
     category: "",
     description: "",
     impact: "",
-    color: "",
   })
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setForm({ ...form, [name]: value })
+    const { name, value } = e.target;
+    if (name === "date") {
+      setForm({ ...form, [name]: new Date(value) });
+    } else if (name === "attendees") {
+      setForm({ ...form, [name]: Number(value) });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   }
 
-  const handleAddOrUpdate = () => {
+  const handleAddOrUpdate = async () => {
     if (editingId !== null) {
       setEvents(events.map(e => (e.id === editingId ? { ...form, id: editingId } : e)))
     } else {
-      const newEvent = { ...form, id: Date.now() }
+      const newEvent = await eventHandler.createEvent(form)
       setEvents([...events, newEvent])
     }
     resetForm()
   }
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     const event = events.find(e => e.id === id)
     if (event) {
       setForm(event)
@@ -71,7 +83,7 @@ export default function EventManager() {
     }
   }
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this event?")) {
       setEvents(events.filter(e => e.id !== id))
     }
@@ -82,14 +94,13 @@ export default function EventManager() {
       id: null,
       image: "",
       title: "",
-      date: "",
+      date: new Date(),
       time: "",
       location: "",
-      attendees: "",
+      attendees: 0,
       category: "",
       description: "",
       impact: "",
-      color: "",
     })
     setEditingId(null)
   }
@@ -101,10 +112,11 @@ export default function EventManager() {
       <div className="bg-white p-6 rounded-xl shadow mb-8">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">{editingId ? "Edit Event" : "Add New Event"}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["title", "date", "time", "location", "attendees", "category", "impact", "color", "image"].map(field => (
+          {["title", "date", "time", "location", "attendees", "category", "impact", "image"].map(field => (
             <input
               key={field}
               name={field}
+              type={(field === "image" || field === "time") ? "text" : field}
               value={form[field]}
               onChange={handleChange}
               placeholder={field[0].toUpperCase() + field.slice(1)}
@@ -151,7 +163,7 @@ export default function EventManager() {
               {events.map(event => (
                 <tr key={event.id} className="border-b">
                   <td className="px-4 py-2 text-gray-900">{event.title}</td>
-                  <td className="px-4 py-2 text-gray-700">{event.date}</td>
+                  <td className="px-4 py-2 text-gray-700">{event.date.toLocaleString()}</td>
                   <td className="px-4 py-2 text-gray-700">{event.location}</td>
                   <td className="px-4 py-2 text-gray-700">{event.category}</td>
                   <td className="px-4 py-2">
