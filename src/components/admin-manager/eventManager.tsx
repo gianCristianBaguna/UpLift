@@ -1,0 +1,179 @@
+"use client"
+
+import { useState } from "react"
+
+const initialEvents = [
+  {
+    id: 1,
+    image: "/foodsecurity.jpg",
+    title: "Community Feeding Program",
+    date: "August 10, 2025",
+    time: "10:00 AM - 2:00 PM",
+    location: "Brgy. Maligaya Community Hall",
+    attendees: "150+ families",
+    category: "Food Security",
+    description: "Join us in providing nutritious meals and essential supplies.",
+    impact: "Expected to serve 500+ meals",
+    color: "from-green-500 to-emerald-600",
+  },
+  {
+    id: 2,
+    image: "/back2school.jpg",
+    title: "Back-to-School Drive",
+    date: "August 25, 2025",
+    time: "1:00 PM - 5:00 PM",
+    location: "Nueva Elementary School",
+    attendees: "300+ students",
+    category: "Education",
+    description: "Distribute school supplies for the new academic year.",
+    impact: "Supporting 300+ students",
+    color: "from-blue-500 to-indigo-600",
+  },
+]
+
+export default function EventManager() {
+  const [events, setEvents] = useState(initialEvents)
+  const [form, setForm] = useState<any>({
+    id: null,
+    image: "",
+    title: "",
+    date: "",
+    time: "",
+    location: "",
+    attendees: "",
+    category: "",
+    description: "",
+    impact: "",
+    color: "",
+  })
+  const [editingId, setEditingId] = useState<number | null>(null)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setForm({ ...form, [name]: value })
+  }
+
+  const handleAddOrUpdate = () => {
+    if (editingId !== null) {
+      setEvents(events.map(e => (e.id === editingId ? { ...form, id: editingId } : e)))
+    } else {
+      const newEvent = { ...form, id: Date.now() }
+      setEvents([...events, newEvent])
+    }
+    resetForm()
+  }
+
+  const handleEdit = (id: number) => {
+    const event = events.find(e => e.id === id)
+    if (event) {
+      setForm(event)
+      setEditingId(id)
+    }
+  }
+
+  const handleDelete = (id: number) => {
+    if (confirm("Are you sure you want to delete this event?")) {
+      setEvents(events.filter(e => e.id !== id))
+    }
+  }
+
+  const resetForm = () => {
+    setForm({
+      id: null,
+      image: "",
+      title: "",
+      date: "",
+      time: "",
+      location: "",
+      attendees: "",
+      category: "",
+      description: "",
+      impact: "",
+      color: "",
+    })
+    setEditingId(null)
+  }
+
+  return (
+    <>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Manage Events</h1>
+
+      <div className="bg-white p-6 rounded-xl shadow mb-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">{editingId ? "Edit Event" : "Add New Event"}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {["title", "date", "time", "location", "attendees", "category", "impact", "color", "image"].map(field => (
+            <input
+              key={field}
+              name={field}
+              value={form[field]}
+              onChange={handleChange}
+              placeholder={field[0].toUpperCase() + field.slice(1)}
+              className="border border-gray-300 rounded px-4 py-2 text-gray-800"
+            />
+          ))}
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Description"
+            className="col-span-full border border-gray-300 rounded px-4 py-2 text-gray-800"
+          />
+        </div>
+        <div className="mt-4 flex gap-4">
+          <button
+            onClick={handleAddOrUpdate}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold"
+          >
+            {editingId ? "Update Event" : "Add Event"}
+          </button>
+          {editingId && (
+            <button onClick={resetForm} className="text-gray-600 underline">
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-xl shadow">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Event History</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead>
+              <tr className="text-gray-600 border-b">
+                <th className="px-4 py-2">Title</th>
+                <th className="px-4 py-2">Date</th>
+                <th className="px-4 py-2">Location</th>
+                <th className="px-4 py-2">Category</th>
+                <th className="px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map(event => (
+                <tr key={event.id} className="border-b">
+                  <td className="px-4 py-2 text-gray-900">{event.title}</td>
+                  <td className="px-4 py-2 text-gray-700">{event.date}</td>
+                  <td className="px-4 py-2 text-gray-700">{event.location}</td>
+                  <td className="px-4 py-2 text-gray-700">{event.category}</td>
+                  <td className="px-4 py-2">
+                    <button
+                      onClick={() => handleEdit(event.id)}
+                      className="text-blue-600 hover:underline mr-3"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(event.id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  )
+}
