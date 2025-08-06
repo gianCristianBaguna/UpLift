@@ -22,6 +22,15 @@ export async function createEvent(data: Event) {
   });
 }
 
+export async function updateEvent(data: Event) {
+  return await prisma.event.update({
+    where: {
+      id: data.id!
+    },
+    data
+  })
+}
+
 export async function getAllEvents() {
   return await prisma.event.findMany();
 }

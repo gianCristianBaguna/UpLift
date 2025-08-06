@@ -1,191 +1,152 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as eventHandler from "@/utils/actions/event-actions";
 import { useRouter } from "next/navigation";
-import { type Event as OriginalEvent } from "@/utils/actions/event-actions";
-
-// TODO: refactor the form
-
-// Extend Event type to allow string indexing for form handling
-type Event = OriginalEvent & { [key: string]: any };
-
-const initialEvents = [
-  {
-    id: "1",
-    image: "/foodsecurity.jpg",
-    title: "Community Feeding Program",
-    date: new Date("August 10, 2025"),
-    time: "10:00 AM - 2:00 PM",
-    location: "Brgy. Maligaya Community Hall",
-    attendees: 150,
-    category: "Food Security",
-    description: "Join us in providing nutritious meals and essential supplies.",
-    impact: "Expected to serve 500+ meals",
-  },
-  {
-    id: "2",
-    image: "/back2school.jpg",
-    title: "Back-to-School Drive",
-    date: new Date("August 25, 2025"),
-    time: "1:00 PM - 5:00 PM",
-    location: "Nueva Elementary School",
-    attendees: 300,
-    category: "Education",
-    description: "Distribute school supplies for the new academic year.",
-    impact: "Supporting 300+ students",
-  },
-]
+import { type Event } from "@/utils/actions/event-actions";
+import EventForm from "@/components/admin-manager/event-form";
 
 export default function EventManager() {
-  const [events, setEvents] = useState(initialEvents)
-  const [form, setForm] = useState<Event>({
-    id: null,
-    image: "",
-    title: "",
-    date: new Date(),
-    time: "",
-    location: "",
-    attendees: 0,
-    category: "",
-    description: "",
-    impact: "",
-  })
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [eventsList, setEventsList] = useState<Event[] | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    if (name === "date") {
-      setForm({ ...form, [name]: new Date(value) });
-    } else if (name === "attendees") {
-      setForm({ ...form, [name]: Number(value) });
+  const handleFormSubmit = async (eventData: Event) => {
+    if (editingEvent) {
+      // Update existing event
+      const updatedEvent = await eventHandler.updateEvent(eventData);
+      setEventsList(prev => 
+        prev!.map(e => (e.id === editingEvent.id ? updatedEvent : e))
+      );
+      setEditingEvent(null);
     } else {
-      setForm({ ...form, [name]: value });
+      // Create new event
+      const newEvent = await eventHandler.createEvent(eventData);
+      setEventsList(prev => [...prev!, newEvent]);
     }
-  }
-
-  const handleAddOrUpdate = async () => {
-    if (editingId !== null) {
-      setEvents(events.map(e => (e.id === editingId ? { ...form, id: editingId } : e)))
-    } else {
-      const newEvent = await eventHandler.createEvent(form)
-      setEvents([...events, newEvent])
-    }
-    resetForm()
-  }
+  };
 
   const handleEdit = (id: string) => {
-    const event = events.find(e => e.id === id)
+    const event = eventsList!.find(e => e.id === id);
+    console.log("event: ", event);
     if (event) {
-      setForm(event)
-      setEditingId(id)
+      setEditingEvent(event);
     }
-  }
+  };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this event?")) {
-      setEvents(events.filter(e => e.id !== id))
+      setEventsList(prev => prev!.filter(e => e.id !== id));
+      // You might want to call a delete API here
+      // await eventHandler.deleteEvent(id);
     }
-  }
+  };
 
-  const resetForm = () => {
-    setForm({
-      id: null,
-      image: "",
-      title: "",
-      date: new Date(),
-      time: "",
-      location: "",
-      attendees: 0,
-      category: "",
-      description: "",
-      impact: "",
-    })
-    setEditingId(null)
+  const handleCancelEdit = () => {
+    setEditingEvent(null);
+  };
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const events = await eventHandler.getAllEvents();
+        setEventsList(events);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        setIsLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Manage Events</h1>
-
-      <div className="bg-white p-6 rounded-xl shadow mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">{editingId ? "Edit Event" : "Add New Event"}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["title", "date", "time", "location", "attendees", "category", "impact", "image"].map(field => (
-            <input
-              key={field}
-              name={field}
-              type={(field === "image" || field === "time") ? "text" : field}
-              value={form[field]}
-              onChange={handleChange}
-              placeholder={field[0].toUpperCase() + field.slice(1)}
-              className="border border-gray-300 rounded px-4 py-2 text-gray-800"
-            />
-          ))}
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="col-span-full border border-gray-300 rounded px-4 py-2 text-gray-800"
-          />
-        </div>
-        <div className="mt-4 flex gap-4">
-          <button
-            onClick={handleAddOrUpdate}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold"
-          >
-            {editingId ? "Update Event" : "Add Event"}
-          </button>
-          {editingId && (
-            <button onClick={resetForm} className="text-gray-600 underline">
-              Cancel
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="max-w-6xl mx-auto p-6">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Manage Events</h1>
+      
+      <EventForm
+        initialData={editingEvent || undefined}
+        onSubmit={handleFormSubmit}
+        onCancel={editingEvent ? handleCancelEdit : undefined}
+        isEditing={!!editingEvent}
+      />
 
       <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Event History</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead>
-              <tr className="text-gray-600 border-b">
-                <th className="px-4 py-2">Title</th>
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Location</th>
-                <th className="px-4 py-2">Category</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map(event => (
-                <tr key={event.id} className="border-b">
-                  <td className="px-4 py-2 text-gray-900">{event.title}</td>
-                  <td className="px-4 py-2 text-gray-700">{event.date.toLocaleString()}</td>
-                  <td className="px-4 py-2 text-gray-700">{event.location}</td>
-                  <td className="px-4 py-2 text-gray-700">{event.category}</td>
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={() => handleEdit(event.id)}
-                      className="text-blue-600 hover:underline mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(event.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </td>
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">Event History</h2>
+        
+        {!eventsList || eventsList.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No events found. Create your first event above!</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead>
+                <tr className="text-gray-600 border-b border-gray-200">
+                  <th className="px-4 py-3 font-medium">Title</th>
+                  <th className="px-4 py-3 font-medium">Date & Time</th>
+                  <th className="px-4 py-3 font-medium">Location</th>
+                  <th className="px-4 py-3 font-medium">Category</th>
+                  <th className="px-4 py-3 font-medium">Attendees</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {eventsList.map((event, index) => (
+                  <tr 
+                    key={event.id} 
+                    className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                    }`}
+                  >
+                    <td className="px-4 py-3 text-gray-900 font-medium">
+                      {event.title}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      <div>
+                        <div>{event.date.toLocaleDateString()}</div>
+                        <div className="text-sm text-gray-500">{event.time}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{event.location}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 capitalize">
+                        {event.category}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{event.attendees}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(event.id!)}
+                          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors text-sm font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(event.id!)}
+                          className="text-red-600 hover:text-red-800 hover:underline transition-colors text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </>
-  )
+    </div>
+  );
 }
