@@ -21,74 +21,7 @@ import {
 } from "lucide-react"
 import Footer from "@/components/navbar/footer"
 import clsx from "clsx"
-
-const allEvents: any[] = [
-  {
-    title: "Back-to-School Drive",
-    date: "2025-08-12",
-    location: "Quezon City",
-    description: "Distributing school supplies and uniforms to underprivileged children to support their education.",
-    icon: <GraduationCap className="w-6 h-6" />,
-    time: "8:00 AM - 5:00 PM",
-    participants: "500+ families",
-    category: "Education",
-    image: "/back2school.jpg",
-    color: "#22C55E",
-    impact: "Supporting 500+ students",
-  },
-  {
-    title: "Community Health Fair",
-    date: "2025-09-09",
-    location: "Cavite",
-    description: "Offering free check-ups, dental care, and health education to underserved communities.",
-    icon: <Stethoscope className="w-6 h-6" />,
-    time: "7:00 AM - 4:00 PM",
-    participants: "300+ patients",
-    category: "Healthcare",
-    image: "/communityHealthEvents.jpg",
-    color: "#EF4444",
-    impact: "300+ health screenings",
-  },
-  {
-    title: "Youth Leadership Camp",
-    date: "2025-10-21",
-    location: "Batangas",
-    description: "Empowering young leaders with workshops, team-building activities, and skill development.",
-    icon: <CalendarCheck className="w-6 h-6" />,
-    time: "9:00 AM - 6:00 PM",
-    participants: "100+ youth",
-    category: "Leadership",
-    image: "/youthLeadershipEvents.jpg",
-    color: "#8B5CF6",
-    impact: "100+ future leaders",
-  },
-  {
-    title: "Livelihood Skills Workshop",
-    date: "2024-11-15",
-    location: "Davao City",
-    description: "Teaching practical skills like sewing, cooking, and freelancing to promote economic independence.",
-    icon: <HelpingHand className="w-6 h-6" />,
-    time: "10:00 AM - 3:00 PM",
-    participants: "50+ participants",
-    category: "Skills Development",
-    image: "/livelyhoodEvents.jpg",
-    color: "#F59E0B",
-    impact: "50+ new skills learned",
-  },
-  {
-    title: "Gift of Giving Day",
-    date: "2024-12-20",
-    location: "Manila",
-    description: "Christmas outreach with food packs, toys, medical support, and holiday celebrations for families.",
-    icon: <HeartHandshake className="w-6 h-6" />,
-    time: "6:00 AM - 8:00 PM",
-    participants: "1000+ families",
-    category: "Community Outreach",
-    image: "/giftEvents.jpg",
-    color: "#F3954A",
-    impact: "1000+ families served",
-  },
-]
+import { getAllEvents, type Event } from "@/utils/actions/event-actions"
 
 const categories = ["All", "Education", "Healthcare", "Leadership", "Skills Development", "Community Outreach"]
 
@@ -99,6 +32,7 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [events, setEvents] = useState<Event[]>([]);
 
   // Hash navigation effect - for tab switching
   useEffect(() => {
@@ -119,7 +53,16 @@ export default function EventsPage() {
     // Listen for hash changes (from navbar dropdown clicks)
     window.addEventListener("hashchange", handleHashChange)
     return () => window.removeEventListener("hashchange", handleHashChange)
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      const eventsList = await getAllEvents();
+      setEvents(eventsList);
+    }
+
+    fetchEvents();
+  }, []);
 
   // Update URL hash when tab changes
   const handleTabChange = (tab: "upcoming" | "past") => {
@@ -130,7 +73,7 @@ export default function EventsPage() {
 
   // Filter events
   const today = new Date()
-  const filteredEvents = allEvents.filter((event) => {
+  const filteredEvents = events.filter((event) => {
     const isUpcoming = selectedTab === "upcoming" ? new Date(event.date) >= today : new Date(event.date) < today
     const matchesCategory = selectedCategory === "All" || event.category === selectedCategory
     const matchesSearch =
@@ -492,7 +435,7 @@ export default function EventsPage() {
 }
 
 // Events Grid Component
-function EventsGrid({ events, onEventClick }: { events: any[]; onEventClick: (event: any) => void }) {
+function EventsGrid({ events, onEventClick }: { events: Event[]; onEventClick: (event: any) => void }) {
   if (events.length === 0) {
     return (
       <div className="text-center py-20">
@@ -528,15 +471,9 @@ function EventsGrid({ events, onEventClick }: { events: any[]; onEventClick: (ev
               <div className="absolute top-4 right-4">
                 <span
                   className="px-3 py-1 text-xs font-semibold rounded-full text-white"
-                  style={{ backgroundColor: event.color }}
                 >
                   {event.category}
                 </span>
-              </div>
-              <div className="absolute bottom-4 left-4">
-                <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
-                  <div style={{ color: event.color }}>{event.icon}</div>
-                </div>
               </div>
             </div>
             <div className="p-6">
@@ -558,7 +495,7 @@ function EventsGrid({ events, onEventClick }: { events: any[]; onEventClick: (ev
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Users className="w-4 h-4 text-[#F3954A]" />
-                  {event.participants}
+                  {event.attendees}
                 </div>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">{event.description}</p>

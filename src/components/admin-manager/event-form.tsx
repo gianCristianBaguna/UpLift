@@ -14,11 +14,11 @@ interface FormErrors {
   [key: string]: string;
 }
 
-export default function EventForm({ 
-  initialData, 
-  onSubmit, 
-  onCancel, 
-  isEditing = false 
+export default function EventForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  isEditing = false
 }: EventFormProps) {
   const [formData, setFormData] = useState<Event>(
     initialData || {
@@ -94,14 +94,14 @@ export default function EventForm({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    
+
     setFormData(prev => ({
       ...prev,
-      [name]: name === "date" 
-        ? new Date(value) 
-        : name === "attendees" 
-        ? Number(value) 
-        : value
+      [name]: name === "date"
+        ? new Date(value)
+        : name === "attendees"
+          ? Number(value)
+          : value
     }));
 
     // Clear error when user starts typing
@@ -112,7 +112,7 @@ export default function EventForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -120,6 +120,18 @@ export default function EventForm({
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
+      setFormData({
+        id: null,
+        image: "",
+        title: "",
+        date: new Date(),
+        time: "",
+        location: "",
+        attendees: 0,
+        category: "",
+        description: "",
+        impact: "",
+      });
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -136,7 +148,7 @@ export default function EventForm({
       <h2 className="text-xl font-semibold text-gray-800 mb-6">
         {isEditing ? "Edit Event" : "Add New Event"}
       </h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
@@ -150,9 +162,8 @@ export default function EventForm({
               type="text"
               value={formData.title}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                errors.title ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter event title"
             />
             {errors.title && (
@@ -171,9 +182,8 @@ export default function EventForm({
               type="date"
               value={formatDateForInput(formData.date)}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                errors.date ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.date ? 'border-red-500' : 'border-gray-300'
+                }`}
             />
             {errors.date && (
               <p className="mt-1 text-sm text-red-600">{errors.date}</p>
@@ -188,12 +198,11 @@ export default function EventForm({
             <input
               id="time"
               name="time"
-              type="time"
+              type="text"
               value={formData.time}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                errors.time ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.time ? 'border-red-500' : 'border-gray-300'
+                }`}
             />
             {errors.time && (
               <p className="mt-1 text-sm text-red-600">{errors.time}</p>
@@ -211,9 +220,8 @@ export default function EventForm({
               type="text"
               value={formData.location}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                errors.location ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.location ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Enter event location"
             />
             {errors.location && (
@@ -233,9 +241,8 @@ export default function EventForm({
               min="0"
               value={formData.attendees}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                errors.attendees ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.attendees ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="0"
             />
             {errors.attendees && (
@@ -253,9 +260,8 @@ export default function EventForm({
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                errors.category ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.category ? 'border-red-500' : 'border-gray-300'
+                }`}
             >
               <option value="">Select a category</option>
               <option value="conference">Conference</option>
@@ -294,7 +300,7 @@ export default function EventForm({
             <input
               id="image"
               name="image"
-              type="url"
+              type="text"
               value={formData.image}
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -313,9 +319,8 @@ export default function EventForm({
               rows={4}
               value={formData.description}
               onChange={handleInputChange}
-              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-vertical ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full border rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-vertical ${errors.description ? 'border-red-500' : 'border-gray-300'
+                }`}
               placeholder="Provide a detailed description of the event"
             />
             {errors.description && (
@@ -334,12 +339,12 @@ export default function EventForm({
             {isSubmitting && (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             )}
-            {isSubmitting 
-              ? (isEditing ? "Updating..." : "Adding...") 
+            {isSubmitting
+              ? (isEditing ? "Updating..." : "Adding...")
               : (isEditing ? "Update Event" : "Add Event")
             }
           </button>
-          
+
           {(isEditing || onCancel) && (
             <button
               type="button"

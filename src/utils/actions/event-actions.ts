@@ -23,14 +23,23 @@ export async function createEvent(data: Event) {
 }
 
 export async function updateEvent(data: Event) {
+  const { id, ...eventData } = data;
   return await prisma.event.update({
     where: {
-      id: data.id!
+      id: id!
     },
-    data
+    data: eventData
   })
 }
 
 export async function getAllEvents() {
   return await prisma.event.findMany();
+}
+
+export async function deleteEvent(id: string) {
+  return await prisma.event.delete({
+    where: {
+      id
+    }
+  });
 }

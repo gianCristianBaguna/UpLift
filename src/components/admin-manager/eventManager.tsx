@@ -37,9 +37,8 @@ export default function EventManager() {
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this event?")) {
+      await eventHandler.deleteEvent(id);
       setEventsList(prev => prev!.filter(e => e.id !== id));
-      // You might want to call a delete API here
-      // await eventHandler.deleteEvent(id);
     }
   };
 
