@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id            String   @id @default(cuid()) @map("_id")
+  image         String
+  imagePublicId String
+  title         String
+  date          DateTime
+  time          String
+  location      String
+  attendees     Int
+  category      String
+  description   String
+  impact        String
+}
