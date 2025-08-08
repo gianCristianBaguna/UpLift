@@ -5,6 +5,7 @@ import * as eventHandler from "@/utils/actions/event-actions";
 import { useRouter } from "next/navigation";
 import { type Event } from "@/utils/actions/event-actions";
 import EventForm from "@/components/admin-manager/event-form";
+import { removeImage } from "@/utils/actions/cloudinary-actions";
 
 export default function EventManager() {
   const [eventsList, setEventsList] = useState<Event[] | null>(null);
@@ -35,9 +36,10 @@ export default function EventManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, imagePublicId: string) => {
     if (confirm("Are you sure you want to delete this event?")) {
       await eventHandler.deleteEvent(id);
+      await removeImage(imagePublicId);
       setEventsList(prev => prev!.filter(e => e.id !== id));
     }
   };
@@ -132,7 +134,7 @@ export default function EventManager() {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDelete(event.id!)}
+                          onClick={() => handleDelete(event.id!, event.imagePublicId)}
                           className="text-red-600 hover:text-red-800 hover:underline transition-colors text-sm font-medium"
                         >
                           Delete

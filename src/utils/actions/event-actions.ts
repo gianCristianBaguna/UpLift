@@ -5,6 +5,7 @@ import { prisma } from "@/utils/prisma"
 export interface Event {
   id?: string | null | undefined;
   image: string;
+  imagePublicId: string;
   title: string;
   date: Date;
   time: string;

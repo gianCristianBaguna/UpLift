@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { type Event } from "@/utils/actions/event-actions";
+import { CldUploadWidget } from "next-cloudinary";
+import { removeImage } from "@/utils/actions/cloudinary-actions";
+import type { CloudinaryUploadWidgetInfo } from "@cloudinary-util/types";
 
 interface EventFormProps {
   initialData?: Event;
@@ -24,6 +27,7 @@ export default function EventForm({
     initialData || {
       id: null,
       image: "",
+      imagePublicId: "",
       title: "",
       date: new Date(),
       time: "",
@@ -37,6 +41,7 @@ export default function EventForm({
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -46,6 +51,7 @@ export default function EventForm({
       setFormData({
         id: null,
         image: "",
+        imagePublicId: "",
         title: "",
         date: new Date(),
         time: "",
@@ -123,6 +129,7 @@ export default function EventForm({
       setFormData({
         id: null,
         image: "",
+        imagePublicId: "",
         title: "",
         date: new Date(),
         time: "",
@@ -292,20 +299,122 @@ export default function EventForm({
             />
           </div>
 
-          {/* Image URL */}
+          {/* Image Upload */}
           <div className="md:col-span-2">
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-              Image URL
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Image Upload (Only one image up to 10 MB)
             </label>
-            <input
-              id="image"
-              name="image"
-              type="text"
-              value={formData.image}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="https://example.com/image.jpg"
-            />
+
+            <CldUploadWidget
+              options={{
+                sources: ["local"],
+                maxFiles: 1,
+                maxFileSize: 10 * 1024 * 1024,
+              }}
+              uploadPreset="uplift"
+              onSuccess={(result, { widget }) => {
+                const resultInfo = result.info as CloudinaryUploadWidgetInfo;
+                if (resultInfo.secure_url) {
+                  setFormData((prev) => ({
+                    ...prev,
+                    image: resultInfo.secure_url as string,
+                    imagePublicId: resultInfo.public_id as string,
+                  }));
+                }
+              }}
+              onQueuesEnd={(result, { widget }) => {
+                widget.close();
+              }}
+            >
+              {({ open }) => {
+                function handleOnClick(e: React.MouseEvent) {
+                  e.preventDefault(); // stop form submission
+                  open();
+                }
+                return (
+                  <button
+                    type="button"
+                    onClick={handleOnClick}
+                    className="bg-blue-500 hover:bg-blue-300 px-4 py-2 rounded-lg"
+                  >
+                    <p className="text-white">
+                      {formData.image ? "Replace Image" : "Upload an Image"}
+                    </p>
+                  </button>
+                );
+              }}
+            </CldUploadWidget>
+
+            {/* Show preview if image exists */}
+            {formData.image && (
+              <div className="mt-4 flex items-center gap-4">
+                <img
+                  src={formData.image}
+                  alt="Uploaded preview"
+                  className="w-48 rounded-lg border"
+                />
+
+                {/* Remove Button */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsRemoving(true); // start loading
+                    try {
+                      if (formData.imagePublicId) {
+                        console.log(
+                          "Removing image with publicId:",
+                          formData.imagePublicId
+                        );
+                        await removeImage(formData.imagePublicId);
+                      }
+                      setFormData((prev) => ({
+                        ...prev,
+                        image: "",
+                        imagePublicId: "",
+                      }));
+                    } catch (error) {
+                      console.error("Failed to remove image", error);
+                    } finally {
+                      setIsRemoving(false); // stop loading
+                    }
+                  }}
+                  className="flex items-center gap-2 text-red-500 hover:text-red-700 underline disabled:opacity-50"
+                  disabled={isRemoving}
+                >
+                  {isRemoving ? (
+                    <>
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4l3.536-3.536A8 8 0 114 12z"
+                        ></path>
+                      </svg>
+                      Removing...
+                    </>
+                  ) : (
+                    "Remove"
+                  )}
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* Description */}
