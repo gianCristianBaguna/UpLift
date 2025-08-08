@@ -12,6 +12,7 @@
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@prisma/client": "^6.13.0",
     "@prisma/extension-accelerate": "^2.0.2",
+    "@prisma/nextjs-monorepo-workaround-plugin": "^6.13.0",
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.0",
