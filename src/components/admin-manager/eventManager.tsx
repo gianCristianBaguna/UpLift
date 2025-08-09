@@ -76,7 +76,7 @@ export default function EventManager() {
       
       <EventForm
         initialData={editingEvent || undefined}
-        onSubmit={handleFormSubmit}
+        onSubmit={handleFormSubmit} 
         onCancel={editingEvent ? handleCancelEdit : undefined}
         isEditing={!!editingEvent}
       />

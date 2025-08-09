@@ -171,7 +171,7 @@ export default function UpcomingEventsSection() {
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <button className="border-2 border-[#F3954A] text-[#F3954A] hover:bg-[#F3954A] hover:text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 flex-1 sm:flex-none bg-transparent">
-                      <a href="/pages/event">Learn More</a>
+                      <a href="/pages/events">Learn More</a>
                     </button>
                   </div>
                 </div>
