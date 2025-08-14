@@ -1,188 +1,278 @@
-"use client"
-import { motion, AnimatePresence, useInView } from "framer-motion"
+"use client";
+
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Shell from "@/components/navbar/shell";
 import {
+  Stethoscope,
   GraduationCap,
-  BookOpen,
-  Backpack,
-  Utensils,
-  LibraryBig,
-  ArchiveRestore,
-  Trophy,
-  Home,
-  Briefcase,
-  Hammer,
-  Truck,
-  HeartPulse,
-  Leaf,
-  Sprout,
-  Soup,
+  HelpingHand,
+  HeartHandshake,
+  X,
+  Calendar,
+  MapPin,
+  Users,
   Sparkles,
   ArrowRight,
-  Users,
-  Heart,
-  Clock,
-  X,
-} from "lucide-react"
-import { useRef, useState, useEffect } from "react"
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  User,
+  Briefcase,
+  FileText,
+} from "lucide-react";
+import Footer from "@/components/navbar/footer";
+import clsx from "clsx";
 
-export default function ServicesSection() {
-  const focusAreas = [
-    {
-      id: "children",
-      title: "Children & Youth",
-      subtitle: "Building Tomorrow's Leaders",
-      icon: <GraduationCap className="w-8 h-8" />,
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-200",
-      textColor: "text-blue-600",
-      accentColor: "bg-blue-500",
-      description: "Empowering the next generation through education, nutrition, and opportunities for growth.",
-      stats: { number: "2,500+", label: "Children Served" },
-      programs: [
-        {
-          icon: <BookOpen className="w-5 h-5" />,
-          name: "VALUES Advocacy",
-          impact: "Building character",
-        },
-        {
-          icon: <Backpack className="w-5 h-5" />,
-          name: "School Supplies",
-          impact: "Education support",
-        },
-        {
-          icon: <Utensils className="w-5 h-5" />,
-          name: "Feeding Program",
-          impact: "Nutrition security",
-        },
-        {
-          icon: <LibraryBig className="w-5 h-5" />,
-          name: "Mobile Library",
-          impact: "Reading access",
-        },
-        {
-          icon: <ArchiveRestore className="w-5 h-5" />,
-          name: "Library Improvement",
-          impact: "Learning spaces",
-        },
-        {
-          icon: <Trophy className="w-5 h-5" />,
-          name: "Sports & Music",
-          impact: "Talent development",
-        },
-        {
-          icon: <GraduationCap className="w-5 h-5" />,
-          name: "Scholarships",
-          impact: "Higher education",
-        },
-      ],
-    },
-    {
-      id: "family",
-      title: "Family Support",
-      subtitle: "Strengthening Family Bonds",
-      icon: <Home className="w-8 h-8" />,
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-200",
-      textColor: "text-green-600",
-      accentColor: "bg-green-500",
-      description: "Supporting families with essential resources, housing improvements, and livelihood opportunities.",
-      stats: { number: "800+", label: "Families Helped" },
-      programs: [
-        {
-          icon: <Briefcase className="w-5 h-5" />,
-          name: "Livelihood Programs",
-          impact: "Economic stability",
-        },
-        {
-          icon: <Hammer className="w-5 h-5" />,
-          name: "Home Building",
-          impact: "Safe housing",
-        },
-        {
-          icon: <Truck className="w-5 h-5" />,
-          name: "Relief & Food Aid",
-          impact: "Emergency support",
-        },
-      ],
-    },
-    {
-      id: "community",
-      title: "Community Health",
-      subtitle: "Caring for Our Neighbors",
-      icon: <Heart className="w-8 h-8" />,
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-200",
-      textColor: "text-purple-600",
-      accentColor: "bg-purple-500",
-      description: "Promoting health, wellness, and environmental sustainability in our communities.",
-      stats: { number: "1,200+", label: "People Reached" },
-      programs: [
-        {
-          icon: <HeartPulse className="w-5 h-5" />,
-          name: "Medical Missions",
-          impact: "Healthcare access",
-        },
-        {
-          icon: <Leaf className="w-5 h-5" />,
-          name: "Environmental Programs",
-          impact: "Sustainability",
-        },
-        {
-          icon: <Sprout className="w-5 h-5" />,
-          name: "Community Gardens",
-          impact: "Food security",
-        },
-      ],
-    },
-    {
-      id: "elderly",
-      title: "Elderly Care",
-      subtitle: "Honoring Our Elders",
-      icon: <Clock className="w-8 h-8" />,
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-200",
-      textColor: "text-orange-600",
-      accentColor: "bg-orange-500",
-      description: "Providing compassionate care and support for our senior community members.",
-      stats: { number: "400+", label: "Seniors Supported" },
-      programs: [
-        {
-          icon: <Home className="w-5 h-5" />,
-          name: "Home Visits",
-          impact: "Personal care",
-        },
-        {
-          icon: <Sparkles className="w-5 h-5" />,
-          name: "Make a Wish",
-          impact: "Joy & fulfillment",
-        },
-        {
-          icon: <HeartPulse className="w-5 h-5" />,
-          name: "Health Check-ups",
-          impact: "Preventive care",
-        },
-        {
-          icon: <Soup className="w-5 h-5" />,
-          name: "Food Assistance",
-          impact: "Nutritional support",
-        },
-      ],
-    },
-  ]
+const categories = [
+  "All",
+  "Education",
+  "Healthcare",
+  "Leadership",
+  "Skills Development",
+  "Community Outreach",
+];
 
-  const sectionRef = useRef(null)
-  const isInView = useInView(sectionRef, { amount: 0.2 })
-  const [hasAnimated, setHasAnimated] = useState(false)
-  const [activeTab, setActiveTab] = useState(0)
+// Mock data - replace this with actual API call later
+const mockEvents = [
+  // Upcoming Events
+  {
+    id: 1,
+    title: "Medical Mission 2025",
+    description:
+      "Free medical checkups, dental services, and health consultations for underserved communities in La Castellana. Our team of volunteer doctors and nurses will provide essential healthcare services.",
+    date: "2025-03-15",
+    time: "8:00 AM - 5:00 PM",
+    location: "La Castellana Community Center",
+    participants: "500+ expected",
+    attendees: "200 volunteers needed",
+    impact: "Providing healthcare to 500+ community members",
+    category: "Healthcare",
+    image: "/placeholder.svg?height=300&width=400&text=Medical+Mission",
+    icon: <Stethoscope className="w-6 h-6" />,
+    color: "#10B981",
+  },
+  {
+    id: 2,
+    title: "Youth Leadership Summit",
+    description:
+      "Empowering young leaders through workshops, mentorship sessions, and community project planning. Join us in building tomorrow's changemakers.",
+    date: "2025-02-28",
+    time: "9:00 AM - 4:00 PM",
+    location: "Bacolod Convention Center",
+    participants: "150+ young leaders",
+    attendees: "50 mentors needed",
+    impact: "Training 150+ future community leaders",
+    category: "Leadership",
+    image: "/placeholder.svg?height=300&width=400&text=Leadership+Summit",
+    icon: <GraduationCap className="w-6 h-6" />,
+    color: "#3B82F6",
+  },
+  {
+    id: 3,
+    title: "Skills Development Workshop",
+    description:
+      "Practical skills training including computer literacy, vocational skills, and entrepreneurship basics for community members seeking employment opportunities.",
+    date: "2025-04-10",
+    time: "1:00 PM - 6:00 PM",
+    location: "Technical Education Center",
+    participants: "100+ trainees",
+    attendees: "25 instructors needed",
+    impact: "Enhancing employability of 100+ individuals",
+    category: "Skills Development",
+    image: "/placeholder.svg?height=300&width=400&text=Skills+Workshop",
+    icon: <HelpingHand className="w-6 h-6" />,
+    color: "#8B5CF6",
+  },
+  {
+    id: 4,
+    title: "Community Garden Project",
+    description:
+      "Establishing sustainable community gardens to promote food security and environmental awareness. Learn organic farming techniques and sustainable practices.",
+    date: "2025-05-20",
+    time: "6:00 AM - 12:00 PM",
+    location: "Riverside Community Area",
+    participants: "80+ families",
+    attendees: "30 volunteers needed",
+    impact: "Creating sustainable food sources for 80+ families",
+    category: "Community Outreach",
+    image: "/placeholder.svg?height=300&width=400&text=Community+Garden",
+    icon: <HeartHandshake className="w-6 h-6" />,
+    color: "#F59E0B",
+  },
+  {
+    id: 5,
+    title: "Educational Support Drive",
+    description:
+      "Distribution of school supplies, books, and educational materials to students in need. Supporting education through resource provision and tutoring programs.",
+    date: "2025-06-05",
+    time: "8:00 AM - 3:00 PM",
+    location: "Multiple Elementary Schools",
+    participants: "300+ students",
+    attendees: "40 volunteers needed",
+    impact: "Supporting education of 300+ students",
+    category: "Education",
+    image: "/placeholder.svg?height=300&width=400&text=Education+Drive",
+    icon: <GraduationCap className="w-6 h-6" />,
+    color: "#EF4444",
+  },
+
+  // Past Events
+  {
+    id: 6,
+    title: "Holiday Gift Giving 2024",
+    description:
+      "Spreading joy during the holiday season by distributing gifts, food packages, and organizing festivities for children and families in the community.",
+    date: "2024-12-20",
+    time: "9:00 AM - 4:00 PM",
+    location: "Community Plaza",
+    participants: "400+ families",
+    attendees: "60 volunteers participated",
+    impact: "Brought joy to 400+ families during holidays",
+    category: "Community Outreach",
+    image: "/placeholder.svg?height=300&width=400&text=Holiday+Giving",
+    icon: <HeartHandshake className="w-6 h-6" />,
+    color: "#F59E0B",
+  },
+  {
+    id: 7,
+    title: "Health and Wellness Fair 2024",
+    description:
+      "Comprehensive health screening, nutrition education, and wellness activities. Featured free consultations, health talks, and fitness demonstrations.",
+    date: "2024-11-15",
+    time: "7:00 AM - 5:00 PM",
+    location: "City Sports Complex",
+    participants: "600+ attendees",
+    attendees: "80 volunteers participated",
+    impact: "Provided health services to 600+ community members",
+    category: "Healthcare",
+    image: "/placeholder.svg?height=300&width=400&text=Health+Fair",
+    icon: <Stethoscope className="w-6 h-6" />,
+    color: "#10B981",
+  },
+  {
+    id: 8,
+    title: "Teacher Training Program 2024",
+    description:
+      "Professional development workshop for educators focusing on modern teaching methodologies, technology integration, and student engagement strategies.",
+    date: "2024-10-08",
+    time: "8:00 AM - 5:00 PM",
+    location: "Education Department Building",
+    participants: "120+ teachers",
+    attendees: "15 facilitators participated",
+    impact: "Enhanced teaching skills of 120+ educators",
+    category: "Education",
+    image: "/placeholder.svg?height=300&width=400&text=Teacher+Training",
+    icon: <GraduationCap className="w-6 h-6" />,
+    color: "#EF4444",
+  },
+  {
+    id: 9,
+    title: "Disaster Preparedness Seminar 2024",
+    description:
+      "Community education on disaster preparedness, emergency response, and resilience building. Included hands-on training and resource distribution.",
+    date: "2024-09-22",
+    time: "1:00 PM - 6:00 PM",
+    location: "Municipal Hall",
+    participants: "200+ residents",
+    attendees: "25 experts participated",
+    impact: "Prepared 200+ residents for emergency situations",
+    category: "Community Outreach",
+    image: "/placeholder.svg?height=300&width=400&text=Disaster+Prep",
+    icon: <HeartHandshake className="w-6 h-6" />,
+    color: "#F59E0B",
+  },
+  {
+    id: 10,
+    title: "Livelihood Training 2024",
+    description:
+      "Entrepreneurship and livelihood skills training including business planning, financial literacy, and practical skills development for sustainable income generation.",
+    date: "2024-08-18",
+    time: "9:00 AM - 4:00 PM",
+    location: "Community Learning Center",
+    participants: "75+ participants",
+    attendees: "20 trainers participated",
+    impact: "Equipped 75+ individuals with livelihood skills",
+    category: "Skills Development",
+    image: "/placeholder.svg?height=300&width=400&text=Livelihood+Training",
+    icon: <HelpingHand className="w-6 h-6" />,
+    color: "#8B5CF6",
+  },
+];
+
+export default function EventsPage() {
+  const pathname = usePathname();
+  const [selectedTab, setSelectedTab] = useState<"upcoming" | "past">(
+    "upcoming"
+  );
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    name: "",
+    sex: "",
+    birthday: "",
+    civilStatus: "",
+    address: "",
+    occupation: "",
+    contactNumber: "",
+    email: "",
+    otherSkills: "",
+  });
+
+  // Hash navigation effect - for tab switching
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      // Handle tab switching from navbar dropdown
+      if (hash === "upcoming" || hash === "past") {
+        setSelectedTab(hash as "upcoming" | "past");
+      }
+      // Close modal when navigating
+      setShowModal(false);
+      setSelectedEvent(null);
+    };
+
+    // Check hash on initial load
+    handleHashChange();
+
+    // Listen for hash changes (from navbar dropdown clicks)
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   useEffect(() => {
-    if (isInView && !hasAnimated) {
-      setHasAnimated(true)
-    }
-  }, [isInView, hasAnimated])
+    // Using mock data instead of API call
+    setEvents(mockEvents);
+  }, []);
 
-  const [showVolunteerModal, setShowVolunteerModal] = useState(false)
-  const [selectedServices, setSelectedServices] = useState<string[]>([])
+  // Update URL hash when tab changes
+  const handleTabChange = (tab: "upcoming" | "past") => {
+    setSelectedTab(tab);
+    // Update URL hash without triggering page scroll
+    window.history.replaceState(null, "", `#${tab}`);
+  };
+
+  // Filter events
+  const today = new Date();
+  const filteredEvents = events.filter((event) => {
+    const isUpcoming =
+      selectedTab === "upcoming"
+        ? new Date(event.date) >= today
+        : new Date(event.date) < today;
+    const matchesCategory =
+      selectedCategory === "All" || event.category === selectedCategory;
+    const matchesSearch =
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return isUpcoming && matchesCategory && matchesSearch;
+  });
 
   const services = [
     "Minor surgeries",
@@ -201,360 +291,862 @@ export default function ServicesSection() {
     "Massage",
     "Utilities/Handyman",
     "Support Staff",
-  ]
+  ];
 
   const handleServiceToggle = (service: string) => {
-    setSelectedServices((prev) => (prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]))
+    setSelectedServices((prev) =>
+      prev.includes(service)
+        ? prev.filter((s) => s !== service)
+        : [...prev, service]
+    );
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const resetModal = () => {
+    setShowModal(false);
+    setSelectedEvent(null);
+    setCurrentStep(1);
+    setSelectedServices([]);
+    setFormData({
+      name: "",
+      sex: "",
+      birthday: "",
+      civilStatus: "",
+      address: "",
+      occupation: "",
+      contactNumber: "",
+      email: "",
+      otherSkills: "",
+    });
+  };
+
+  const steps = [
+    {
+      id: 1,
+      title: "Personal Information",
+      icon: <User className="w-5 h-5" />,
+      description: "Tell us about yourself",
+    },
+    {
+      id: 2,
+      title: "Skills & Services",
+      icon: <Briefcase className="w-5 h-5" />,
+      description: "Select your volunteer services",
+    },
+    {
+      id: 3,
+      title: "Agreement & Submit",
+      icon: <FileText className="w-5 h-5" />,
+      description: "Review and confirm registration",
+    },
+  ];
+
+  const isStepValid = (step: number) => {
+    switch (step) {
+      case 1:
+        return (
+          formData.name &&
+          formData.sex &&
+          formData.birthday &&
+          formData.civilStatus &&
+          formData.address &&
+          formData.occupation &&
+          formData.contactNumber &&
+          formData.email
+        );
+      case 2:
+        return selectedServices.length > 0 || formData.otherSkills;
+      case 3:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep < 3 && isStepValid(currentStep)) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const bubbles = [
+    {
+      className: "top-1/3 left-8 w-14 h-14",
+      colors: "from-[#F3954A]/25 to-orange-300/35",
+      animation: "animate-float-1",
+    },
+    {
+      className: "bottom-1/20 left-8 w-14 h-14",
+      colors: "from-[#F3954A]/25 to-orange-300/35",
+      animation: "animate-float-1",
+    },
+    {
+      className: "top-1/2 right-12 w-11 h-11",
+      colors: "from-[#2A61AC]/30 to-blue-300/30",
+      animation: "animate-bounce-slow delay-500",
+    },
+    {
+      className: "top-2/3 left-1/3 w-13 h-13",
+      colors: "from-amber-300/25 to-orange-200/35",
+      animation: "animate-float-2 delay-800",
+    },
+    {
+      className: "top-3/4 right-3/4 w-13 h-13",
+      colors: "from-[#F3954A]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "top-1/8 left-8 w-10 h-10",
+      colors: "from-[#F3954A]/25 to-orange-300/35",
+      animation: "animate-float-1",
+    },
+    {
+      className: "top-1/6 right-12 w-15 h-15",
+      colors: "from-[#2A61AC]/30 to-blue-300/30",
+      animation: "animate-bounce-slow delay-500",
+    },
+    {
+      className: "top-2/5 left-1/3 w-11 h-11",
+      colors: "from-amber-300/25 to-orange-200/35",
+      animation: "animate-float-2 delay-800",
+    },
+    {
+      className: "top-4/10 right-3/4 w-9 h-9",
+      colors: "from-[#F3954A]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "bottom-1/20 right-1/4 w-10 h-10",
+      colors: "from-[#2A61AC]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "top-3/6 right-1/4 w-9 h-9",
+      colors: "from-[#F3954A]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+    {
+      className: "bottom-1/6 right-2/4 w-10 h-10",
+      colors: "from-[#2A61AC]/35 to-amber-300/35",
+      animation: "animate-float-3 delay-300",
+    },
+  ];
+
+  return (
+    <Shell>
+      <main className="min-h-screen bg-white">
+        {/* Hero Section */}
+        <section className="relative py-24 bg-gradient-to-br from-gray-50 to-white overflow-hidden mt-10">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {bubbles.map((b, idx) => (
+              <div
+                key={idx}
+                className={clsx(
+                  "absolute rounded-full",
+                  b.className,
+                  "bg-gradient-to-br",
+                  b.colors,
+                  b.animation
+                )}
+              ></div>
+            ))}
+          </div>
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="mb-6"
+              >
+                <div className="flex items-center justify-center gap-2 mb-4 mt-10">
+                  <Sparkles className="h-6 w-6 text-[#F3954A]" />
+                  <span className="text-[#F3954A] font-semibold uppercase tracking-wide text-sm">
+                    Our Events
+                  </span>
+                </div>
+                <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                  Community Events
+                </h1>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  Engaging communities through action, learning, and care. Join
+                  us in making a difference.
+                </p>
+              </motion.div>
+
+              {/* Tab Navigation */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="flex justify-center gap-4 mb-8"
+              >
+                {(["upcoming", "past"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => handleTabChange(tab)}
+                    className={`px-8 py-3 rounded-full font-semibold text-lg transition-all duration-300 ${selectedTab === tab
+                      ? "bg-[#F3954A] text-white shadow-lg"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)} Events
+                  </button>
+                ))}
+              </motion.div>
+
+              {/* Search and Filter */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto -mb-10"
+              >
+                <div className="relative flex-1 w-full md:w-auto border-2 border-black rounded-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search events..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-full text-black"
+                  />
+                </div>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-3 border-2 border-black rounded-full text-black bg-transparent transition-all"
+                >
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Events Content - Single Section that changes based on tab */}
+        <section className="py-16 bg-white" id="upcoming">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="text-center mb-12">
+                  <h2 className="py-10 text-2xl md:text-2xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-violet-500 to-blue-600 bg-clip-text text-transparent">
+                    {selectedTab === "upcoming"
+                      ? "Upcoming Events"
+                      : "Past Events"}
+                  </h2>
+                  <p className="text-lg text-gray-600 mt-5">
+                    {selectedTab === "upcoming"
+                      ? "Join us in our upcoming community initiatives"
+                      : "Celebrating our community impact and achievements"}
+                  </p>
+                </div>
+                <EventsGrid
+                  events={filteredEvents}
+                  onEventClick={(event) => {
+                    setSelectedEvent(event);
+                    setShowModal(true);
+                  }}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </section>
+
+        {/* Enhanced Step-by-Step Modal */}
+        <AnimatePresence>
+          {showModal && selectedEvent && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => resetModal()}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[100vh] overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => resetModal()}
+                  className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white rounded-full p-2 transition-all duration-300 shadow-lg"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+
+                {/* Modal Header */}
+                <div className="relative h-48 overflow-hidden rounded-t-3xl">
+                  <img
+                    src={selectedEvent.image || "/placeholder.svg"}
+                    alt={selectedEvent.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-6 left-6 text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className="p-3 rounded-xl"
+                        style={{ backgroundColor: `${selectedEvent.color}20` }}
+                      >
+                        <div style={{ color: selectedEvent.color }}>
+                          {selectedEvent.icon}
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                        {selectedEvent.category}
+                      </span>
+                    </div>
+                    <h2 className="text-2xl font-bold">
+                      {selectedEvent.title}
+                    </h2>
+                  </div>
+                </div>
+
+                {/* Step Progress Indicator */}
+                <div className="px-4 sm:px-8 py-6 border-b bg-gray-50">
+                  {/* Desktop: Show full progress */}
+                  <div className="hidden sm:flex items-center justify-between max-w-2xl mx-auto">
+                    {steps.map((step, index) => (
+                      <div key={step.id} className="flex items-center">
+                        <div className="flex flex-col items-center">
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep > step.id
+                                ? "bg-green-500 text-white"
+                                : currentStep === step.id
+                                  ? "bg-[#F3954A] text-white"
+                                  : "bg-gray-200 text-gray-500"
+                              }`}
+                          >
+                            {currentStep > step.id ? (
+                              <Check className="w-5 h-5" />
+                            ) : (
+                              step.icon
+                            )}
+                          </div>
+                          <div className="mt-2 text-center">
+                            <div
+                              className={`text-sm font-semibold ${currentStep >= step.id ? "text-gray-900" : "text-gray-500"
+                                }`}
+                            >
+                              {step.title}
+                            </div>
+                            <div className="text-xs text-gray-500">{step.description}</div>
+                          </div>
+                        </div>
+                        {index < steps.length - 1 && (
+                          <div
+                            className={`w-16 h-1 mx-4 transition-all duration-300 ${currentStep > step.id ? "bg-green-500" : "bg-gray-200"
+                              }`}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Mobile: Show only current step */}
+                  <div className="flex sm:hidden flex-col items-center">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${"bg-[#F3954A] text-white"
+                        }`}
+                    >
+                      {steps.find((s) => s.id === currentStep)?.icon}
+                    </div>
+                    <div className="mt-2 text-center">
+                      <div className="text-sm font-semibold text-gray-900">
+                        {steps.find((s) => s.id === currentStep)?.title}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {steps.find((s) => s.id === currentStep)?.description}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+                {/* Step Content */}
+                <div className="p-8 overflow-y-auto max-h-[50vh]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentStep}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {/* Step 1: Personal Information */}
+                      {currentStep === 1 && (
+                        <div className="space-y-6">
+                          <div className="text-center mb-8">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                              Personal Information
+                            </h3>
+                            <p className="text-gray-600">
+                              Please provide your basic information to register
+                              as a volunteer
+                            </p>
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name *
+                              </label>
+                              <input
+                                required
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) =>
+                                  handleInputChange("name", e.target.value)
+                                }
+                                className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                                placeholder="Enter your full name"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Sex *
+                              </label>
+                              <select
+                                required
+                                value={formData.sex}
+                                onChange={(e) =>
+                                  handleInputChange("sex", e.target.value)
+                                }
+                                className="w-full px-4 py-3 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                              >
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address *
+                              </label>
+                              <input
+                                required
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) =>
+                                  handleInputChange("email", e.target.value)
+                                }
+                                className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                                placeholder="you@example.com"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contact Number *
+                              </label>
+                              <input
+                                required
+                                type="tel"
+                                value={formData.contactNumber}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    "contactNumber",
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                                placeholder="+63 XXX XXX XXXX"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Birthday *
+                              </label>
+                              <input
+                                required
+                                type="date"
+                                value={formData.birthday}
+                                onChange={(e) =>
+                                  handleInputChange("birthday", e.target.value)
+                                }
+                                className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Civil Status *
+                              </label>
+                              <select
+                                required
+                                value={formData.civilStatus}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    "civilStatus",
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full  text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                              >
+                                <option value="">Select</option>
+                                <option value="single">Single</option>
+                                <option value="married">Married</option>
+                                <option value="divorced">Divorced</option>
+                                <option value="widowed">Widowed</option>
+                              </select>
+                            </div>
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Address *
+                              </label>
+                              <textarea
+                                required
+                                rows={3}
+                                value={formData.address}
+                                onChange={(e) =>
+                                  handleInputChange("address", e.target.value)
+                                }
+                                className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent resize-none"
+                                placeholder="Enter your complete address"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Current Occupation *
+                              </label>
+                              <input
+                                required
+                                type="text"
+                                value={formData.occupation}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    "occupation",
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent"
+                                placeholder="Enter your occupation"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Step 2: Skills & Services */}
+                      {currentStep === 2 && (
+                        <div className="space-y-6">
+                          <div className="text-center mb-8">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                              Skills & Services
+                            </h3>
+                            <p className="text-gray-600">
+                              Select the services you can provide as a volunteer
+                            </p>
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-4 max-h-80 overflow-y-auto p-4 border rounded-lg">
+                            {services.map((service) => (
+                              <label
+                                key={service}
+                                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedServices.includes(service)}
+                                  onChange={() => handleServiceToggle(service)}
+                                  className="w-5 h-5 text-[#F3954A] border-gray-300 rounded focus:ring-[#F3954A]"
+                                />
+                                <span className="text-sm text-gray-700">
+                                  {service}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Other skills and interests:
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={formData.otherSkills}
+                              onChange={(e) =>
+                                handleInputChange("otherSkills", e.target.value)
+                              }
+                              className="w-full text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent resize-none"
+                              placeholder="Please specify any other skills or interests..."
+                            />
+                          </div>
+                          {selectedServices.length > 0 && (
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                              <h4 className="font-semibold text-blue-900 mb-2">
+                                Selected Services:
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {selectedServices.map((service) => (
+                                  <span
+                                    key={service}
+                                    className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                                  >
+                                    {service}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Step 3: Agreement & Submit */}
+                      {currentStep === 3 && (
+                        <div className="space-y-6">
+                          <div className="text-center mb-8">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                              Review & Submit
+                            </h3>
+                            <p className="text-gray-600">
+                              Please review your information and agree to the
+                              terms
+                            </p>
+                          </div>
+
+                          {/* Event Details Summary */}
+                          <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                            <h4 className="font-semibold text-gray-900 mb-4">
+                              Event Details
+                            </h4>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <Calendar className="w-4 h-4 text-[#F3954A]" />
+                                {new Date(
+                                  selectedEvent.date
+                                ).toLocaleDateString("en-US", {
+                                  weekday: "long",
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <MapPin className="w-4 h-4 text-[#F3954A]" />
+                                {selectedEvent.location}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Registration Summary */}
+                          <div className="bg-blue-50 rounded-lg p-6 mb-6">
+                            <h4 className="font-semibold text-blue-900 mb-4">
+                              Your Registration Summary
+                            </h4>
+                            <div className="space-y-2 text-sm text-black">
+                              <p>
+                                <strong>Name:</strong> {formData.name}
+                              </p>
+                              <p>
+                                <strong>Email:</strong> {formData.email}
+                              </p>
+                              <p>
+                                <strong>Contact:</strong>{" "}
+                                {formData.contactNumber}
+                              </p>
+                              {selectedServices.length > 0 && (
+                                <div>
+                                  <strong>Selected Services:</strong>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {selectedServices.map((service) => (
+                                      <span
+                                        key={service}
+                                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                                      >
+                                        {service}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {formData.otherSkills && (
+                                <p>
+                                  <strong>Other Skills:</strong>{" "}
+                                  {formData.otherSkills}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Agreement */}
+                          <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
+                            <label className="flex items-start gap-3 cursor-pointer">
+                              <input
+                                required
+                                type="checkbox"
+                                className="w-5 h-5 text-[#F3954A] border-gray-300 rounded focus:ring-[#F3954A] mt-1"
+                              />
+                              <span className="text-sm text-gray-700 leading-relaxed">
+                                As a volunteer, I agree to abide by the rules
+                                and policies of the Foundation. I understand
+                                that I am volunteering at my own risk and assume
+                                all the responsibilities and accountability in
+                                the performance of my duties and functions as
+                                volunteer.
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                  {/* Navigation Buttons */}
+                  <div className="px-4 py-4 bg-gray-50 border-t flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <button
+                      onClick={prevStep}
+                      disabled={currentStep === 1}
+                      className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all w-full sm:w-auto ${currentStep === 1
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        }`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </button>
+
+                    <div className="text-center sm:text-sm text-gray-500">
+                      Step {currentStep} of {steps.length}
+                    </div>
+
+                    {currentStep < 3 ? (
+                      <button
+                        onClick={nextStep}
+                        disabled={!isStepValid(currentStep)}
+                        className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all w-full sm:w-auto ${isStepValid(currentStep)
+                          ? "bg-[#F3954A] text-white hover:bg-[#F3954A]/90 shadow-lg"
+                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          }`}
+                      >
+                        Next
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          alert(
+                            "Thank you for registering! We'll contact you soon."
+                          );
+                          resetModal();
+                        }}
+                        className="flex items-center justify-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all shadow-lg w-full sm:w-auto"
+                      >
+                        Submit Registration
+                        <Check className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+      <Footer />
+    </Shell>
+  );
+}
+
+// Events Grid Component
+function EventsGrid({
+  events,
+  onEventClick,
+}: {
+  events: any[];
+  onEventClick: (event: any) => void;
+}) {
+  if (events.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Calendar className="w-12 h-12 text-gray-400" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-400 mb-2">
+          No events found
+        </h3>
+        <p className="text-gray-500">Check back later for more events!</p>
+      </div>
+    );
   }
 
   return (
-    <>
-      <section
-        ref={sectionRef}
-        className="relative py-24 px-6 lg:px-8 mt-10 bg-gradient-to-b from-gray-50 to-white overflow-hidden"
-        id="impact"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-transparent to-blue-50/30"></div>
-        <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-orange-200/20 to-blue-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-purple-200/20 to-green-200/20 rounded-full blur-3xl"></div>
-        <div className="relative z-10 -mt-20 max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={hasAnimated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-20"
-          >
-            <div className="inline-flex items-center gap-2 bg-[#F3954A]/10 text-[#F3954A] px-6 py-3 rounded-full text-sm font-semibold mb-10 ">
-              <Users className="w-4 h-4" />
-              Our Impact Areas
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {events.map((event, index) => (
+        <motion.div
+          key={event.title}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: index * 0.1 }}
+          whileHover={{ y: -5 }}
+          className="group cursor-pointer"
+          onClick={() => onEventClick(event)}
+        >
+          <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+            <div className="relative h-48 overflow-hidden">
+              <img
+                src={event.image || "/placeholder.svg"}
+                alt={event.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute top-4 right-4">
+                <span className="px-3 py-1 text-xs font-semibold rounded-full text-white">
+                  {event.category}
+                </span>
+              </div>
             </div>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-              <span className="text-[#2A61AC]">WHERE WE</span>
-              <br />
-              <span className="text-[#F3954A] drop-shadow-[3px_6px_0_#2A61AC]">MAKE A DIFFERENCE</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Discover how we're transforming lives across four key areas of community impact, creating lasting change
-              through dedicated service and compassionate action.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={hasAnimated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-4 mb-16"
-          >
-            {focusAreas.map((area, index) => (
-              <button
-                key={area.id}
-                onClick={() => setActiveTab(index)}
-                className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-semibold transition-all duration-300 ${
-                  activeTab === index
-                    ? `bg-gradient-to-r ${area.color} text-white shadow-2xl scale-105`
-                    : "bg-white text-gray-600 hover:bg-gray-50 shadow-2xl hover:shadow-2xl"
-                }`}
-              >
-                <span className={activeTab === index ? "text-white" : area.textColor}>{area.icon}</span>
-                <span className="hidden sm:inline">{area.title}</span>
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#F3954A] transition-colors">
+                {event.title}
+              </h3>
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="w-4 h-4 text-[#F3954A]" />
+                  {new Date(event.date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 text-[#F3954A]" />
+                  {event.location}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Users className="w-4 h-4 text-[#F3954A]" />
+                  {event.attendees}
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                {event.description}
+              </p>
+              <button className="w-full py-3 bg-[#F3954A] hover:bg-[#F3954A]/90 text-white rounded-xl font-semibold transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2">
+                Learn More
+                <ArrowRight className="h-4 w-4" />
               </button>
-            ))}
-          </motion.div>
-
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-blue-400 rounded-3xl shadow-2xl overflow-hidden"
-          >
-            <div className={`${focusAreas[activeTab].bgColor} p-8 lg:p-12`}>
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <div
-                      className={`inline-flex items-center gap-3 ${focusAreas[activeTab].accentColor} text-white px-4 py-2 rounded-full`}
-                    >
-                      {focusAreas[activeTab].icon}
-                      <span className="font-semibold">{focusAreas[activeTab].title}</span>
-                    </div>
-                    <h3 className="text-3xl lg:text-4xl font-bold text-gray-800">{focusAreas[activeTab].subtitle}</h3>
-                    <p className="text-lg text-gray-600 leading-relaxed">{focusAreas[activeTab].description}</p>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <div className={`text-3xl font-bold ${focusAreas[activeTab].textColor}`}>
-                        {focusAreas[activeTab].stats.number}
-                      </div>
-                      <div className="text-sm text-gray-600 font-medium">{focusAreas[activeTab].stats.label}</div>
-                    </div>
-                    <div className="w-px h-12 bg-gray-300"></div>
-                    <div className="text-sm text-gray-600">
-                      Making measurable impact in our community through dedicated programs and initiatives.
-                    </div>
-                  </div>
-                  <div className="pt-4">
-                    <a
-                      href="/pages/donation"
-                      className="inline-flex items-center gap-2 bg-[#F3954A] text-white px-8 py-4 rounded-full font-semibold hover:bg-[#e07f2f] transition-all duration-300 hover:scale-105 shadow-2xl"
-                    >
-                      Support This Cause
-                    </a>
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  <h4 className="text-xl font-bold text-gray-800 mb-6">Our Programs</h4>
-                  <div className="grid gap-4">
-                    {focusAreas[activeTab].programs.map((program, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="relative overflow-hidden backdrop-blur-sm rounded-xl p-4 bg-white/80 group hover:shadow-md transition-all duration-300"
-                      >
-                        <div
-                          className={`absolute inset-0 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-700 ease-out pointer-events-none ${focusAreas[activeTab].accentColor}`}
-                          style={{ zIndex: 0 }}
-                        />
-                        <div className="flex items-center gap-4 relative z-10">
-                          <div
-                            className={`${focusAreas[activeTab].accentColor} text-white p-3 rounded-lg group-hover:scale-110 transition-transform duration-300`}
-                          >
-                            {program.icon}
-                          </div>
-                          <div className="flex-1">
-                            <h5 className="font-semibold text-gray-800 mb-1">{program.name}</h5>
-                            <p className="text-sm text-gray-600">{program.impact}</p>
-                          </div>
-                          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-300" />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={hasAnimated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-center mt-20"
-          >
-            <div className="bg-gradient-to-r from-[#2A61AC] to-[#F3954A] rounded-3xl p-12 text-white">
-              <div className="max-w-3xl mx-auto space-y-6">
-                <h3 className="text-3xl lg:text-4xl font-bold">Ready to Make a Difference?</h3>
-                <p className="text-xl opacity-90">
-                  Join us in creating lasting change in our community. Every contribution, no matter the size, helps us
-                  expand our reach and deepen our impact.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                  <a
-                    href="/pages/donation"
-                    className="inline-flex items-center justify-center gap-2 bg-white text-[#2A61AC] px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-lg"
-                  >
-                    <Heart className="w-5 h-5" />
-                    Donate Now
-                  </a>
-                  <button
-                    onClick={() => setShowVolunteerModal(true)}
-                    className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-[#2A61AC] transition-all duration-300 hover:scale-105"
-                  >
-                    <Users className="w-5 h-5" />
-                    Volunteer With Us
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <AnimatePresence>
-        {showVolunteerModal && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative"
-            >
-              <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Users className="w-8 h-8 text-[#2A61AC]" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-800">Volunteer Registration Form</h3>
-                  </div>
-                </div>
-                <button onClick={() => setShowVolunteerModal(false)} className="text-gray-400 hover:text-red-500 p-2">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <form
-                className="p-6 space-y-8"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  alert("Thank you for registering! We'll contact you soon.")
-                  setShowVolunteerModal(false)
-                  setSelectedServices([])
-                }}
-              >
-                {/* Personal Information Section */}
-                <div>
-                  <h4 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">I. PERSONAL INFORMATION</h4>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                      <input
-                        required
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Sex *</label>
-                      <select
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      >
-                        <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Birthday *</label>
-                      <input
-                        required
-                        type="date"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Civil Status *</label>
-                      <select
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      >
-                        <option value="">Select</option>
-                        <option value="single">Single</option>
-                        <option value="married">Married</option>
-                        <option value="divorced">Divorced</option>
-                        <option value="widowed">Widowed</option>
-                      </select>
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
-                      <textarea
-                        required
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Occupation *</label>
-                      <input
-                        required
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number *</label>
-                      <input
-                        required
-                        type="tel"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-                      <input
-                        required
-                        type="email"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Services Section */}
-                <div>
-                  <h4 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-                    II. PLEASE CHECK THE LIST OF SERVICE/S YOU WANT TO PROVIDE:
-                  </h4>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {services.map((service) => (
-                      <label
-                        key={service}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedServices.includes(service)}
-                          onChange={() => handleServiceToggle(service)}
-                          className="w-4 h-4 text-[#2A61AC] border-gray-300 rounded focus:ring-[#2A61AC]"
-                        />
-                        <span className="text-sm text-gray-700">{service}</span>
-                      </label>
-                    ))}
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Other skills and interest:</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2A61AC]"
-                        placeholder="Please specify..."
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Agreement Section */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      required
-                      type="checkbox"
-                      className="w-4 h-4 text-[#2A61AC] border-gray-300 rounded focus:ring-[#2A61AC] mt-1"
-                    />
-                    <span className="text-sm text-gray-700 leading-relaxed">
-                      As a volunteer, I agree to abide by the rules and policies of the Foundation. I understand that I
-                      am volunteering at my own risk and assume all the responsibilities and accountability in the
-                      performance of my duties and functions as volunteer.
-                    </span>
-                  </label>
-                </div>
-
-                {/* Submit Button */}
-                <div className="flex gap-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowVolunteerModal(false)}
-                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 bg-[#F3954A] hover:bg-[#e07f2f] text-white px-6 py-3 rounded-lg font-semibold transition-all"
-                  >
-                    Submit Registration
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  )
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
 }

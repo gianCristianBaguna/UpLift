@@ -494,11 +494,10 @@ export default function EventsPage() {
                   <button
                     key={tab}
                     onClick={() => handleTabChange(tab)}
-                    className={`px-8 py-3 rounded-full font-semibold text-lg transition-all duration-300 ${
-                      selectedTab === tab
-                        ? "bg-[#F3954A] text-white shadow-lg"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                    className={`px-8 py-3 rounded-full font-semibold text-lg transition-all duration-300 ${selectedTab === tab
+                      ? "bg-[#F3954A] text-white shadow-lg"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
                   >
                     {tab.charAt(0).toUpperCase() + tab.slice(1)} Events
                   </button>
@@ -626,19 +625,19 @@ export default function EventsPage() {
                 </div>
 
                 {/* Step Progress Indicator */}
-                <div className="px-8 py-6 border-b bg-gray-50">
-                  <div className="flex items-center justify-between max-w-2xl mx-auto">
+                <div className="px-4 sm:px-8 py-6 border-b bg-gray-50">
+                  {/* Desktop: Show full progress */}
+                  <div className="hidden sm:flex items-center justify-between max-w-2xl mx-auto">
                     {steps.map((step, index) => (
                       <div key={step.id} className="flex items-center">
                         <div className="flex flex-col items-center">
                           <div
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                              currentStep > step.id
-                                ? "bg-green-500 text-white"
-                                : currentStep === step.id
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep > step.id
+                              ? "bg-green-500 text-white"
+                              : currentStep === step.id
                                 ? "bg-[#F3954A] text-white"
                                 : "bg-gray-200 text-gray-500"
-                            }`}
+                              }`}
                           >
                             {currentStep > step.id ? (
                               <Check className="w-5 h-5" />
@@ -648,32 +647,43 @@ export default function EventsPage() {
                           </div>
                           <div className="mt-2 text-center">
                             <div
-                              className={`text-sm font-semibold ${
-                                currentStep >= step.id
-                                  ? "text-gray-900"
-                                  : "text-gray-500"
-                              }`}
+                              className={`text-sm font-semibold ${currentStep >= step.id ? "text-gray-900" : "text-gray-500"
+                                }`}
                             >
                               {step.title}
                             </div>
-                            <div className="text-xs text-gray-500">
-                              {step.description}
-                            </div>
+                            <div className="text-xs text-gray-500">{step.description}</div>
                           </div>
                         </div>
                         {index < steps.length - 1 && (
                           <div
-                            className={`w-16 h-1 mx-4 transition-all duration-300 ${
-                              currentStep > step.id
-                                ? "bg-green-500"
-                                : "bg-gray-200"
-                            }`}
+                            className={`w-16 h-1 mx-4 transition-all duration-300 ${currentStep > step.id ? "bg-green-500" : "bg-gray-200"
+                              }`}
                           />
                         )}
                       </div>
                     ))}
                   </div>
+
+                  {/* Mobile: Show only current step */}
+                  <div className="flex sm:hidden flex-col items-center">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${"bg-[#F3954A] text-white"
+                        }`}
+                    >
+                      {steps.find((s) => s.id === currentStep)?.icon}
+                    </div>
+                    <div className="mt-2 text-center">
+                      <div className="text-sm font-semibold text-gray-900">
+                        {steps.find((s) => s.id === currentStep)?.title}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {steps.find((s) => s.id === currentStep)?.description}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
 
                 {/* Step Content */}
                 <div className="p-8 overflow-y-auto max-h-[50vh]">
@@ -875,7 +885,7 @@ export default function EventsPage() {
                               onChange={(e) =>
                                 handleInputChange("otherSkills", e.target.value)
                               }
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent resize-none"
+                              className="w-full  text-black px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F3954A] focus:border-transparent resize-none"
                               placeholder="Please specify any other skills or interests..."
                             />
                           </div>
@@ -999,21 +1009,20 @@ export default function EventsPage() {
                     </motion.div>
                   </AnimatePresence>
                   {/* Navigation Buttons */}
-                  <div className="px-8 py-6 bg-gray-50 border-t flex justify-between items-center">
+                  <div className="px-4 py-4 bg-gray-50 border-t flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <button
                       onClick={prevStep}
                       disabled={currentStep === 1}
-                      className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                        currentStep === 1
+                      className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all w-full sm:w-auto ${currentStep === 1
                           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                           : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                      }`}
+                        }`}
                     >
                       <ChevronLeft className="w-4 h-4" />
                       Previous
                     </button>
 
-                    <div className="text-sm text-gray-500">
+                    <div className="text-center sm:text-sm text-gray-500">
                       Step {currentStep} of {steps.length}
                     </div>
 
@@ -1021,11 +1030,10 @@ export default function EventsPage() {
                       <button
                         onClick={nextStep}
                         disabled={!isStepValid(currentStep)}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
-                          isStepValid(currentStep)
+                        className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all w-full sm:w-auto ${isStepValid(currentStep)
                             ? "bg-[#F3954A] text-white hover:bg-[#F3954A]/90 shadow-lg"
                             : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        }`}
+                          }`}
                       >
                         Next
                         <ChevronRight className="w-4 h-4" />
@@ -1038,13 +1046,14 @@ export default function EventsPage() {
                           );
                           resetModal();
                         }}
-                        className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all shadow-lg"
+                        className="flex items-center justify-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-all shadow-lg w-full sm:w-auto"
                       >
                         Submit Registration
                         <Check className="w-4 h-4" />
                       </button>
                     )}
                   </div>
+
                 </div>
               </motion.div>
             </motion.div>
