@@ -35,7 +35,11 @@ export async function updateEvent(data: Event) {
 }
 
 export async function getAllEvents() {
-  return await prisma.event.findMany();
+  return await prisma.event.findMany({
+    orderBy: {
+      date: 'asc'
+    }
+  });
 }
 
 export async function deleteEvent(id: string) {
