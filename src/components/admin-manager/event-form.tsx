@@ -5,6 +5,7 @@ import { type Event } from "@/utils/actions/event-actions";
 import { CldUploadWidget } from "next-cloudinary";
 import { removeImage } from "@/utils/actions/cloudinary-actions";
 import type { CloudinaryUploadWidgetInfo } from "@cloudinary-util/types";
+import * as serviceActions from "@/utils/actions/services-actions";
 
 interface EventFormProps {
   initialData?: Event;
@@ -36,12 +37,14 @@ export default function EventForm({
       category: "",
       description: "",
       impact: "",
+      volunteerServices: []
     }
   );
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [services, setServices] = useState<string[]>([]);
 
   useEffect(() => {
     if (initialData) {
@@ -60,10 +63,23 @@ export default function EventForm({
         category: "",
         description: "",
         impact: "",
+        volunteerServices: []
       });
     }
     setErrors({}); // Clear any existing errors
   }, [initialData]);
+
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const services = await serviceActions.getAllServices();
+        setServices(services.map(service => service.serviceName));
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    }
+    fetchServices();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -116,6 +132,16 @@ export default function EventForm({
     }
   };
 
+  const handleCheckboxChange = (service: string) => {
+    setFormData(prev => {
+      const selected = prev.volunteerServices.includes(service)
+        ? prev.volunteerServices.filter(s => s !== service)
+        : [...prev.volunteerServices, service];
+      return { ...prev, volunteerServices: selected };
+    });
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -125,6 +151,7 @@ export default function EventForm({
 
     setIsSubmitting(true);
     try {
+      console.log("Submitting form data:", formData);
       await onSubmit(formData);
       setFormData({
         id: null,
@@ -138,6 +165,7 @@ export default function EventForm({
         category: "",
         description: "",
         impact: "",
+        volunteerServices: []
       });
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -282,6 +310,31 @@ export default function EventForm({
               <p className="mt-1 text-sm text-red-600">{errors.category}</p>
             )}
           </div>
+
+          {/* Volunteer Services */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Required Volunteer Services
+            </label>
+            {services.length === 0 ? (
+              <p className="text-gray-500">No services available</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {services.map(service => (
+                  <label key={service} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.volunteerServices.includes(service)}
+                      onChange={() => handleCheckboxChange(service)}
+                      className="h-4 w-4 text-orange-500 border-gray-300 rounded"
+                    />
+                    <span className="text-gray-700">{service}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
 
           {/* Impact */}
           <div>

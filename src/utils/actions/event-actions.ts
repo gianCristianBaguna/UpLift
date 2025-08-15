@@ -14,6 +14,7 @@ export interface Event {
   category: string;
   description: string
   impact: string;
+  volunteerServices: string[];
 }
 
 export async function createEvent(data: Event) {

@@ -22,7 +22,6 @@ import Footer from "@/components/navbar/footer";
 import clsx from "clsx";
 import { getAllEvents } from "@/utils/actions/event-actions";
 import { createVolunteer } from "@/utils/actions/volunteer-actions";
-import { getAllServices } from "@/utils/actions/skills-actions";
 
 const categories = [
   "All",
@@ -79,12 +78,11 @@ export default function EventsPage() {
 
   useEffect(() => {
     async function fetchAllEvents() {
-      const [events, services] = await Promise.all([
+      const [events] = await Promise.all([
         getAllEvents(),
-        getAllServices(),
       ]);
       setEvents(events);
-      setServices(services[0].skills);
+      setServices(events.flatMap((event) => event.volunteerServices || []));
     }
 
     fetchAllEvents();

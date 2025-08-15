@@ -10,22 +10,23 @@ datasource db {
 }
 
 model Event {
-  id            String   @id @default(cuid()) @map("_id")
-  image         String
-  imagePublicId String
-  title         String
-  date          DateTime
-  time          String
-  location      String
-  attendees     Int
-  category      String
-  description   String
-  impact        String
+  id                String   @id @default(cuid()) @map("_id")
+  image             String
+  imagePublicId     String
+  title             String
+  date              DateTime
+  time              String
+  location          String
+  attendees         Int
+  category          String
+  description       String
+  impact            String
+  volunteerServices String[]
 }
 
-model Skills {
-  id     String   @id @default(cuid()) @map("_id")
-  skills String[]
+model Service {
+  id          String @id @default(cuid()) @map("_id")
+  serviceName String @unique
 }
 
 model Volunteer {
