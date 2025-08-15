@@ -1,6 +1,7 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence, useInView } from "framer-motion"
+import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { CalendarDays, MapPin, Users, ChevronLeft, ChevronRight, Clock, Heart, Sparkles } from "lucide-react"
 import type { PanInfo } from "framer-motion"
 import { Event, getAllEvents } from "@/utils/actions/event-actions"
@@ -8,7 +9,7 @@ import { Event, getAllEvents } from "@/utils/actions/event-actions"
 export default function UpcomingEventsSection() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     async function fetchEvents() {
       setLoading(true);
@@ -23,11 +24,10 @@ export default function UpcomingEventsSection() {
     }
     fetchEvents();
   }, []);
-  
+
   // Remove the redundant 'current' state - only use 'index'
   const [index, setIndex] = useState(0)
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   const goToNext = () => {
     setIndex((prev) => (prev + 1) % events.length);
@@ -57,8 +57,14 @@ export default function UpcomingEventsSection() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  if (loading) {
-    return <div className="text-center py-12">Loading events...</div>;
+  if (loading || events.length === 0) {
+    return (
+      <section className="py-24 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-7xl text-center">
+          <p className="text-gray-600 text-lg">Loading events...</p>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -67,7 +73,7 @@ export default function UpcomingEventsSection() {
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
@@ -95,24 +101,27 @@ export default function UpcomingEventsSection() {
               className="bg-white rounded-3xl shadow-xl overflow-hidden"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                <div className="relative h-80 lg:h-full">
-                  <img
-                    src={currentEvent.image || "/placeholder.svg"}
-                    alt={currentEvent.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-6 left-6">
-                    <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
-                      {currentEvent.category}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                      <Heart className="h-4 w-4 text-red-400" />
-                      <span className="text-sm font-medium">{currentEvent.impact}</span>
+                {(currentEvent && currentEvent.image) && (
+                  <div className="relative h-80 lg:h-full">
+                    <Image
+                      src={currentEvent.image || "/placeholder.svg"}
+                      alt={currentEvent.title}
+                      fill
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-6 left-6">
+                      <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
+                        {currentEvent.category}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-6 left-6 text-white">
+                      <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
+                        <Heart className="h-4 w-4 text-red-400" />
+                        <span className="text-sm font-medium">{currentEvent.impact}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
                   <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">{currentEvent.title}</h3>
                   <p className="text-gray-600 text-lg leading-relaxed mb-8">{currentEvent.description}</p>
@@ -170,11 +179,10 @@ export default function UpcomingEventsSection() {
                 <button
                   key={dotIndex} // Fixed: use dotIndex instead of current
                   onClick={() => setIndex(dotIndex)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    dotIndex === index // Fixed: compare dotIndex with index
-                      ? "bg-[#F3954A] w-8"
-                      : "bg-gray-300 hover:bg-gray-400"
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${dotIndex === index // Fixed: compare dotIndex with index
+                    ? "bg-[#F3954A] w-8"
+                    : "bg-gray-300 hover:bg-gray-400"
+                    }`}
                   aria-label={`Go to event ${dotIndex + 1}`}
                 />
               ))}
@@ -192,7 +200,7 @@ export default function UpcomingEventsSection() {
         {/* Thumbnail carousel - fixed to use 'index' consistently */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="hidden md:grid md:grid-cols-3 gap-6"
         >
@@ -200,11 +208,10 @@ export default function UpcomingEventsSection() {
             <div
               key={event.id}
               onClick={() => setIndex(eventIndex)}
-              className={`cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 ${
-                eventIndex === index // Fixed: compare eventIndex with index
-                  ? "ring-2 ring-[#F3954A] shadow-lg scale-105"
-                  : "hover:shadow-md hover:scale-102"
-              }`}
+              className={`cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 ${eventIndex === index // Fixed: compare eventIndex with index
+                ? "ring-2 ring-[#F3954A] shadow-lg scale-105"
+                : "hover:shadow-md hover:scale-102"
+                }`}
             >
               <div className="relative h-48">
                 <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" />
@@ -219,7 +226,7 @@ export default function UpcomingEventsSection() {
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mt-16"
         >

@@ -5,10 +5,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Shell from "@/components/navbar/shell";
 import {
-  Stethoscope,
-  GraduationCap,
-  HelpingHand,
-  HeartHandshake,
   X,
   Calendar,
   MapPin,
@@ -23,7 +19,6 @@ import {
   Briefcase,
   FileText,
 } from "lucide-react";
-import Footer from "@/components/navbar/footer";
 import clsx from "clsx";
 import { Event, getAllEvents } from "@/utils/actions/event-actions"
 
