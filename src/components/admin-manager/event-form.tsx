@@ -5,6 +5,7 @@ import { type Event } from "@/utils/actions/event-actions";
 import { CldUploadWidget } from "next-cloudinary";
 import { removeImage } from "@/utils/actions/cloudinary-actions";
 import type { CloudinaryUploadWidgetInfo } from "@cloudinary-util/types";
+import * as serviceActions from "@/utils/actions/services-actions";
 
 interface EventFormProps {
   initialData?: Event;
@@ -36,12 +37,16 @@ export default function EventForm({
       category: "",
       description: "",
       impact: "",
+      volunteerServices: []
     }
   );
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [services, setServices] = useState<string[]>([]);
+  const [otherSillks, setOtherSkills] = useState<string[]>();
+  const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -60,10 +65,23 @@ export default function EventForm({
         category: "",
         description: "",
         impact: "",
+        volunteerServices: []
       });
     }
     setErrors({}); // Clear any existing errors
   }, [initialData]);
+
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const services = await serviceActions.getAllServices();
+        setServices(services.map(service => service.serviceName));
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    }
+    fetchServices();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -116,6 +134,21 @@ export default function EventForm({
     }
   };
 
+  const handleCheckboxChange = (service: string) => {
+    setFormData(prev => {
+      const selected = prev.volunteerServices.includes(service)
+        ? prev.volunteerServices.filter(s => s !== service)
+        : [...prev.volunteerServices, service];
+      return { ...prev, volunteerServices: selected };
+    });
+  };
+
+  const handleOtherSkillsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const trimmedValue = value.split(",").map(skill => skill.trim());
+    setOtherSkills(trimmedValue);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -138,7 +171,11 @@ export default function EventForm({
         category: "",
         description: "",
         impact: "",
+        volunteerServices: []
       });
+
+      // Reset other skills input
+      setOtherSkills([]);
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -283,6 +320,57 @@ export default function EventForm({
             )}
           </div>
 
+          {/* Volunteer Services */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Required Volunteer Services
+            </label>
+            {services.length === 0 ? (
+              <p className="text-gray-500">No services available</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {services.map(service => (
+                  <label key={service} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.volunteerServices.includes(service)}
+                      onChange={() => handleCheckboxChange(service)}
+                      className="h-4 w-4 text-orange-500 border-gray-300 rounded"
+                    />
+                    <span className="text-gray-700">{service}</span>
+                  </label>
+                ))}
+                {/* add others text field */}
+                <label className="flex items-center gap-2">
+                  <span className="text-gray-700">Others</span>
+                  <input
+                    type="text"
+                    onChange={handleOtherSkillsChange}
+                    className="border-4 text-black"
+                    placeholder="(separate by comma)"
+                  />
+                  <button
+                    className="bg-blue-500 hover:bg-blue-300 px-4 py-2 rounded-lg text-white disabled:opacity-50"
+                    disabled={isAdded}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (otherSillks && otherSillks.length > 0) {
+                        setFormData(prev => ({
+                          ...prev,
+                          volunteerServices: [...prev.volunteerServices, ...otherSillks]
+                        }));
+                        setIsAdded(true);
+                      }
+                    }}
+                  >
+                    {isAdded ? "Added" : "Add"}
+                  </button>
+                </label>
+              </div>
+            )}
+          </div>
+
+
           {/* Impact */}
           <div>
             <label htmlFor="impact" className="block text-sm font-medium text-gray-700 mb-2">
@@ -364,10 +452,6 @@ export default function EventForm({
                     setIsRemoving(true); // start loading
                     try {
                       if (formData.imagePublicId) {
-                        console.log(
-                          "Removing image with publicId:",
-                          formData.imagePublicId
-                        );
                         await removeImage(formData.imagePublicId);
                       }
                       setFormData((prev) => ({

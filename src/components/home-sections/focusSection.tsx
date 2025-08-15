@@ -5,10 +5,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Shell from "@/components/navbar/shell";
 import {
-  Stethoscope,
-  GraduationCap,
-  HelpingHand,
-  HeartHandshake,
   X,
   Calendar,
   MapPin,
@@ -23,8 +19,8 @@ import {
   Briefcase,
   FileText,
 } from "lucide-react";
-import Footer from "@/components/navbar/footer";
 import clsx from "clsx";
+import { Event, getAllEvents } from "@/utils/actions/event-actions"
 
 const categories = [
   "All",
@@ -33,173 +29,6 @@ const categories = [
   "Leadership",
   "Skills Development",
   "Community Outreach",
-];
-
-// Mock data - replace this with actual API call later
-const mockEvents = [
-  // Upcoming Events
-  {
-    id: 1,
-    title: "Medical Mission 2025",
-    description:
-      "Free medical checkups, dental services, and health consultations for underserved communities in La Castellana. Our team of volunteer doctors and nurses will provide essential healthcare services.",
-    date: "2025-03-15",
-    time: "8:00 AM - 5:00 PM",
-    location: "La Castellana Community Center",
-    participants: "500+ expected",
-    attendees: "200 volunteers needed",
-    impact: "Providing healthcare to 500+ community members",
-    category: "Healthcare",
-    image: "/placeholder.svg?height=300&width=400&text=Medical+Mission",
-    icon: <Stethoscope className="w-6 h-6" />,
-    color: "#10B981",
-  },
-  {
-    id: 2,
-    title: "Youth Leadership Summit",
-    description:
-      "Empowering young leaders through workshops, mentorship sessions, and community project planning. Join us in building tomorrow's changemakers.",
-    date: "2025-02-28",
-    time: "9:00 AM - 4:00 PM",
-    location: "Bacolod Convention Center",
-    participants: "150+ young leaders",
-    attendees: "50 mentors needed",
-    impact: "Training 150+ future community leaders",
-    category: "Leadership",
-    image: "/placeholder.svg?height=300&width=400&text=Leadership+Summit",
-    icon: <GraduationCap className="w-6 h-6" />,
-    color: "#3B82F6",
-  },
-  {
-    id: 3,
-    title: "Skills Development Workshop",
-    description:
-      "Practical skills training including computer literacy, vocational skills, and entrepreneurship basics for community members seeking employment opportunities.",
-    date: "2025-04-10",
-    time: "1:00 PM - 6:00 PM",
-    location: "Technical Education Center",
-    participants: "100+ trainees",
-    attendees: "25 instructors needed",
-    impact: "Enhancing employability of 100+ individuals",
-    category: "Skills Development",
-    image: "/placeholder.svg?height=300&width=400&text=Skills+Workshop",
-    icon: <HelpingHand className="w-6 h-6" />,
-    color: "#8B5CF6",
-  },
-  {
-    id: 4,
-    title: "Community Garden Project",
-    description:
-      "Establishing sustainable community gardens to promote food security and environmental awareness. Learn organic farming techniques and sustainable practices.",
-    date: "2025-05-20",
-    time: "6:00 AM - 12:00 PM",
-    location: "Riverside Community Area",
-    participants: "80+ families",
-    attendees: "30 volunteers needed",
-    impact: "Creating sustainable food sources for 80+ families",
-    category: "Community Outreach",
-    image: "/placeholder.svg?height=300&width=400&text=Community+Garden",
-    icon: <HeartHandshake className="w-6 h-6" />,
-    color: "#F59E0B",
-  },
-  {
-    id: 5,
-    title: "Educational Support Drive",
-    description:
-      "Distribution of school supplies, books, and educational materials to students in need. Supporting education through resource provision and tutoring programs.",
-    date: "2025-06-05",
-    time: "8:00 AM - 3:00 PM",
-    location: "Multiple Elementary Schools",
-    participants: "300+ students",
-    attendees: "40 volunteers needed",
-    impact: "Supporting education of 300+ students",
-    category: "Education",
-    image: "/placeholder.svg?height=300&width=400&text=Education+Drive",
-    icon: <GraduationCap className="w-6 h-6" />,
-    color: "#EF4444",
-  },
-
-  // Past Events
-  {
-    id: 6,
-    title: "Holiday Gift Giving 2024",
-    description:
-      "Spreading joy during the holiday season by distributing gifts, food packages, and organizing festivities for children and families in the community.",
-    date: "2024-12-20",
-    time: "9:00 AM - 4:00 PM",
-    location: "Community Plaza",
-    participants: "400+ families",
-    attendees: "60 volunteers participated",
-    impact: "Brought joy to 400+ families during holidays",
-    category: "Community Outreach",
-    image: "/placeholder.svg?height=300&width=400&text=Holiday+Giving",
-    icon: <HeartHandshake className="w-6 h-6" />,
-    color: "#F59E0B",
-  },
-  {
-    id: 7,
-    title: "Health and Wellness Fair 2024",
-    description:
-      "Comprehensive health screening, nutrition education, and wellness activities. Featured free consultations, health talks, and fitness demonstrations.",
-    date: "2024-11-15",
-    time: "7:00 AM - 5:00 PM",
-    location: "City Sports Complex",
-    participants: "600+ attendees",
-    attendees: "80 volunteers participated",
-    impact: "Provided health services to 600+ community members",
-    category: "Healthcare",
-    image: "/placeholder.svg?height=300&width=400&text=Health+Fair",
-    icon: <Stethoscope className="w-6 h-6" />,
-    color: "#10B981",
-  },
-  {
-    id: 8,
-    title: "Teacher Training Program 2024",
-    description:
-      "Professional development workshop for educators focusing on modern teaching methodologies, technology integration, and student engagement strategies.",
-    date: "2024-10-08",
-    time: "8:00 AM - 5:00 PM",
-    location: "Education Department Building",
-    participants: "120+ teachers",
-    attendees: "15 facilitators participated",
-    impact: "Enhanced teaching skills of 120+ educators",
-    category: "Education",
-    image: "/placeholder.svg?height=300&width=400&text=Teacher+Training",
-    icon: <GraduationCap className="w-6 h-6" />,
-    color: "#EF4444",
-  },
-  {
-    id: 9,
-    title: "Disaster Preparedness Seminar 2024",
-    description:
-      "Community education on disaster preparedness, emergency response, and resilience building. Included hands-on training and resource distribution.",
-    date: "2024-09-22",
-    time: "1:00 PM - 6:00 PM",
-    location: "Municipal Hall",
-    participants: "200+ residents",
-    attendees: "25 experts participated",
-    impact: "Prepared 200+ residents for emergency situations",
-    category: "Community Outreach",
-    image: "/placeholder.svg?height=300&width=400&text=Disaster+Prep",
-    icon: <HeartHandshake className="w-6 h-6" />,
-    color: "#F59E0B",
-  },
-  {
-    id: 10,
-    title: "Livelihood Training 2024",
-    description:
-      "Entrepreneurship and livelihood skills training including business planning, financial literacy, and practical skills development for sustainable income generation.",
-    date: "2024-08-18",
-    time: "9:00 AM - 4:00 PM",
-    location: "Community Learning Center",
-    participants: "75+ participants",
-    attendees: "20 trainers participated",
-    impact: "Equipped 75+ individuals with livelihood skills",
-    category: "Skills Development",
-    image: "/placeholder.svg?height=300&width=400&text=Livelihood+Training",
-    icon: <HelpingHand className="w-6 h-6" />,
-    color: "#8B5CF6",
-  },
 ];
 
 export default function EventsPage() {
@@ -211,7 +40,6 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [events, setEvents] = useState<any[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -225,6 +53,25 @@ export default function EventsPage() {
     email: "",
     otherSkills: "",
   });
+
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      setLoading(true);
+      try {
+        const fetchedEvents = await getAllEvents();
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
+
 
   // Hash navigation effect - for tab switching
   useEffect(() => {
@@ -245,11 +92,6 @@ export default function EventsPage() {
     // Listen for hash changes (from navbar dropdown clicks)
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
-  useEffect(() => {
-    // Using mock data instead of API call
-    setEvents(mockEvents);
   }, []);
 
   // Update URL hash when tab changes
@@ -633,10 +475,10 @@ export default function EventsPage() {
                         <div className="flex flex-col items-center">
                           <div
                             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep > step.id
-                                ? "bg-green-500 text-white"
-                                : currentStep === step.id
-                                  ? "bg-[#F3954A] text-white"
-                                  : "bg-gray-200 text-gray-500"
+                              ? "bg-green-500 text-white"
+                              : currentStep === step.id
+                                ? "bg-[#F3954A] text-white"
+                                : "bg-gray-200 text-gray-500"
                               }`}
                           >
                             {currentStep > step.id ? (
@@ -1061,7 +903,6 @@ export default function EventsPage() {
           )}
         </AnimatePresence>
       </main>
-      <Footer />
     </Shell>
   );
 }

@@ -1,87 +1,71 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence, useInView } from "framer-motion"
+import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { CalendarDays, MapPin, Users, ChevronLeft, ChevronRight, Clock, Heart, Sparkles } from "lucide-react"
 import type { PanInfo } from "framer-motion"
-
-const eventData = [
-  {
-    id: 1,
-    image: "/foodsecurity.jpg",
-    title: "Community Feeding Program",
-    date: "August 10, 2025",
-    time: "10:00 AM - 2:00 PM",
-    location: "Brgy. Maligaya Community Hall",
-    attendees: "150+ families",
-    category: "Food Security",
-    description:
-      "Join us in providing nutritious meals and essential supplies to undernourished children and their families in our community.",
-    impact: "Expected to serve 500+ meals",
-    color: "from-green-500 to-emerald-600",
-  },
-  {
-    id: 2,
-    image: "/back2school.jpg",
-    title: "Back-to-School Drive",
-    date: "August 25, 2025",
-    time: "1:00 PM - 5:00 PM",
-    location: "Nueva Elementary School",
-    attendees: "300+ students",
-    category: "Education",
-    description:
-      "Help us distribute school bags, notebooks, and learning materials to support students for the upcoming academic year.",
-    impact: "Supporting 300+ students",
-    color: "from-blue-500 to-indigo-600",
-  },
-  {
-    id: 3,
-    image: "/greenEarth.jpg",
-    title: "Green Earth Initiative",
-    date: "September 5, 2025",
-    time: "6:30 AM - 11:00 AM",
-    location: "Mt. Kalayaan Reforestation Site",
-    attendees: "75+ volunteers",
-    category: "Environment",
-    description:
-      "Be part of our reforestation effort to promote environmental sustainability and create a greener future for our community.",
-    impact: "Planting 1,000+ trees",
-    color: "from-green-600 to-teal-600",
-  },
-]
+import { Event, getAllEvents } from "@/utils/actions/event-actions"
 
 export default function UpcomingEventsSection() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      setLoading(true);
+      try {
+        const fetchedEvents = await getAllEvents();
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
+
   // Remove the redundant 'current' state - only use 'index'
   const [index, setIndex] = useState(0)
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   const goToNext = () => {
-    setIndex((prev) => (prev + 1) % eventData.length)
+    setIndex((prev) => (prev + 1) % events.length);
   }
 
   const goToPrev = () => {
-    setIndex((prev) => (prev - 1 + eventData.length) % eventData.length)
+    setIndex((prev) => (prev - 1 + events.length) % events.length);
   }
 
   const handleSwipe = (_: MouseEvent | TouchEvent, info: PanInfo) => {
-    const { offset, velocity } = info
-    const swipePower = Math.abs(offset.x) * velocity.x
+    const { offset, velocity } = info;
+    const swipePower = Math.abs(offset.x) * velocity.x;
     if (swipePower < -500) {
-      setIndex((prev) => (prev + 1) % eventData.length)
+      setIndex((prev) => (prev + 1) % events.length);
     } else if (swipePower > 500) {
-      setIndex((prev) => (prev - 1 + eventData.length) % eventData.length)
+      setIndex((prev) => (prev - 1 + events.length) % events.length);
     }
   }
 
-  const currentEvent = eventData[index]
-  const [isMobile, setIsMobile] = useState(false)
+  const currentEvent = events[index];
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  if (loading || events.length === 0) {
+    return (
+      <section className="py-24 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-7xl text-center">
+          <p className="text-gray-600 text-lg">Loading events...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24 bg-gray-50">
@@ -89,7 +73,7 @@ export default function UpcomingEventsSection() {
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
@@ -117,25 +101,27 @@ export default function UpcomingEventsSection() {
               className="bg-white rounded-3xl shadow-xl overflow-hidden"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                <div className="relative h-80 lg:h-full">
-                  <img
-                    src={currentEvent.image || "/placeholder.svg"}
-                    alt={currentEvent.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${currentEvent.color} opacity-20`} />
-                  <div className="absolute top-6 left-6">
-                    <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
-                      {currentEvent.category}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                      <Heart className="h-4 w-4 text-red-400" />
-                      <span className="text-sm font-medium">{currentEvent.impact}</span>
+                {(currentEvent && currentEvent.image) && (
+                  <div className="relative h-80 lg:h-full">
+                    <Image
+                      src={currentEvent.image || "/placeholder.svg"}
+                      alt={currentEvent.title}
+                      fill
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-6 left-6">
+                      <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
+                        {currentEvent.category}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-6 left-6 text-white">
+                      <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
+                        <Heart className="h-4 w-4 text-red-400" />
+                        <span className="text-sm font-medium">{currentEvent.impact}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
                   <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">{currentEvent.title}</h3>
                   <p className="text-gray-600 text-lg leading-relaxed mb-8">{currentEvent.description}</p>
@@ -143,7 +129,7 @@ export default function UpcomingEventsSection() {
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <CalendarDays className="h-5 w-5 text-[#F3954A]" />
                       <div>
-                        <div className="font-semibold text-gray-900">{currentEvent.date}</div>
+                        <div className="font-semibold text-gray-900">{currentEvent.date.toLocaleString()}</div>
                         <div className="text-sm text-gray-600">{currentEvent.time}</div>
                       </div>
                     </div>
@@ -189,15 +175,14 @@ export default function UpcomingEventsSection() {
               <ChevronLeft className="h-6 w-6" />
             </button>
             <div className="flex gap-2">
-              {eventData.map((_, dotIndex) => (
+              {events.map((_, dotIndex) => (
                 <button
                   key={dotIndex} // Fixed: use dotIndex instead of current
                   onClick={() => setIndex(dotIndex)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    dotIndex === index // Fixed: compare dotIndex with index
-                      ? "bg-[#F3954A] w-8"
-                      : "bg-gray-300 hover:bg-gray-400"
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${dotIndex === index // Fixed: compare dotIndex with index
+                    ? "bg-[#F3954A] w-8"
+                    : "bg-gray-300 hover:bg-gray-400"
+                    }`}
                   aria-label={`Go to event ${dotIndex + 1}`}
                 />
               ))}
@@ -215,26 +200,24 @@ export default function UpcomingEventsSection() {
         {/* Thumbnail carousel - fixed to use 'index' consistently */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="hidden md:grid md:grid-cols-3 gap-6"
         >
-          {eventData.map((event, eventIndex) => (
+          {events.map((event, eventIndex) => (
             <div
               key={event.id}
               onClick={() => setIndex(eventIndex)}
-              className={`cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 ${
-                eventIndex === index // Fixed: compare eventIndex with index
-                  ? "ring-2 ring-[#F3954A] shadow-lg scale-105"
-                  : "hover:shadow-md hover:scale-102"
-              }`}
+              className={`cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 ${eventIndex === index // Fixed: compare eventIndex with index
+                ? "ring-2 ring-[#F3954A] shadow-lg scale-105"
+                : "hover:shadow-md hover:scale-102"
+                }`}
             >
               <div className="relative h-48">
                 <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" />
-                <div className={`absolute inset-0 bg-gradient-to-br ${event.color} opacity-20`} />
                 <div className="absolute bottom-4 left-4 text-white">
                   <h4 className="font-semibold text-lg">{event.title}</h4>
-                  <p className="text-sm opacity-90">{event.date}</p>
+                  <p className="text-sm opacity-90">{event.date.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -243,7 +226,7 @@ export default function UpcomingEventsSection() {
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mt-16"
         >
