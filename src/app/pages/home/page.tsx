@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Shell from "@/components/navbar/shell";
 import HeroSection from "@/components/home-sections/heroSection";
-import FocusSection from "@/components/home-sections/focusSection";
 import UpcomingEventsSection from "@/components/home-sections/upcomingSection";
 import AboutSection from "@/components/home-sections/impactSection";
 import GallerySection from "@/components/home-sections/gallerySection";
@@ -69,13 +68,6 @@ export default function HomePage() {
           <HeroSection />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <FocusSection />
-        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
