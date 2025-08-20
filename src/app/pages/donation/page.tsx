@@ -71,7 +71,7 @@ export default function DonationPage() {
                             GCash Number
                           </p>
                           <div className="flex items-center justify-center gap-2 mt-1">
-                            <span className="font-mono text-lg">
+                            <span className="font-mono text-lg text-black">
                               09XX-XXX-XXXX
                             </span>
                             <button className="h-6 w-6 p-0 hover:bg-gray-100 rounded">
@@ -127,7 +127,7 @@ export default function DonationPage() {
                             Maya Number
                           </p>
                           <div className="flex items-center justify-center gap-2 mt-1">
-                            <span className="font-mono text-lg">
+                            <span className="font-mono text-lg text-black">
                               09XX-XXX-XXXX
                             </span>
                             <button className="h-6 w-6 p-0 hover:bg-gray-100 rounded">
@@ -183,7 +183,7 @@ export default function DonationPage() {
                             GoTyme Account
                           </p>
                           <div className="flex items-center justify-center gap-2 mt-1">
-                            <span className="font-mono text-lg">
+                            <span className="font-mono text-lg text-black">
                               09XX-XXX-XXXX
                             </span>
                             <button className="h-6 w-6 p-0 hover:bg-gray-100 rounded">
