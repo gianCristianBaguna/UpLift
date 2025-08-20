@@ -42,7 +42,10 @@ const navLinks = [
   {
     label: "Donation",
     href: "/pages/donation",
-    sections: [],
+    sections: [
+      { label: "E-wallets Donation", href: "/pages/donations/" },
+      { label: "Zeffey", href: "www.youtube.com" }
+    ],
   },
 ];
 
