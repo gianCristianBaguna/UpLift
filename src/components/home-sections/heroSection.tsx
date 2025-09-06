@@ -159,7 +159,7 @@ useEffect(() => {
                   <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
 
-                <div className="flex-1 flex justify-center max-w-lg md:max-w-xl lg:max-w-2xl w-[600px]">
+                <div className="flex-1 flex justify-center max-w-lg md:max-w-xl lg:max-w-2xl w-[600px] md:mt-5">
 
                   <AnimatePresence mode="wait">
                     <motion.div

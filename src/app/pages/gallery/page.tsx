@@ -1,7 +1,7 @@
 "use client"
 import type React from "react"
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from "react"
-import Image from "next/image"
+import NextImage from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   X,
@@ -17,23 +17,21 @@ import {
   Calendar,
   Zap,
   Share2,
-  Download,
   Sparkles,
 } from "lucide-react"
+import { useDebounce } from "@/app/hooks/use-debounce"
 import Shell from "@/components/navbar/shell"
 import Footer from "@/components/navbar/footer"
-import CreativeBackground from "@/components/creativeBackground"
-import { useDebounce as useDebounceHook } from "@/utils/hooks/useDebounce"
 
 interface GalleryItem {
-  id: string // Add stable ID
-  cover: string
+  id: string
   title: string
   description: string
+  cover: string
   images: string[]
   category: string[]
-  date?: string
   location?: string
+  date?: string
   likes?: number
   featured?: boolean
 }
@@ -46,322 +44,124 @@ interface CategoryItem {
   icon: React.ReactNode
 }
 
-// Pre-compute stable data with IDs
-const fallbackGallery: GalleryItem[] = [
-  {
-    id: "cr-donation-district",
-    title: "CR Donation - District Office",
-    cover: "/gallery/gallery1.png",
-    description: "New comfort room donated to La Castellana I District Office with modern facilities.",
-    images: ["/gallery/gallery1.png", "/gallery/gallery2.png", "/gallery/gallery3.png"],
-    category: ["Infrastructure", "Housing Assistance"],
-    date: "2024-03-15",
-    location: "La Castellana I District Office",
-    likes: 124,
-    featured: true,
-  },
-  {
-    id: "values-literacy-drive",
-    title: "VALUES Literacy Drive",
-    cover: "/gallery/gallery4.png",
-    description: "Comprehensive books and storytelling activities bringing education to rural schools.",
-    images: ["/gallery/gallery4.png", "/gallery/gallery5.png", "/gallery/gallery6.png"],
-    category: ["Education"],
-    date: "2024-02-20",
-    location: "Rural Schools Network",
-    likes: 89,
-  },
-  {
-    id: "back-to-school-kits",
-    title: "Back-to-School Kits",
-    cover: "/gallery/gallery7.png",
-    description: "Distribution of 100+ comprehensive school supply kits to underprivileged students.",
-    images: ["/gallery/gallery7.png", "/gallery/gallery8.png", "/gallery/gallery9.png"],
-    category: ["Educational Assistance", "School Outreach"],
-    date: "2024-08-10",
-    location: "Various Schools",
-    likes: 156,
-    featured: true,
-  },
-  {
-    id: "feeding-evacuees",
-    title: "Feeding for Evacuees",
-    cover: "/gallery/feeding.jpg",
-    description: "Nutritional meals served to disaster-affected families during critical times.",
-    images: ["/gallery/feeding.jpg", "/gallery/gallery2.png"],
-    category: ["Feeding Program"],
-    date: "2024-01-15",
-    location: "Evacuation Centers",
-    likes: 203,
-  },
-  {
-    id: "medical-outreach",
-    title: "Medical Outreach",
-    cover: "/gallery/medical.jpg",
-    description: "Free health consultations and medical services in underserved communities.",
-    images: ["/gallery/medical.jpg"],
-    category: ["Medical Mission"],
-    date: "2024-05-12",
-    location: "Remote Communities",
-    likes: 78,
-  },
-  {
-    id: "typhoon-relief",
-    title: "Typhoon Relief Goods",
-    cover: "/gallery/relief.jpg",
-    description: "Emergency aid and essential supplies distributed to typhoon-affected families.",
-    images: ["/gallery/relief.jpg", "/gallery/gallery3.png"],
-    category: ["Relief Operations", "Feeding Program"],
-    date: "2024-11-08",
-    location: "Affected Areas",
-    likes: 267,
-    featured: true,
-  },
-  {
-    id: "housing-support",
-    title: "Housing Support - 80 Families",
-    cover: "/gallery/gallery6.png",
-    description: "Post-disaster materials for family homes.",
-    images: ["/gallery/housing.jpg", "/gallery/gallery6.png"],
-    category: ["Housing Assistance", "Infrastructure"],
-    date: "2024-04-22",
-    location: "Disaster-Affected Communities",
-    likes: 145,
-  },
-  {
-    id: "tipolo-elementary",
-    title: "Tipolo Elementary Outreach",
-    cover: "/gallery/gallery2.png",
-    description: "School supplies and support to rural schools.",
-    images: ["/gallery/outreach.jpg", "/gallery/gallery2.png"],
-    category: ["School Outreach"],
-    date: "2024-09-05",
-    location: "Tipolo Elementary School",
-    likes: 92,
-  },
-  {
-    id: "african-parish",
-    title: "African Parish Aid",
-    cover: "/gallery/gallery3.png",
-    description: "International donation support to Africa.",
-    images: ["/gallery/international.jpg", "/gallery/gallery3.png"],
-    category: ["International Outreach"],
-    date: "2024-06-18",
-    location: "Africa",
-    likes: 178,
-  },
-]
+type DynamicGalleryProps = {}
 
-// Pre-compute category configuration - MOVED OUTSIDE COMPONENT
 const CATEGORY_CONFIG = {
-  Infrastructure: { color: "bg-blue-500", icon: <Zap className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  Education: { color: "bg-purple-500", icon: <Star className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "Feeding Program": { color: "bg-green-500", icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "Educational Assistance": { color: "bg-indigo-500", icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "School Outreach": { color: "bg-orange-500", icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "Relief Operations": { color: "bg-red-500", icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "Housing Assistance": { color: "bg-teal-500", icon: <Download className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "Medical Mission": { color: "bg-rose-500", icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  "International Outreach": { color: "bg-cyan-500", icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Community: { color: "bg-green-500", icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Education: { color: "bg-purple-500", icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Outreach: { color: "bg-orange-500", icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Programs: { color: "bg-teal-500", icon: <Zap className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Relief: { color: "bg-blue-500", icon: <Star className="w-3 h-3 sm:w-4 sm:h-4" /> },
 } as const
 
-// Optimized category data computation - MOVED OUTSIDE COMPONENT
-const getCategoriesData = (gallery: GalleryItem[]): CategoryItem[] => {
-  const categoryMap = new Map<string, number>()
+const getActualImageCount = async (folderPath: string, subfolder: string): Promise<number> => {
+  let count = 0
+  let consecutiveErrors = 0
+  const maxConsecutiveErrors = 5 // Stop after 5 consecutive missing images
 
-  // Single loop through gallery items
-  for (const item of gallery) {
-    for (const cat of item.category) {
-      categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1)
+  for (let i = 1; i <= 500; i++) {
+    // Check up to 500 images max
+    try {
+      const img = new Image()
+      const imagePath = `/${folderPath}/${subfolder}/${i}.jpg`
+
+      const imageExists = await new Promise<boolean>((resolve) => {
+        img.onload = () => resolve(true)
+        img.onerror = () => resolve(false)
+        img.src = imagePath
+      })
+
+      if (imageExists) {
+        count = i
+        consecutiveErrors = 0
+      } else {
+        consecutiveErrors++
+        if (consecutiveErrors >= maxConsecutiveErrors) {
+          break
+        }
+      }
+    } catch {
+      consecutiveErrors++
+      if (consecutiveErrors >= maxConsecutiveErrors) {
+        break
+      }
     }
   }
 
-  return Object.entries(CATEGORY_CONFIG).map(([title, config]) => ({
-    title,
-    description: `${title} Programs`,
-    count: categoryMap.get(title) || 0,
-    color: config.color,
-    icon: config.icon,
-  }))
+  return count
 }
 
-// Pre-compute category lookup map - MOVED OUTSIDE COMPONENT
-const createCategoryLookupMap = (categoriesData: CategoryItem[]) => {
-  const map = new Map<string, CategoryItem>()
-  for (const cat of categoriesData) {
-    map.set(cat.title, cat)
+const loadGalleryFromFolders = async (): Promise<GalleryItem[]> => {
+  const galleryItems: GalleryItem[] = []
+
+  const folderStructure = {
+    galleryDatas: {
+      title: "COMMUNITY PROGRAMS",
+      category: ["Community", "Programs"],
+      description: "Supporting communities through various development programs and initiatives",
+      location: "Various Communities",
+      subfolders: [
+        { name: "BASKETBALL CLINIC" },
+        { name: "BOHOL CHAPTER" },
+        { name: "Clean-up Drive" },
+        { name: "FEEDING PROGRAM" },
+        { name: "LIBRARY" },
+        { name: "SCHOOL SUPPLIES DISTRIBUTION" },
+        { name: "VALUES ADVOCACY" },
+        { name: "Mt. Kanlaon Eruption Food & Relief Goods Operation" },
+      ],
+    },
   }
-  return map
-}
 
-// Optimized date formatting - MOVED OUTSIDE COMPONENT
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", { month: "short", year: "numeric" })
-}
+  for (const [mainFolder, config] of Object.entries(folderStructure)) {
+    for (let index = 0; index < config.subfolders.length; index++) {
+      const subfolder = config.subfolders[index]
+      const title = subfolder.name
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
 
-const formatFullDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
+      const imageCount = await getActualImageCount(mainFolder, subfolder.name)
+      const images: string[] = []
 
-// Ultra-optimized Gallery Card - MOVED OUTSIDE MAIN COMPONENT
-const GalleryCard = memo(
-  ({
-    item,
-    index,
-    onOpenModal,
-    onToggleLike,
-    isLiked,
-    categoryLookupMap,
-  }: {
-    item: GalleryItem
-    index: number
-    onOpenModal: (index: number) => void
-    onToggleLike: (itemId: string, e: React.MouseEvent) => void
-    isLiked: boolean
-    categoryLookupMap: Map<string, CategoryItem>
-  }) => {
-    // Pre-compute expensive operations
-    const formattedDate = useMemo(() => (item.date ? formatDate(item.date) : null), [item.date])
-    const photoCountText = useMemo(
-      () => `${item.images.length} ${item.images.length === 1 ? "photo" : "photos"}`,
-      [item.images.length],
-    )
-
-    // Pre-compute category tags to avoid repeated lookups
-    const categoryTags = useMemo(() => {
-      const visibleCategories = item.category.slice(0, 2)
-      const remainingCount = item.category.length - 2
-
-      return {
-        visible: visibleCategories.map((cat) => ({
-          name: cat,
-          color: categoryLookupMap.get(cat)?.color || "bg-gray-500",
-        })),
-        remaining: remainingCount > 0 ? remainingCount : null,
+      for (let i = 1; i <= imageCount; i++) {
+        const realImagePath = `/${mainFolder}/${subfolder.name}/${i}.jpg`
+        images.push(realImagePath)
       }
-    }, [item.category, categoryLookupMap])
 
-    // Stable click handlers
-    const handleCardClick = useCallback(() => onOpenModal(index), [onOpenModal, index])
-    const handleLikeClick = useCallback(
-      (e: React.MouseEvent) => {
-        onToggleLike(item.id, e)
-      },
-      [onToggleLike, item.id],
-    )
+      // Skip folders with no images
+      if (imageCount === 0) continue
 
-    return (
-      <div
-        className="group cursor-pointer transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        onClick={handleCardClick}
-      >
-        <div className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-300 transition-colors duration-200 shadow-md hover:shadow-xl">
-          {/* Featured Badge - Only render if featured */}
-          {item.featured && (
-            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
-              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-              <span className="hidden xs:inline">Featured</span>
-            </div>
-          )}
+      const itemCategories = [...config.category]
+      if (title.includes("FEEDING") || title.includes("Clean-up") || title.includes("Clinic") || title.includes("Basketball")) {
+        itemCategories.push("Outreach")
+      } else if (title.includes("SCHOOL") || title.includes("Library") || title.includes("School")) {
+        itemCategories.push("Education")
+      } else if (title.includes("Relief") || title.includes("Eruption")) {
+        itemCategories.push("Relief")
+      }
 
-          {/* Image Container */}
-          <div className="relative h-40 sm:h-48 md:h-52 overflow-hidden bg-gray-100">
-            <Image
-              src={item.cover || "/placeholder.svg?height=200&width=300"}
-              alt={item.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              priority={index < 6}
-            />
+      galleryItems.push({
+        id: `${mainFolder}-${subfolder.name}`,
+        title: title,
+        description: `${title} - Part of our community initiatives`,
+        cover: `/${mainFolder}/${subfolder.name}/1.jpg`,
+        images: images,
+        category: itemCategories,
+        location: config.location,
+        date: new Date(Date.now() - index * 7 * 24 * 60 * 60 * 1000).toISOString(),
+        likes: Math.floor(Math.random() * 50) + 10,
+        featured: index === 0,
+      })
+    }
+  }
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+  return galleryItems
+}
 
-            {/* Hover Overlay - Hidden on mobile for better touch experience */}
-            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden sm:flex">
-              <div className="text-center">
-                <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 mx-auto mb-1" />
-                <span className="text-orange-500 font-medium text-xs sm:text-sm">View Gallery</span>
-              </div>
-            </div>
-
-            {/* Photo count badge */}
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-gray-700 font-medium">
-              {photoCountText}
-            </div>
-
-            {/* Date badge - Only render if date exists */}
-            {formattedDate && (
-              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-orange-500/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-white font-medium flex items-center gap-1">
-                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                <span className="hidden xs:inline">{formattedDate}</span>
-              </div>
-            )}
-
-            {/* Like Button */}
-            <button
-              onClick={handleLikeClick}
-              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/90 p-1 sm:p-1.5 rounded-full shadow-md hover:bg-white transition-all hover:scale-110 active:scale-95"
-            >
-              <Heart
-                className={`w-3 h-3 sm:w-4 sm:h-4 transition-colors ${
-                  isLiked ? "text-red-500 fill-red-500" : "text-gray-600"
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-1">
-              {item.title}
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">{item.description}</p>
-
-            {/* Location and Stats */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              {item.location && (
-                <div className="flex items-center gap-1 flex-1 min-w-0">
-                  <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
-                  <span className="truncate text-xs">{item.location}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                <Heart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                <span className="text-xs">{item.likes || 0}</span>
-              </div>
-            </div>
-
-            {/* Category Tags - Pre-computed */}
-            <div className="flex flex-wrap gap-1 pt-1">
-              {categoryTags.visible.map((cat) => (
-                <span
-                  key={cat.name}
-                  className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-medium rounded-full text-white ${cat.color}`}
-                >
-                  {cat.name}
-                </span>
-              ))}
-              {categoryTags.remaining && (
-                <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
-                  +{categoryTags.remaining}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  },
-)
-
-GalleryCard.displayName = "GalleryCard"
-
-const UltraOptimizedGallery: React.FC = () => {
+const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
+  const [galleryData, setGalleryData] = useState<GalleryItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [modalIndex, setModalIndex] = useState<number | null>(null)
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState<number>(0)
@@ -371,29 +171,162 @@ const UltraOptimizedGallery: React.FC = () => {
   const modalRef = useRef<HTMLDivElement>(null)
   const keydownCleanupRef = useRef<(() => void) | null>(null)
 
-  // Pre-compute static data - ONLY COMPUTED ONCE
-  const galleryData = useMemo(() => fallbackGallery, [])
   const categoriesData = useMemo(() => getCategoriesData(galleryData), [galleryData])
   const categoryLookupMap = useMemo(() => createCategoryLookupMap(categoriesData), [categoriesData])
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  // Optimized debounced search
-  const debouncedSearchQuery = useDebounceHook(searchQuery, 300)
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        console.log("[v0] Starting to load gallery data with actual image counts...")
+        const data = await loadGalleryFromFolders()
+        console.log(
+          "[v0] Loaded gallery data:",
+          data.map((item) => ({ title: item.title, imageCount: item.images.length })),
+        )
+        setGalleryData(data)
+      } catch (error) {
+        console.error("Error loading gallery data:", error)
+        setGalleryData([]) // Fallback to empty array
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-  // Highly optimized filtering - SINGLE PASS THROUGH DATA
+    loadData()
+  }, [])
+
+  const cleanupKeyboardListener = useCallback(() => {
+    if (keydownCleanupRef.current) {
+      keydownCleanupRef.current()
+      keydownCleanupRef.current = null
+    }
+  }, [])
+
+  const openModal = useCallback(
+    (index: number) => {
+      cleanupKeyboardListener()
+
+      setModalIndex(index)
+      setCurrentPreviewIndex(0)
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        switch (e.key) {
+          case "Escape":
+            closeModal()
+            break
+          case "ArrowLeft":
+            e.preventDefault()
+            setCurrentPreviewIndex((prev) => {
+              const currentItem = galleryData[index]
+              if (!currentItem) return prev
+              const total = currentItem.images.length
+              return (prev - 1 + total) % total
+            })
+            break
+          case "ArrowRight":
+            e.preventDefault()
+            setCurrentPreviewIndex((prev) => {
+              const currentItem = galleryData[index]
+              if (!currentItem) return prev
+              const total = currentItem.images.length
+              return (prev + 1) % total
+            })
+            break
+        }
+      }
+
+      document.addEventListener("keydown", handleKeyDown)
+      keydownCleanupRef.current = () => document.removeEventListener("keydown", handleKeyDown)
+    },
+    [cleanupKeyboardListener],
+  )
+
+  const closeModal = useCallback(() => {
+    cleanupKeyboardListener()
+    setModalIndex(null)
+  }, [cleanupKeyboardListener])
+
+  const prevImage = useCallback(() => {
+    setCurrentPreviewIndex((prev) => {
+      if (modalIndex === null) return prev
+      const currentItem = galleryData[modalIndex]
+      if (!currentItem) return prev
+      const total = currentItem.images.length
+      return (prev - 1 + total) % total
+    })
+  }, [modalIndex, galleryData])
+
+  const nextImage = useCallback(() => {
+    setCurrentPreviewIndex((prev) => {
+      if (modalIndex === null) return prev
+      const currentItem = galleryData[modalIndex]
+      if (!currentItem) return prev
+      const total = currentItem.images.length
+      return (prev + 1) % total
+    })
+  }, [modalIndex, galleryData])
+
+  const toggleLike = useCallback((itemId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setLikedItems((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId)
+      } else {
+        newSet.add(itemId)
+      }
+      return newSet
+    })
+  }, [])
+
+  useEffect(() => {
+    if (modalIndex !== null) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [modalIndex])
+
+  useEffect(() => {
+    return () => {
+      cleanupKeyboardListener()
+    }
+  }, [cleanupKeyboardListener])
+
+  const handleCategorySelect = useCallback((category: string | null) => {
+    setSelectedCategory(category)
+    setShowFilters(false)
+  }, [])
+
+  const handleSearchClear = useCallback(() => {
+    setSearchQuery("")
+  }, [])
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }, [])
+
+  const currentModalItem = useMemo(() => {
+    return modalIndex !== null ? galleryData[modalIndex] : null
+  }, [modalIndex, galleryData])
+
   const filteredGallery = useMemo(() => {
     if (!selectedCategory && !debouncedSearchQuery) {
-      return galleryData // Return original if no filters
+      return galleryData
     }
 
     const searchLower = debouncedSearchQuery.toLowerCase()
 
     return galleryData.filter((item) => {
-      // Category filter - early return if doesn't match
       if (selectedCategory && !item.category.includes(selectedCategory)) {
         return false
       }
 
-      // Search filter - early return if doesn't match
       if (debouncedSearchQuery) {
         const matchesTitle = item.title.toLowerCase().includes(searchLower)
         const matchesDescription = item.description.toLowerCase().includes(searchLower)
@@ -409,144 +342,24 @@ const UltraOptimizedGallery: React.FC = () => {
     })
   }, [selectedCategory, debouncedSearchQuery, galleryData])
 
-  // FIXED: Proper cleanup for keyboard listeners
-  const cleanupKeyboardListener = useCallback(() => {
-    if (keydownCleanupRef.current) {
-      keydownCleanupRef.current()
-      keydownCleanupRef.current = null
-    }
-  }, [])
-
-  // FIXED: Optimized modal functions - NO DEPENDENCIES ON FILTERED GALLERY
-  const openModal = useCallback(
-    (index: number) => {
-      // Clean up any existing listener first
-      cleanupKeyboardListener()
-
-      setModalIndex(index)
-      setCurrentPreviewIndex(0)
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        switch (e.key) {
-          case "Escape":
-            closeModal()
-            break
-          case "ArrowLeft":
-            e.preventDefault()
-            setCurrentPreviewIndex((prev) => {
-              // Get current item from filtered gallery at time of key press
-              const currentItem = filteredGallery[index]
-              if (!currentItem) return prev
-              const total = currentItem.images.length
-              return (prev - 1 + total) % total
-            })
-            break
-          case "ArrowRight":
-            e.preventDefault()
-            setCurrentPreviewIndex((prev) => {
-              // Get current item from filtered gallery at time of key press
-              const currentItem = filteredGallery[index]
-              if (!currentItem) return prev
-              const total = currentItem.images.length
-              return (prev + 1) % total
-            })
-            break
-        }
-      }
-
-      document.addEventListener("keydown", handleKeyDown)
-      keydownCleanupRef.current = () => document.removeEventListener("keydown", handleKeyDown)
-    },
-    [cleanupKeyboardListener],
-  ) // Remove filteredGallery dependency
-
-  const closeModal = useCallback(() => {
-    cleanupKeyboardListener()
-    setModalIndex(null)
-  }, [cleanupKeyboardListener])
-
-  // FIXED: Optimized navigation functions
-  const prevImage = useCallback(() => {
-    setCurrentPreviewIndex((prev) => {
-      if (modalIndex === null) return prev
-      const currentItem = filteredGallery[modalIndex]
-      if (!currentItem) return prev
-      const total = currentItem.images.length
-      return (prev - 1 + total) % total
-    })
-  }, [modalIndex, filteredGallery])
-
-  const nextImage = useCallback(() => {
-    setCurrentPreviewIndex((prev) => {
-      if (modalIndex === null) return prev
-      const currentItem = filteredGallery[modalIndex]
-      if (!currentItem) return prev
-      const total = currentItem.images.length
-      return (prev + 1) % total
-    })
-  }, [modalIndex, filteredGallery])
-
-  // FIXED: Optimized like toggle - USE STABLE ID INSTEAD OF TITLE
-  const toggleLike = useCallback((itemId: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setLikedItems((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId)
-      } else {
-        newSet.add(itemId)
-      }
-      return newSet
-    })
-  }, [])
-
-  // FIXED: Proper body overflow management
-  useEffect(() => {
-    if (modalIndex !== null) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [modalIndex])
-
-  // FIXED: Cleanup keyboard listeners on unmount
-  useEffect(() => {
-    return () => {
-      cleanupKeyboardListener()
-    }
-  }, [cleanupKeyboardListener])
-
-  // FIXED: Stable filter handlers
-  const handleCategorySelect = useCallback((category: string | null) => {
-    setSelectedCategory(category)
-    setShowFilters(false)
-  }, [])
-
-  const handleSearchClear = useCallback(() => {
-    setSearchQuery("")
-  }, [])
-
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }, [])
-
-  // Pre-compute current modal item to avoid repeated lookups
-  const currentModalItem = useMemo(() => {
-    return modalIndex !== null ? filteredGallery[modalIndex] : null
-  }, [modalIndex, filteredGallery])
+  if (isLoading) {
+    return (
+      <div className="relative w-full overflow-hidden mt-10">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4 sm:mb-6"></div>
+            <p className="text-gray-600 font-medium">Loading your gallery...</p>
+            <p className="text-gray-400 text-sm mt-2">Optimizing large image collection</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Shell>
       <div className="relative w-full overflow-hidden mt-10">
-        <CreativeBackground />
-
-        {/* Simplified floating elements - CSS only */}
-        <div className="absolute top-20 left-4 sm:left-10 w-6 h-6 sm:w-8 sm:h-8 text-orange-200/30 animate-pulse">
+        <div className="absolute top-20 left-4 sm:left-10 w-6 h-6 sm:w-8 sm:h-8 text-orange-200/30 animate-pulse mx-auto mb-4 sm:mb-6 shadow-xl">
           <Sparkles className="w-full h-full" />
         </div>
         <div className="absolute top-32 right-4 sm:right-20 w-5 h-5 sm:w-6 sm:h-6 text-blue-200/30 animate-bounce">
@@ -555,29 +368,38 @@ const UltraOptimizedGallery: React.FC = () => {
 
         <section className="relative z-10 w-full px-3 sm:px-4 py-12 sm:py-20 space-y-8 sm:space-y-12 text-gray-900">
           <div className="container mx-auto px-2 sm:px-4 mt-6 sm:mt-10">
-            {/* Hero Section */}
-            <motion.div
-              className="text-center space-y-4 sm:space-y-6 mb-8 sm:mb-12"
-            >
+            <motion.div className="text-center space-y-4 sm:space-y-6 mb-8 sm:mb-12">
               <h1 className="py-6 sm:py-10 text-4xl sm:text-6xl lg:text-8xl font-black bg-gradient-to-r from-orange-500 via-orange-500 to-blue-600 bg-clip-text text-transparent mb-2 sm:mb-4">
                 Gallery
               </h1>
               <div className="w-24 sm:w-32 h-1.5 sm:h-2 bg-gradient-to-r from-orange-500 via-violet-500 to-blue-600 rounded-full mx-auto" />
 
+              <div className="flex justify-center gap-4 sm:gap-8 text-sm sm:text-base text-gray-600">
+                <div className="text-center">
+                  <div className="font-bold text-orange-500 text-lg sm:text-xl">{galleryData.length}</div>
+                  <div>Projects</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-blue-500 text-lg sm:text-xl">
+                    {galleryData.reduce((total, item) => total + item.images.length, 0)}
+                  </div>
+                  <div>Photos</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-green-500 text-lg sm:text-xl">{categoriesData.length}</div>
+                  <div>Categories</div>
+                </div>
+              </div>
+
               <div className="relative max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto">
-                {/* Decorative elements - Hidden on mobile */}
                 <div className="hidden sm:block absolute -top-3 -left-3 w-4 h-4 sm:w-6 sm:h-6 border-2 border-orange-300 rounded-full animate-spin"></div>
                 <div className="hidden sm:block absolute -top-3 -right-3 w-3 h-3 sm:w-4 sm:h-4 bg-blue-300 rounded-full animate-bounce"></div>
                 <div className="hidden sm:block absolute -bottom-3 -left-3 w-4 h-4 sm:w-5 sm:h-5 bg-purple-300 rounded-full animate-pulse"></div>
                 <div className="hidden sm:block absolute -bottom-3 -right-3 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-pink-300 rounded-full animate-ping"></div>
-
               </div>
             </motion.div>
 
-            {/* Search Bar */}
-            <motion.div
-              className="mb-6 sm:mb-8"
-            >
+            <motion.div className="mb-6 sm:mb-8">
               <div className="max-w-full sm:max-w-2xl mx-auto">
                 <div className="relative bg-white/95 rounded-xl sm:rounded-2xl border-2 border-gray-200 shadow-xl">
                   <div className="flex items-center p-2 sm:p-2">
@@ -604,11 +426,7 @@ const UltraOptimizedGallery: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Filter Section */}
-            <motion.div
-              className="mb-6 sm:mb-8"
-            >
-              {/* Mobile Filter Toggle */}
+            <motion.div className="mb-6 sm:mb-8">
               <div className="block lg:hidden mb-4">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
@@ -672,7 +490,6 @@ const UltraOptimizedGallery: React.FC = () => {
                 </AnimatePresence>
               </div>
 
-              {/* Desktop Filter Pills */}
               <div className="hidden lg:flex flex-wrap gap-3 sm:gap-4 justify-center">
                 <button
                   onClick={() => handleCategorySelect(null)}
@@ -702,14 +519,13 @@ const UltraOptimizedGallery: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Results Summary */}
             {(selectedCategory || searchQuery) && (
               <motion.div
                 className="text-center mb-6 sm:mb-8"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-white/90 to-gray-50/90 rounded-full border-2 border-gray-200 shadow-xl">
+                <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-white/90 to-gray-50/90 rounded-full border-2 border-gray-200 shadow-xl hover:shadow-lg">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                   <p className="text-gray-700 font-bold text-sm sm:text-base">
                     Showing {filteredGallery.length} project{filteredGallery.length !== 1 ? "s" : ""}
@@ -720,22 +536,20 @@ const UltraOptimizedGallery: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Gallery Grid - FIXED: Use stable keys */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {filteredGallery.map((item, index) => (
                 <GalleryCard
-                  key={item.id} // FIXED: Use stable ID instead of computed string
+                  key={item.id}
                   item={item}
                   index={index}
                   onOpenModal={openModal}
                   onToggleLike={toggleLike}
-                  isLiked={likedItems.has(item.id)} // FIXED: Use ID instead of title
+                  isLiked={likedItems.has(item.id)}
                   categoryLookupMap={categoryLookupMap}
                 />
               ))}
             </div>
 
-            {/* Empty State */}
             {filteredGallery.length === 0 && (
               <motion.div
                 className="text-center py-12 sm:py-20"
@@ -775,7 +589,6 @@ const UltraOptimizedGallery: React.FC = () => {
             )}
           </div>
 
-          {/* Modal - FIXED: Use pre-computed current item */}
           <AnimatePresence>
             {modalIndex !== null && currentModalItem && (
               <motion.div
@@ -820,7 +633,7 @@ const UltraOptimizedGallery: React.FC = () => {
                       <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500">
                         {currentModalItem.location && (
                           <div className="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 py-1 sm:px-3 sm:py-1 rounded-full">
-                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                             <span>{currentModalItem.location}</span>
                           </div>
                         )}
@@ -838,7 +651,7 @@ const UltraOptimizedGallery: React.FC = () => {
                     </div>
 
                     <div className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] mb-4 sm:mb-6 rounded-lg sm:rounded-xl overflow-hidden bg-gray-100">
-                      <Image
+                      <NextImage
                         src={currentModalItem.images[currentPreviewIndex] || "/placeholder.svg"}
                         alt={`${currentModalItem.title} - Image ${currentPreviewIndex + 1}`}
                         fill
@@ -873,7 +686,7 @@ const UltraOptimizedGallery: React.FC = () => {
                       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 mb-4 sm:mb-6">
                         {currentModalItem.images.map((img, idx) => (
                           <button
-                            key={`${currentModalItem.id}-thumb-${idx}`} // FIXED: Use stable key
+                            key={`${currentModalItem.id}-thumb-${idx}`}
                             onClick={() => setCurrentPreviewIndex(idx)}
                             className={`relative w-12 h-9 sm:w-16 sm:h-12 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all duration-300 flex-shrink-0 active:scale-95 ${
                               currentPreviewIndex === idx
@@ -881,7 +694,7 @@ const UltraOptimizedGallery: React.FC = () => {
                                 : "border-gray-300 hover:border-gray-400"
                             }`}
                           >
-                            <Image
+                            <NextImage
                               src={img || "/placeholder.svg?height=50&width=60"}
                               alt={`Thumbnail ${idx + 1}`}
                               fill
@@ -915,13 +728,203 @@ const UltraOptimizedGallery: React.FC = () => {
             )}
           </AnimatePresence>
         </section>
-
-        <div className="relative z-10">
-          <Footer />
-        </div>
       </div>
+      <Footer />
     </Shell>
   )
 }
 
-export default UltraOptimizedGallery
+const getCategoriesData = (gallery: GalleryItem[]): CategoryItem[] => {
+  const categoryMap = new Map<string, number>()
+
+  for (const item of gallery) {
+    for (const cat of item.category) {
+      categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1)
+    }
+  }
+
+  return Object.entries(CATEGORY_CONFIG).map(([title, config]) => ({
+    title,
+    description: `${title} Programs`,
+    count: categoryMap.get(title) || 0,
+    color: config.color,
+    icon: config.icon,
+  }))
+}
+
+const createCategoryLookupMap = (categoriesData: CategoryItem[]) => {
+  const map = new Map<string, CategoryItem>()
+  for (const cat of categoriesData) {
+    map.set(cat.title, cat)
+  }
+  return map
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+}
+
+const formatFullDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+}
+
+const GalleryCard = memo(
+  ({
+    item,
+    index,
+    onOpenModal,
+    onToggleLike,
+    isLiked,
+    categoryLookupMap,
+  }: {
+    item: GalleryItem
+    index: number
+    onOpenModal: (index: number) => void
+    onToggleLike: (itemId: string, e: React.MouseEvent) => void
+    isLiked: boolean
+    categoryLookupMap: Map<string, CategoryItem>
+  }) => {
+    const formattedDate = useMemo(() => (item.date ? formatDate(item.date) : null), [item.date])
+    const photoCountText = useMemo(
+      () => `${item.images.length} ${item.images.length === 1 ? "photo" : "photos"}`,
+      [item.images.length],
+    )
+
+    const categoryTags = useMemo(() => {
+      const visibleCategories = item.category.slice(0, 2)
+      const remainingCount = item.category.length - 2
+
+      return {
+        visible: visibleCategories.map((cat) => ({
+          name: cat,
+          color: categoryLookupMap.get(cat)?.color || "bg-gray-500",
+        })),
+        remaining: remainingCount > 0 ? remainingCount : null,
+      }
+    }, [item.category, categoryLookupMap])
+
+    const handleCardClick = useCallback(() => onOpenModal(index), [onOpenModal, index])
+    const handleLikeClick = useCallback(
+      (e: React.MouseEvent) => {
+        onToggleLike(item.id, e)
+      },
+      [onToggleLike, item.id],
+    )
+
+    const [imageSrc, setImageSrc] = useState(item.cover)
+    const [hasError, setHasError] = useState(false)
+
+    const handleImageError = useCallback(() => {
+      if (!hasError) {
+        const title = item.title.toLowerCase()
+        const fallbackQuery = `${title} community program cover photo`
+        const fallbackSrc = `/placeholder.svg?height=200&width=300&query=${encodeURIComponent(fallbackQuery)}`
+        setImageSrc(fallbackSrc)
+        setHasError(true)
+      }
+    }, [hasError, item.title])
+
+    return (
+      <div
+        className="group cursor-pointer transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        onClick={handleCardClick}
+      >
+        <div className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-300 transition-colors duration-200 shadow-md hover:shadow-xl">
+          {item.featured && (
+            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span className="hidden xs:inline">Featured</span>
+            </div>
+          )}
+
+          <div className="relative h-40 sm:h-48 md:h-52 overflow-hidden bg-gray-100">
+            <NextImage
+              src={imageSrc || "/placeholder.svg"}
+              alt={item.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={index < 6}
+              onError={handleImageError}
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+
+            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden sm:flex">
+              <div className="text-center">
+                <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 mx-auto mb-1" />
+                <span className="text-orange-500 font-medium text-xs sm:text-sm">View Gallery</span>
+              </div>
+            </div>
+
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-gray-700 font-medium">
+              {photoCountText}
+            </div>
+
+            {formattedDate && (
+              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-orange-500/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-white font-medium flex items-center gap-1">
+                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span className="hidden xs:inline">{formattedDate}</span>
+              </div>
+            )}
+
+            <button
+              onClick={handleLikeClick}
+              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/90 p-1 sm:p-1.5 rounded-full shadow-md hover:bg-white transition-all hover:scale-110 active:scale-95"
+            >
+              <Heart
+                className={`w-3 h-3 sm:w-4 sm:h-4 transition-colors ${
+                  isLiked ? "text-red-500 fill-red-500" : "text-gray-600"
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-1">
+              {item.title}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">{item.description}</p>
+
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              {item.location && (
+                <div className="flex items-center gap-1 flex-1 min-w-0">
+                  <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
+                  <span className="truncate text-xs">{item.location}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                <Heart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span className="text-xs">{item.likes || 0}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1 pt-1">
+              {categoryTags.visible.map((cat) => (
+                <span
+                  key={cat.name}
+                  className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-medium rounded-full text-white ${cat.color}`}
+                >
+                  {cat.name}
+                </span>
+              ))}
+              {categoryTags.remaining && (
+                <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
+                  +{categoryTags.remaining}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  },
+)
+
+GalleryCard.displayName = "GalleryCard"
+
+export default DynamicGallery
