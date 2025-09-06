@@ -22,6 +22,7 @@ import {
 import { useDebounce } from "@/app/hooks/use-debounce"
 import Shell from "@/components/navbar/shell"
 import Footer from "@/components/navbar/footer"
+import { supabase } from "@/utils/supabase"
 
 interface GalleryItem {
   id: string
@@ -47,11 +48,26 @@ interface CategoryItem {
 type DynamicGalleryProps = {}
 
 const CATEGORY_CONFIG = {
-  Community: { color: "bg-green-500", icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  Education: { color: "bg-purple-500", icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  Outreach: { color: "bg-orange-500", icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  Programs: { color: "bg-teal-500", icon: <Zap className="w-3 h-3 sm:w-4 sm:h-4" /> },
-  Relief: { color: "bg-blue-500", icon: <Star className="w-3 h-3 sm:w-4 sm:h-4" /> },
+  Community: {
+    color: "bg-green-500",
+    icon: <Heart className="w-3 h-3 sm:w-4 sm:h-4" />,
+  },
+  Education: {
+    color: "bg-purple-500",
+    icon: <Camera className="w-3 h-3 sm:w-4 sm:h-4" />,
+  },
+  Outreach: {
+    color: "bg-orange-500",
+    icon: <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />,
+  },
+  Programs: {
+    color: "bg-teal-500",
+    icon: <Zap className="w-3 h-3 sm:w-4 sm:h-4" />,
+  },
+  Relief: {
+    color: "bg-blue-500",
+    icon: <Star className="w-3 h-3 sm:w-4 sm:h-4" />,
+  },
 } as const
 
 const getActualImageCount = async (folderPath: string, subfolder: string): Promise<number> => {
@@ -91,69 +107,73 @@ const getActualImageCount = async (folderPath: string, subfolder: string): Promi
   return count
 }
 
-const loadGalleryFromFolders = async (): Promise<GalleryItem[]> => {
+const BUCKET_NAME = "uplift"
+const SUPABASE_URL = "https://pjdcaohwdvezyhqysnzl.supabase.co"
+
+export const loadGalleryFromFolders = async (): Promise<GalleryItem[]> => {
   const galleryItems: GalleryItem[] = []
 
   const folderStructure = {
-    galleryDatas: {
-      title: "COMMUNITY PROGRAMS",
-      category: ["Community", "Programs"],
-      description: "Supporting communities through various development programs and initiatives",
-      location: "Various Communities",
-      subfolders: [
-        { name: "basketball" },
-        { name: "bohol" },
-        { name: "cleanup" },
-        { name: "feeding" },
-        { name: "library" },
-        { name: "schoolSupplies" },
-        { name: "values" },
-        { name: "kanlaon" },
-      ],
-    },
+    title: "COMMUNITY PROGRAMS",
+    category: ["Community", "Programs"],
+    description: "Supporting communities through various development programs and initiatives",
+    location: "Various Communities",
+    subfolders: [
+      { name: "basketball" },
+      { name: "bohol" },
+      { name: "cleanup" },
+      { name: "feeding" },
+      { name: "library" },
+      { name: "schoolSupplies" },
+      { name: "values" },
+      { name: "kanlaon" },
+    ],
   }
 
-  for (const [mainFolder, config] of Object.entries(folderStructure)) {
-    for (let index = 0; index < config.subfolders.length; index++) {
-      const subfolder = config.subfolders[index]
-      const title = subfolder.name
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
+  for (let index = 0; index < folderStructure.subfolders.length; index++) {
+    const subfolder = folderStructure.subfolders[index]
+    const title = subfolder.name
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
 
-      const imageCount = await getActualImageCount(mainFolder, subfolder.name)
-      const images: string[] = []
+    const { data, error } = await supabase.storage.from(BUCKET_NAME).list(subfolder.name, { limit: 100 })
 
-      for (let i = 1; i <= imageCount; i++) {
-        const realImagePath = `/${mainFolder}/${subfolder.name}/${i}.jpg`
-        images.push(realImagePath)
-      }
+    if (error || !data || data.length === 0) continue
 
-      // Skip folders with no images
-      if (imageCount === 0) continue
+    const images = data.map((file) => {
+      const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${subfolder.name}/${file.name}`)
+      return urlData.publicUrl
+    })
 
-      const itemCategories = [...config.category]
-      if (title.includes("FEEDING") || title.includes("Clean-up") || title.includes("Clinic") || title.includes("Basketball")) {
-        itemCategories.push("Outreach")
-      } else if (title.includes("SCHOOL") || title.includes("Library") || title.includes("School")) {
-        itemCategories.push("Education")
-      } else if (title.includes("Relief") || title.includes("Eruption")) {
-        itemCategories.push("Relief")
-      }
+    console.log(`[v0] Generated URLs for ${title}:`, images.slice(0, 3)) // Show first 3 URLs
 
-      galleryItems.push({
-        id: `${mainFolder}-${subfolder.name}`,
-        title: title,
-        description: `${title} - Part of our community initiatives`,
-        cover: `/${mainFolder}/${subfolder.name}/1.jpg`,
-        images: images,
-        category: itemCategories,
-        location: config.location,
-        date: new Date(Date.now() - index * 7 * 24 * 60 * 60 * 1000).toISOString(),
-        likes: Math.floor(Math.random() * 50) + 10,
-        featured: index === 0,
-      })
+    const itemCategories = [...folderStructure.category]
+    if (
+      title.includes("Feeding") ||
+      title.includes("Clean-up") ||
+      title.includes("Clinic") ||
+      title.includes("Basketball")
+    ) {
+      itemCategories.push("Outreach")
+    } else if (title.includes("School") || title.includes("Library")) {
+      itemCategories.push("Education")
+    } else if (title.includes("Relief") || title.includes("Eruption")) {
+      itemCategories.push("Relief")
     }
+
+    galleryItems.push({
+      id: `uplift-${subfolder.name}`,
+      title: title,
+      description: `${title} - Part of our community initiatives`,
+      cover: images[0], // first image as cover
+      images,
+      category: itemCategories,
+      location: folderStructure.location,
+      date: new Date(Date.now() - index * 7 * 24 * 60 * 60 * 1000).toISOString(),
+      likes: Math.floor(Math.random() * 50) + 10,
+      featured: index === 0,
+    })
   }
 
   return galleryItems
@@ -182,7 +202,10 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
         const data = await loadGalleryFromFolders()
         console.log(
           "[v0] Loaded gallery data:",
-          data.map((item) => ({ title: item.title, imageCount: item.images.length })),
+          data.map((item) => ({
+            title: item.title,
+            imageCount: item.images.length,
+          })),
         )
         setGalleryData(data)
       } catch (error) {
@@ -528,7 +551,8 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                 <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-white/90 to-gray-50/90 rounded-full border-2 border-gray-200 shadow-xl hover:shadow-lg">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                   <p className="text-gray-700 font-bold text-sm sm:text-base">
-                    Showing {filteredGallery.length} project{filteredGallery.length !== 1 ? "s" : ""}
+                    Showing {filteredGallery.length} project
+                    {filteredGallery.length !== 1 ? "s" : ""}
                     {selectedCategory && ` in "${selectedCategory}"`}
                     {searchQuery && ` matching "${searchQuery}"`}
                   </p>
@@ -761,7 +785,10 @@ const createCategoryLookupMap = (categoriesData: CategoryItem[]) => {
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  })
 }
 
 const formatFullDate = (dateString: string) => {
@@ -819,14 +846,20 @@ const GalleryCard = memo(
     const [hasError, setHasError] = useState(false)
 
     const handleImageError = useCallback(() => {
+      console.log(`[v0] Image failed to load: ${imageSrc}`)
       if (!hasError) {
         const title = item.title.toLowerCase()
         const fallbackQuery = `${title} community program cover photo`
         const fallbackSrc = `/placeholder.svg?height=200&width=300&query=${encodeURIComponent(fallbackQuery)}`
+        console.log(`[v0] Using fallback image: ${fallbackSrc}`)
         setImageSrc(fallbackSrc)
         setHasError(true)
       }
-    }, [hasError, item.title])
+    }, [hasError, item.title, imageSrc])
+
+    const handleImageLoad = useCallback(() => {
+      console.log(`[v0] Image loaded successfully: ${imageSrc}`)
+    }, [imageSrc])
 
     return (
       <div
@@ -850,6 +883,7 @@ const GalleryCard = memo(
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={index < 6}
               onError={handleImageError}
+              onLoad={handleImageLoad}
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
