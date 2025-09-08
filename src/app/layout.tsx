@@ -1,33 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins, Montserrat, Bebas_Neue } from "next/font/google";
+import { Montserrat, } from "next/font/google";
 import "../styles/globals.css";
 
 // Fonts
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "700"],
-  display: "swap",
-});
-
-const bebas = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
   display: "swap",
 });
 

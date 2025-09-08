@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import * as eventHandler from "@/utils/actions/event-actions";
-import { useRouter } from "next/navigation";
 import { type Event } from "@/utils/actions/event-actions";
 import EventForm from "@/components/admin-manager/event-form";
 import { removeImage } from "@/utils/actions/cloudinary-actions";
@@ -11,7 +10,6 @@ export default function EventManager() {
   const [eventsList, setEventsList] = useState<Event[] | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   const handleFormSubmit = async (eventData: Event) => {
     if (editingEvent) {

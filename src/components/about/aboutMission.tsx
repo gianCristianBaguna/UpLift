@@ -2,7 +2,8 @@
 
 import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
-import { Eye, HeartHandshake, Flag, ArrowRight, Sparkles, Users, Target } from "lucide-react"
+import { Eye, HeartHandshake, Flag, Sparkles } from "lucide-react"
+import Image from "next/image"
 
 const missionData = [
   {
@@ -89,10 +90,12 @@ export default function AboutMission() {
               {/* Image Section */}
               <div className={`relative ${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                  <img
+                  <Image
                     src={item.image || "/placeholder.svg"}
                     alt={item.title}
                     className="w-full h-80 lg:h-96 object-cover"
+                    width={600}
+                    height={400}
                   />
                   <div
                     className={`absolute inset-0 bg-gradient-to-br opacity-20`}
