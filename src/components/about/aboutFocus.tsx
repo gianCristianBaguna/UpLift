@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react"
 import { motion, useInView, useAnimation } from "framer-motion"
 import { Users, Flame, Heart, ShieldCheck, Home, Handshake, ArrowRight, Sparkles, Quote, Star } from "lucide-react"
+import Image from "next/image"
 
 const coreValues = [
   {
@@ -108,18 +109,20 @@ export default function AboutFocusSection() {
           className="mb-16 md:mb-24"
         >
           <div className="relative rounded-2xl md:rounded-3xl overflow-hidden shadow-xl md:shadow-2xl">
-            <img
+            <Image
               src="/upliftAboutUs.jpg?height=500&width=1200"
               alt="Community empowerment and compassion"
               className="w-full h-[300px] md:h-[400px] lg:h-[500px] object-cover"
+              width={1200}
+              height={500}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
             <div className="absolute inset-0 flex items-center">
               <div className="max-w-3xl mx-auto px-4 md:px-8 text-white">
                 <Quote className="h-8 w-8 md:h-12 md:w-12 text-[#F3954A] mb-4 md:mb-6" />
                 <blockquote className="text-lg md:text-2xl lg:text-3xl font-bold leading-relaxed mb-4 md:mb-6">
-                  "At Uplift Foundation International, we believe in the ripple effect of kindness. Rooted in lived
-                  experiences and guided by compassion."
+                  &quot;At Uplift Foundation International, we believe in the ripple effect of kindness. Rooted in lived
+                  experiences and guided by compassion.&quot;
                 </blockquote>
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-[#F3954A] rounded-full flex items-center justify-center">
@@ -204,10 +207,11 @@ export default function AboutFocusSection() {
             >
               {/* Image */}
               <div className="relative h-40 md:h-48 overflow-hidden">
-                <img
+                <Image
                   src={value.image || "/placeholder.svg"}
                   alt={value.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
                 />
                 <div
                   className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
@@ -245,7 +249,7 @@ export default function AboutFocusSection() {
               <div>
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6">Values in Action</h3>
                 <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-6 md:mb-8">
-                  Our core values aren't just words on a page—they're the driving force behind every program we run,
+                  Our core values aren&apos;t just words on a page—they&apos;re the driving force behind every program we run,
                   every life we touch, and every community we serve.
                 </p>
                 <div className="space-y-3 md:space-y-4">
@@ -279,10 +283,12 @@ export default function AboutFocusSection() {
                 ref={imageRef}
                 className="relative overflow-hidden rounded-xl md:rounded-2xl shadow-lg w-full max-w-md mx-auto"
               >
-                <img
+                <Image
                   src="/aboutUsValues.jpg?height=400&width=500"
                   alt="Values in action"
                   className="w-full h-64 md:h-80 object-cover"
+                  width={500}
+                  height={400}
                 />
                 {/* Diagonal overlay transition */}
                 <motion.div
@@ -305,10 +311,12 @@ export default function AboutFocusSection() {
           className="text-center"
         >
           <div className="relative rounded-2xl md:rounded-3xl overflow-hidden">
-            <img
+            <Image
               src="/placeholder.svg?height=300&width=1200"
               alt="Join our values-driven mission"
               className="w-full h-64 md:h-80 object-cover"
+              width={1200}
+              height={300}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 to-gray-900/70" />
             <div className="absolute inset-0 flex items-center justify-center">

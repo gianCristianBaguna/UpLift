@@ -1,6 +1,4 @@
-import { div, footer } from "framer-motion/client";
 import { MessageCircle } from "lucide-react";
-import Image from "next/image";
 
 export default function GetInTouchSection() {
   return (
@@ -35,8 +33,8 @@ export default function GetInTouchSection() {
                     />
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-2">Let's Connect</h3>
-                  <p className="text-orange-100">We'd love to hear from you</p>
+                  <h3 className="text-2xl font-bold mb-2">Let&apos;s Connect</h3>
+                  <p className="text-orange-100">We&apos;d love to hear from you</p>
                 </div>
               </div>
 

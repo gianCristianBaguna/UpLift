@@ -45,6 +45,8 @@ interface CategoryItem {
   icon: React.ReactNode
 }
 
+// allow non nullish values on eslint
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 type DynamicGalleryProps = {}
 
 const CATEGORY_CONFIG = {
@@ -70,45 +72,8 @@ const CATEGORY_CONFIG = {
   },
 } as const
 
-const getActualImageCount = async (folderPath: string, subfolder: string): Promise<number> => {
-  let count = 0
-  let consecutiveErrors = 0
-  const maxConsecutiveErrors = 5 // Stop after 5 consecutive missing images
-
-  for (let i = 1; i <= 500; i++) {
-    // Check up to 500 images max
-    try {
-      const img = new Image()
-      const imagePath = `/${folderPath}/${subfolder}/${i}.jpg`
-
-      const imageExists = await new Promise<boolean>((resolve) => {
-        img.onload = () => resolve(true)
-        img.onerror = () => resolve(false)
-        img.src = imagePath
-      })
-
-      if (imageExists) {
-        count = i
-        consecutiveErrors = 0
-      } else {
-        consecutiveErrors++
-        if (consecutiveErrors >= maxConsecutiveErrors) {
-          break
-        }
-      }
-    } catch {
-      consecutiveErrors++
-      if (consecutiveErrors >= maxConsecutiveErrors) {
-        break
-      }
-    }
-  }
-
-  return count
-}
-
 const BUCKET_NAME = "uplift"
-const SUPABASE_URL = "https://pjdcaohwdvezyhqysnzl.supabase.co"
+// const SUPABASE_URL = "https://pjdcaohwdvezyhqysnzl.supabase.co"
 
 export const loadGalleryFromFolders = async (): Promise<GalleryItem[]> => {
   const galleryItems: GalleryItem[] = []
@@ -226,6 +191,11 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
     }
   }, [])
 
+  const closeModal = useCallback(() => {
+    cleanupKeyboardListener()
+    setModalIndex(null)
+  }, [cleanupKeyboardListener])
+  
   const openModal = useCallback(
     (index: number) => {
       cleanupKeyboardListener()
@@ -262,13 +232,8 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
       document.addEventListener("keydown", handleKeyDown)
       keydownCleanupRef.current = () => document.removeEventListener("keydown", handleKeyDown)
     },
-    [cleanupKeyboardListener],
+    [cleanupKeyboardListener, closeModal, galleryData],
   )
-
-  const closeModal = useCallback(() => {
-    cleanupKeyboardListener()
-    setModalIndex(null)
-  }, [cleanupKeyboardListener])
 
   const prevImage = useCallback(() => {
     setCurrentPreviewIndex((prev) => {

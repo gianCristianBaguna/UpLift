@@ -18,6 +18,7 @@ export interface Event {
 }
 
 export async function createEvent(data: Event) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const { id, ...eventData } = data;
   return await prisma.event.create({
     data: eventData

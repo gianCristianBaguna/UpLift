@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Shell from "@/components/navbar/shell";
@@ -21,6 +20,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { Event, getAllEvents } from "@/utils/actions/event-actions"
+import Image from "next/image";
 
 const categories = [
   "All",
@@ -32,13 +32,12 @@ const categories = [
 ];
 
 export default function EventsPage() {
-  const pathname = usePathname();
   const [selectedTab, setSelectedTab] = useState<"upcoming" | "past">(
     "upcoming"
   );
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
@@ -55,18 +54,15 @@ export default function EventsPage() {
   });
 
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchEvents() {
-      setLoading(true);
       try {
         const fetchedEvents = await getAllEvents();
         setEvents(fetchedEvents);
       } catch (error) {
         console.error("Failed to fetch events:", error);
       } finally {
-        setLoading(false);
       }
     }
     fetchEvents();
@@ -440,22 +436,15 @@ export default function EventsPage() {
 
                 {/* Modal Header */}
                 <div className="relative h-48 overflow-hidden rounded-t-3xl">
-                  <img
+                  <Image
                     src={selectedEvent.image || "/placeholder.svg"}
                     alt={selectedEvent.title}
                     className="w-full h-full object-cover"
+                    fill
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-6 left-6 text-white">
                     <div className="flex items-center gap-3 mb-3">
-                      <div
-                        className="p-3 rounded-xl"
-                        style={{ backgroundColor: `${selectedEvent.color}20` }}
-                      >
-                        <div style={{ color: selectedEvent.color }}>
-                          {selectedEvent.icon}
-                        </div>
-                      </div>
                       <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
                         {selectedEvent.category}
                       </span>
@@ -912,8 +901,8 @@ function EventsGrid({
   events,
   onEventClick,
 }: {
-  events: any[];
-  onEventClick: (event: any) => void;
+  events: Event[];
+  onEventClick: (event: Event) => void;
 }) {
   if (events.length === 0) {
     return (
@@ -943,10 +932,11 @@ function EventsGrid({
         >
           <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
             <div className="relative h-48 overflow-hidden">
-              <img
+              <Image
                 src={event.image || "/placeholder.svg"}
                 alt={event.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                fill
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute top-4 right-4">
