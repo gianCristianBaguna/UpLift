@@ -127,6 +127,7 @@ export const loadGalleryFromFolders = async (): Promise<GalleryItem[]> => {
       { name: "schoolSupplies" },
       { name: "values" },
       { name: "kanlaon" },
+      { name: "medical" },
     ],
   }
 
