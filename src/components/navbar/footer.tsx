@@ -6,6 +6,7 @@ import {
   Youtube,
   Mail,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -29,9 +30,8 @@ export default function Footer() {
           <h4 className="text-lg font-semibold text-gray-800 mb-3">Quick Links</h4>
           <ul className="space-y-2 text-sm text-gray-600">
             <li>
-              <a href="/" className="hover:text-[#1c5091] transition-colors">
+              <Link href="/" className="hover:text-[#1c5091] transition-colors" />
                 Home
-              </a>
             </li>
             <li>
               <a href="/pages/about" className="hover:text-[#1c5091] transition-colors">
@@ -59,7 +59,7 @@ export default function Footer() {
         <div>
           <h4 className="text-lg font-semibold text-gray-800 mb-3">Stay Connected</h4>
           <p className="text-sm text-gray-600 mb-4">
-            Reach out anytime. We're here to help and collaborate.
+            Reach out anytime. We&apos;re here to help and collaborate.
           </p>
           <div className="flex space-x-4">
             <a href="mailto:info@uplift.org" className="text-gray-600 hover:text-[#1c5091]">

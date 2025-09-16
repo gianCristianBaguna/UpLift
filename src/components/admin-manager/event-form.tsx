@@ -6,6 +6,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { removeImage } from "@/utils/actions/cloudinary-actions";
 import type { CloudinaryUploadWidgetInfo } from "@cloudinary-util/types";
 import * as serviceActions from "@/utils/actions/services-actions";
+import Image from "next/image";
 
 interface EventFormProps {
   initialData?: Event;
@@ -45,8 +46,7 @@ export default function EventForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const [services, setServices] = useState<string[]>([]);
-  const [otherSillks, setOtherSkills] = useState<string[]>();
-  const [isAdded, setIsAdded] = useState(false);
+  const [otherSkillsInput, setOtherSkillsInput] = useState<string>("");
 
   useEffect(() => {
     if (initialData) {
@@ -143,10 +143,43 @@ export default function EventForm({
     });
   };
 
-  const handleOtherSkillsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const trimmedValue = value.split(",").map(skill => skill.trim());
-    setOtherSkills(trimmedValue);
+  const handleOtherSkillsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOtherSkillsInput(e.target.value);
+  };
+
+  const handleAddOtherSkills = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (otherSkillsInput.trim()) {
+      // Split by comma, trim whitespace, and filter out empty strings
+      const newSkills = otherSkillsInput
+        .split(",")
+        .map(skill => skill.trim())
+        .filter(skill => skill.length > 0);
+      
+      if (newSkills.length > 0) {
+        // Add new skills to the volunteer services, avoiding duplicates
+        setFormData(prev => {
+          const existingServices = new Set(prev.volunteerServices);
+          const uniqueNewSkills = newSkills.filter(skill => !existingServices.has(skill));
+          
+          return {
+            ...prev,
+            volunteerServices: [...prev.volunteerServices, ...uniqueNewSkills]
+          };
+        });
+        
+        // Clear the input field after adding
+        setOtherSkillsInput("");
+      }
+    }
+  };
+
+  const removeVolunteerService = (serviceToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      volunteerServices: prev.volunteerServices.filter(service => service !== serviceToRemove)
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,7 +208,7 @@ export default function EventForm({
       });
 
       // Reset other skills input
-      setOtherSkills([]);
+      setOtherSkillsInput("");
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -328,48 +361,68 @@ export default function EventForm({
             {services.length === 0 ? (
               <p className="text-gray-500">No services available</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {services.map(service => (
-                  <label key={service} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.volunteerServices.includes(service)}
-                      onChange={() => handleCheckboxChange(service)}
-                      className="h-4 w-4 text-orange-500 border-gray-300 rounded"
-                    />
-                    <span className="text-gray-700">{service}</span>
-                  </label>
-                ))}
-                {/* add others text field */}
-                <label className="flex items-center gap-2">
-                  <span className="text-gray-700">Others</span>
+              <div className="space-y-4">
+                {/* Predefined services */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {services.map(service => (
+                    <label key={service} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.volunteerServices.includes(service)}
+                        onChange={() => handleCheckboxChange(service)}
+                        className="h-4 w-4 text-orange-500 border-gray-300 rounded"
+                      />
+                      <span className="text-gray-700">{service}</span>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Others input */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-gray-700">Others:</span>
                   <input
                     type="text"
-                    onChange={handleOtherSkillsChange}
-                    className="border-4 text-black"
-                    placeholder="(separate by comma)"
+                    value={otherSkillsInput}
+                    onChange={handleOtherSkillsInputChange}
+                    className="border border-gray-300 rounded px-3 py-1 text-black flex-1 min-w-0"
+                    placeholder="Enter skills separated by commas"
                   />
                   <button
-                    className="bg-blue-500 hover:bg-blue-300 px-4 py-2 rounded-lg text-white disabled:opacity-50"
-                    disabled={isAdded}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (otherSillks && otherSillks.length > 0) {
-                        setFormData(prev => ({
-                          ...prev,
-                          volunteerServices: [...prev.volunteerServices, ...otherSillks]
-                        }));
-                        setIsAdded(true);
-                      }
-                    }}
+                    type="button"
+                    onClick={handleAddOtherSkills}
+                    disabled={!otherSkillsInput.trim()}
+                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 px-4 py-1 rounded text-white transition-colors"
                   >
-                    {isAdded ? "Added" : "Add"}
+                    Add
                   </button>
-                </label>
+                </div>
+
+                {/* Display selected volunteer services with remove option */}
+                {formData.volunteerServices.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Services:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.volunteerServices.map((service, index) => (
+                        <div 
+                          key={`${service}-${index}`} 
+                          className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                        >
+                          <span>{service}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeVolunteerService(service)}
+                            className="text-orange-600 hover:text-orange-800 text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
-
 
           {/* Impact */}
           <div>
@@ -403,7 +456,7 @@ export default function EventForm({
                 maxFileSize: 10 * 1024 * 1024,
               }}
               uploadPreset="uplift"
-              onSuccess={(result, { widget }) => {
+              onSuccess={(result) => {
                 const resultInfo = result.info as CloudinaryUploadWidgetInfo;
                 if (resultInfo.secure_url) {
                   setFormData((prev) => ({
@@ -439,10 +492,12 @@ export default function EventForm({
             {/* Show preview if image exists */}
             {formData.image && (
               <div className="mt-4 flex items-center gap-4">
-                <img
+                <Image
                   src={formData.image}
                   alt="Uploaded preview"
                   className="w-48 rounded-lg border"
+                  width={48}
+                  height={48}
                 />
 
                 {/* Remove Button */}

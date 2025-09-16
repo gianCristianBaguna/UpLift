@@ -214,7 +214,7 @@ export default function UpcomingEventsSection() {
                 }`}
             >
               <div className="relative h-48">
-                <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" />
+                <Image src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" fill />
                 <div className="absolute bottom-4 left-4 text-white">
                   <h4 className="font-semibold text-lg">{event.title}</h4>
                   <p className="text-sm opacity-90">{event.date.toLocaleString()}</p>

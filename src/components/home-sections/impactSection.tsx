@@ -9,6 +9,7 @@ import {
   HeartHandshake,
   ArrowRight,
 } from "lucide-react";
+import Image from "next/image";
 
 const impactItems = [
   {
@@ -79,10 +80,12 @@ useEffect(() => {
           className="mb-20"
         >
           <div className="relative rounded-3xl outline-2 outline-blue-500 overflow-hidden shadow-2xl" id="events">
-            <img
+            <Image
               src="/together.png"
               alt="Community volunteers working together"
               className="w-full h-[400px] md:h-[500px] object-cover"
+              width={1200}
+              height={400}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
             <div className="absolute bottom-8 left-8 text-white">
@@ -107,10 +110,11 @@ useEffect(() => {
             >
               <div className="bg-white  outline-[0.1px] outline-blue-500 rounded-3xl border border-gray-100 hover:border-[#F3954A]/20 hover:shadow-xl transition-all duration-300 overflow-hidden">
                 <div className="relative h-64 overflow-hidden">
-                  <img
+                  <Image
                     src={item.image || "/placeholder.svg"}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    fill
                   />
                   <div className="absolute top-4 left-4 p-3 bg-white/90 backdrop-blur-sm rounded-xl text-[#F3954A] shadow-lg">
                     {item.icon}
@@ -177,10 +181,12 @@ useEffect(() => {
           className="text-center"
         >
           <div className="relative rounded-3xl overflow-hidden">
-            <img
+            <Image
               src="/placeholder.svg?height=400&width=1200"
               alt="Community celebration"
               className="w-full h-80 object-cover"
+              width={1200}
+              height={400}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#F3954A]/90 to-[#F3954A]/80" />
             <div className="absolute inset-0 flex items-center justify-center">

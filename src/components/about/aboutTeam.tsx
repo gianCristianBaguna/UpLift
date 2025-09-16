@@ -6,13 +6,13 @@ import {
   HeartHandshake,
   Users,
   Globe2,
-  ArrowRight,
   Sparkles,
   MapPin,
   Award,
   Linkedin,
   Mail,
 } from "lucide-react";
+import Image from "next/image";
 
 const founders = [
   {
@@ -46,37 +46,6 @@ const founders = [
       linkedin: "#",
       email: "vianne@upliftfoundation.org",
     },
-  },
-];
-
-const teamMembers = [
-  {
-    name: "Maria Santos",
-    role: "Philippines Operations Manager",
-    location: "Manila, Philippines",
-    image: "/placeholder.svg?height=300&width=300",
-    specialty: "Community Outreach",
-  },
-  {
-    name: "James Rodriguez",
-    role: "Volunteer Coordinator",
-    location: "Las Vegas, Nevada",
-    image: "/placeholder.svg?height=300&width=300",
-    specialty: "Event Management",
-  },
-  {
-    name: "Sarah Chen",
-    role: "Education Program Lead",
-    location: "California, USA",
-    image: "/placeholder.svg?height=300&width=300",
-    specialty: "Youth Development",
-  },
-  {
-    name: "Miguel Torres",
-    role: "Medical Mission Coordinator",
-    location: "Cebu, Philippines",
-    image: "/placeholder.svg?height=300&width=300",
-    specialty: "Healthcare Access",
   },
 ];
 
@@ -126,10 +95,12 @@ export default function AboutTeamSection() {
           className="mb-24"
         >
           <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-            <img
+            <Image
               src="/uplift-logo.png?height=500&width=1200"
               alt="Uplift Foundation International team working together"
               className="w-full h-[400px] md:h-[500px] object-cover"
+              width={1200}
+              height={500}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent" />
 
@@ -179,10 +150,11 @@ export default function AboutTeamSection() {
                 className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
               >
                 <div className="relative h-80">
-                  <img
+                  <Image
                     src={founder.image || "/placeholder.svg"}
                     alt={founder.name}
                     className="w-full h-full object-cover"
+                    fill
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-6 left-6 text-white">
@@ -301,10 +273,12 @@ export default function AboutTeamSection() {
           className="text-center"
         >
           <div className="relative rounded-3xl overflow-hidden">
-            <img
+            <Image
               src="/placeholder.svg?height=300&width=1200"
               alt="Join our team"
               className="w-full h-80 object-cover"
+              width={1200}
+              height={300}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#F3954A]/90 to-[#2A61AC]/90" />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -313,7 +287,7 @@ export default function AboutTeamSection() {
                   Want to Join Our Team?
                 </h3>
                 <p className="text-xl mb-8 opacity-90">
-                  We're always looking for passionate individuals who share our
+                  We&apos;re always looking for passionate individuals who share our
                   values and want to make a difference in the world.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
