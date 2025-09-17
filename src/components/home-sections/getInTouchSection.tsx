@@ -1,8 +1,35 @@
-import { div, footer } from "framer-motion/client";
+"use client";
+
+import { useState } from "react";
 import { MessageCircle } from "lucide-react";
-import Image from "next/image";
+import { sendEmail } from "@/utils/actions/mailer-actions";
 
 export default function GetInTouchSection() {
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    message: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      console.log(formData)
+      await sendEmail(formData.firstName, formData.email, formData.message);
+      alert("Message sent successfully!");
+      setFormData({ firstName: "", lastName: "", email: "", message: "" });
+    } catch (error) {
+      alert("Failed to send message. Please try again later.");
+    }
+  }
+
   return (
     <div className="bg-white ">
       <section className="relative min-h-screen bg-white text-white py-20 overflow-hidden px-4" id="get-in-touch">
@@ -35,8 +62,8 @@ export default function GetInTouchSection() {
                     />
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-2">Let's Connect</h3>
-                  <p className="text-orange-100">We'd love to hear from you</p>
+                  <h3 className="text-2xl font-bold mb-2">Let&apos;s Connect</h3>
+                  <p className="text-orange-100">We&apos;d love to hear from you</p>
                 </div>
               </div>
 
@@ -49,8 +76,11 @@ export default function GetInTouchSection() {
                       </label>
                       <input
                         type="text"
+                        name="firstName"
+                        value={formData.firstName}
                         className="w-full border-b-2 border-orange-400 bg-transparent py-2 px-0 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
                         placeholder="Enter your first name"
+                        onChange={handleChange}
                       />
                     </div>
                     <div className="space-y-2">
@@ -59,8 +89,11 @@ export default function GetInTouchSection() {
                       </label>
                       <input
                         type="text"
+                        name="lastName"
+                        value={formData.lastName}
                         className="w-full border-b-2 border-orange-400 bg-transparent py-2 px-0 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
                         placeholder="Enter your last name"
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -71,8 +104,11 @@ export default function GetInTouchSection() {
                     </label>
                     <input
                       type="email"
+                      name="email"
+                      value={formData.email}
                       className="w-full border-b-2 border-orange-400 bg-transparent py-2 px-0 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
                       placeholder="Enter your email address"
+                      onChange={handleChange}
                     />
                   </div>
 
@@ -82,8 +118,11 @@ export default function GetInTouchSection() {
                     </label>
                     <textarea
                       rows={4}
+                      name="message"
+                      value={formData.message}
                       className="w-full border-b-2 border-orange-400 bg-transparent py-2 px-0 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors resize-none"
                       placeholder="Enter your message"
+                      onChange={handleChange}
                     ></textarea>
                   </div>
 
@@ -91,6 +130,7 @@ export default function GetInTouchSection() {
                     <button
                       type="submit"
                       className="bg-orange-400 hover:bg-orange-500 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      onClick={handleSubmit}
                     >
                       Send Message
                     </button>
