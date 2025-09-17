@@ -57,13 +57,8 @@ export default function DonationPage() {
                     <div className="space-y-6">
                       <div className="flex justify-center">
                         <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
-<<<<<<< HEAD
                           <img
                             src="/qr.jfif"
-=======
-                          <Image
-                            src="/gcash-donation-qr.png"
->>>>>>> d2e5d1e02371146382a8e421f433b946914ed692
                             alt="GCash QR Code for Donations"
                             className="w-48 h-48"
                             width={48}
