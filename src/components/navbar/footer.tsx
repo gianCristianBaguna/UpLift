@@ -53,6 +53,9 @@ export default function Footer() {
                 Donate
               </a>
             </li>
+            <li>
+              <a href="/admin" className="text-orange-600">Admin</a>
+            </li>
           </ul>
         </div>
 
