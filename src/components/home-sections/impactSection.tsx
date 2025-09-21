@@ -81,7 +81,7 @@ useEffect(() => {
         >
           <div className="relative rounded-3xl outline-2 outline-blue-500 overflow-hidden shadow-2xl" id="events">
             <Image
-              src="/together.png"
+              src="/together.jpg"
               alt="Community volunteers working together"
               className="w-full h-[400px] md:h-[500px] object-cover"
               width={1200}
