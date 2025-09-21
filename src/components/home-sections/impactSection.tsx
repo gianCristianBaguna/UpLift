@@ -22,13 +22,13 @@ const impactItems = [
     icon: <HelpingHand className="h-8 w-8" />,
     title: "Direct Support",
     description: "Food, supplies, and aid delivered to families in need.",
-    image: "/directSupp.png",
+    image: "/directSupp.jpg",
   },
   {
     icon: <CalendarCheck className="h-8 w-8" />,
     title: "Consistent Impact",
     description: "Regular events that uplift and empower communities.",
-    image: "/consistence.png",
+    image: "/consistence.jpg",
   },
   {
     icon: <HeartHandshake className="h-8 w-8" />,
