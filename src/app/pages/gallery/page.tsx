@@ -1,8 +1,8 @@
-"use client"
-import type React from "react"
-import { useState, useCallback, useRef, useMemo, memo, useEffect } from "react"
-import NextImage from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
+"use client";
+import type React from "react";
+import { useState, useCallback, useRef, useMemo, memo, useEffect } from "react";
+import NextImage from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   ChevronLeft,
@@ -18,37 +18,40 @@ import {
   Zap,
   Share2,
   Sparkles,
-} from "lucide-react"
-import { useDebounce } from "@/app/hooks/use-debounce"
-import Shell from "@/components/navbar/shell"
-import Footer from "@/components/navbar/footer"
-import { supabase } from "@/utils/supabase"
+} from "lucide-react";
+import { useDebounce } from "@/app/hooks/use-debounce";
+import Shell from "@/components/navbar/shell";
+import Footer from "@/components/navbar/footer";
 
+// -------------------------------
+// Interfaces
+// -------------------------------
 interface GalleryItem {
-  id: string
-  title: string
-  description: string
-  cover: string
-  images: string[]
-  category: string[]
-  location?: string
-  date?: string
-  likes?: number
-  featured?: boolean
+  id: string;
+  title: string;
+  description: string;
+  cover: string;
+  images: string[];
+  category: string[];
+  location?: string;
+  date?: string;
+  likes?: number;
+  featured?: boolean;
 }
 
 interface CategoryItem {
-  title: string
-  description: string
-  count: number
-  color: string
-  icon: React.ReactNode
+  title: string;
+  description: string;
+  count: number;
+  color: string;
+  icon: React.ReactNode;
 }
 
-// allow non nullish values on eslint
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-type DynamicGalleryProps = {}
+type DynamicGalleryProps = {};
 
+// -------------------------------
+// Category config
+// -------------------------------
 const CATEGORY_CONFIG = {
   Community: {
     color: "bg-green-500",
@@ -70,266 +73,296 @@ const CATEGORY_CONFIG = {
     color: "bg-blue-500",
     icon: <Star className="w-3 h-3 sm:w-4 sm:h-4" />,
   },
-} as const
+} as const;
 
-const BUCKET_NAME = "uplift"
-// const SUPABASE_URL = "https://pjdcaohwdvezyhqysnzl.supabase.co"
-
+// -------------------------------
+// LOCAL GALLERY LOADER
+// -------------------------------
 export const loadGalleryFromFolders = async (): Promise<GalleryItem[]> => {
-  const galleryItems: GalleryItem[] = []
-
   const folderStructure = {
     title: "COMMUNITY PROGRAMS",
     category: ["Community", "Programs"],
-    description: "Supporting communities through various development programs and initiatives",
+    description:
+      "Supporting communities through various development programs and initiatives",
     location: "Various Communities",
     subfolders: [
       { name: "basketball" },
       { name: "bohol" },
-      { name: "cleanup" },
+      { name: "drive" },
       { name: "feeding" },
       { name: "library" },
-      { name: "schoolSupplies" },
-      { name: "values" },
-      { name: "kanlaon" },
-      { name: "medical" },
     ],
-  }
+  };
+
+  const galleryItems: GalleryItem[] = [];
 
   for (let index = 0; index < folderStructure.subfolders.length; index++) {
-    const subfolder = folderStructure.subfolders[index]
+    const subfolder = folderStructure.subfolders[index];
     const title = subfolder.name
-      .split("-")
+      .split(/[-_]/)
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+      .join(" ");
 
-    const { data, error } = await supabase.storage.from(BUCKET_NAME).list(subfolder.name, { limit: 100 })
+    // Static images (local public files)
+    const imageCount = 10; // Adjust to match your actual count per folder
+    const images: string[] = [];
 
-    if (error || !data || data.length === 0) continue
+    for (let i = 1; i <= imageCount; i++) {
+      images.push(`/gallery/gallerypage/${subfolder.name}/${i}.jpg`);
+    }
 
-    const images = data.map((file) => {
-      const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(`${subfolder.name}/${file.name}`)
-      return urlData.publicUrl
-    })
-
-    console.log(`[v0] Generated URLs for ${title}:`, images.slice(0, 3)) // Show first 3 URLs
-
-    const itemCategories = [...folderStructure.category]
+    const itemCategories = [...folderStructure.category];
     if (
       title.includes("Feeding") ||
-      title.includes("Clean-up") ||
-      title.includes("Clinic") ||
+      title.includes("Drive") ||
       title.includes("Basketball")
     ) {
-      itemCategories.push("Outreach")
+      itemCategories.push("Outreach");
     } else if (title.includes("School") || title.includes("Library")) {
-      itemCategories.push("Education")
-    } else if (title.includes("Relief") || title.includes("Eruption")) {
-      itemCategories.push("Relief")
+      itemCategories.push("Education");
+    } else if (title.includes("Relief")) {
+      itemCategories.push("Relief");
     }
 
     galleryItems.push({
-      id: `uplift-${subfolder.name}`,
-      title: title,
+      id: `gallery-${subfolder.name}`,
+      title,
       description: `${title} - Part of our community initiatives`,
-      cover: images[0], // first image as cover
+      cover: images[0],
       images,
       category: itemCategories,
       location: folderStructure.location,
-      date: new Date(Date.now() - index * 7 * 24 * 60 * 60 * 1000).toISOString(),
+      date: new Date(
+        Date.now() - index * 7 * 24 * 60 * 60 * 1000
+      ).toISOString(),
       likes: Math.floor(Math.random() * 50) + 10,
       featured: index === 0,
-    })
+    });
   }
 
-  return galleryItems
-}
+  return galleryItems;
+};
+
+// -------------------------------
+// MAIN GALLERY COMPONENT
+// -------------------------------
 
 const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
-  const [galleryData, setGalleryData] = useState<GalleryItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [modalIndex, setModalIndex] = useState<number | null>(null)
-  const [currentPreviewIndex, setCurrentPreviewIndex] = useState<number>(0)
-  const [showFilters, setShowFilters] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [likedItems, setLikedItems] = useState<Set<string>>(new Set())
-  const modalRef = useRef<HTMLDivElement>(null)
-  const keydownCleanupRef = useRef<(() => void) | null>(null)
+  const [galleryData, setGalleryData] = useState<GalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [modalIndex, setModalIndex] = useState<number | null>(null);
+  const [currentPreviewIndex, setCurrentPreviewIndex] = useState<number>(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const modalRef = useRef<HTMLDivElement>(null);
+  const keydownCleanupRef = useRef<(() => void) | null>(null);
 
-  const categoriesData = useMemo(() => getCategoriesData(galleryData), [galleryData])
-  const categoryLookupMap = useMemo(() => createCategoryLookupMap(categoriesData), [categoriesData])
-  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const categoriesData = useMemo(
+    () => getCategoriesData(galleryData),
+    [galleryData]
+  );
+  const categoryLookupMap = useMemo(
+    () => createCategoryLookupMap(categoriesData),
+    [categoriesData]
+  );
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log("[v0] Starting to load gallery data with actual image counts...")
-        const data = await loadGalleryFromFolders()
+        console.log(
+          "[v0] Starting to load gallery data with actual image counts..."
+        );
+        const data = await loadGalleryFromFolders();
         console.log(
           "[v0] Loaded gallery data:",
           data.map((item) => ({
             title: item.title,
             imageCount: item.images.length,
-          })),
-        )
-        setGalleryData(data)
+          }))
+        );
+        setGalleryData(data);
       } catch (error) {
-        console.error("Error loading gallery data:", error)
-        setGalleryData([]) // Fallback to empty array
+        console.error("Error loading gallery data:", error);
+        setGalleryData([]); // Fallback to empty array
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadData()
-  }, [])
+    loadData();
+  }, []);
+
+  const formatFullDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const cleanupKeyboardListener = useCallback(() => {
     if (keydownCleanupRef.current) {
-      keydownCleanupRef.current()
-      keydownCleanupRef.current = null
+      keydownCleanupRef.current();
+      keydownCleanupRef.current = null;
     }
-  }, [])
+  }, []);
 
   const closeModal = useCallback(() => {
-    cleanupKeyboardListener()
-    setModalIndex(null)
-  }, [cleanupKeyboardListener])
-  
+    cleanupKeyboardListener();
+    setModalIndex(null);
+  }, [cleanupKeyboardListener]);
+
   const openModal = useCallback(
     (index: number) => {
-      cleanupKeyboardListener()
+      cleanupKeyboardListener();
 
-      setModalIndex(index)
-      setCurrentPreviewIndex(0)
+      setModalIndex(index);
+      setCurrentPreviewIndex(0);
 
       const handleKeyDown = (e: KeyboardEvent) => {
         switch (e.key) {
           case "Escape":
-            closeModal()
-            break
+            closeModal();
+            break;
           case "ArrowLeft":
-            e.preventDefault()
+            e.preventDefault();
             setCurrentPreviewIndex((prev) => {
-              const currentItem = galleryData[index]
-              if (!currentItem) return prev
-              const total = currentItem.images.length
-              return (prev - 1 + total) % total
-            })
-            break
+              const currentItem = galleryData[index];
+              if (!currentItem) return prev;
+              const total = currentItem.images.length;
+              return (prev - 1 + total) % total;
+            });
+            break;
           case "ArrowRight":
-            e.preventDefault()
+            e.preventDefault();
             setCurrentPreviewIndex((prev) => {
-              const currentItem = galleryData[index]
-              if (!currentItem) return prev
-              const total = currentItem.images.length
-              return (prev + 1) % total
-            })
-            break
+              const currentItem = galleryData[index];
+              if (!currentItem) return prev;
+              const total = currentItem.images.length;
+              return (prev + 1) % total;
+            });
+            break;
         }
-      }
+      };
 
-      document.addEventListener("keydown", handleKeyDown)
-      keydownCleanupRef.current = () => document.removeEventListener("keydown", handleKeyDown)
+      document.addEventListener("keydown", handleKeyDown);
+      keydownCleanupRef.current = () =>
+        document.removeEventListener("keydown", handleKeyDown);
     },
-    [cleanupKeyboardListener, closeModal, galleryData],
-  )
+    [cleanupKeyboardListener, closeModal, galleryData]
+  );
 
   const prevImage = useCallback(() => {
     setCurrentPreviewIndex((prev) => {
-      if (modalIndex === null) return prev
-      const currentItem = galleryData[modalIndex]
-      if (!currentItem) return prev
-      const total = currentItem.images.length
-      return (prev - 1 + total) % total
-    })
-  }, [modalIndex, galleryData])
+      if (modalIndex === null) return prev;
+      const currentItem = galleryData[modalIndex];
+      if (!currentItem) return prev;
+      const total = currentItem.images.length;
+      return (prev - 1 + total) % total;
+    });
+  }, [modalIndex, galleryData]);
 
   const nextImage = useCallback(() => {
     setCurrentPreviewIndex((prev) => {
-      if (modalIndex === null) return prev
-      const currentItem = galleryData[modalIndex]
-      if (!currentItem) return prev
-      const total = currentItem.images.length
-      return (prev + 1) % total
-    })
-  }, [modalIndex, galleryData])
+      if (modalIndex === null) return prev;
+      const currentItem = galleryData[modalIndex];
+      if (!currentItem) return prev;
+      const total = currentItem.images.length;
+      return (prev + 1) % total;
+    });
+  }, [modalIndex, galleryData]);
 
   const toggleLike = useCallback((itemId: string, e: React.MouseEvent) => {
-    e.stopPropagation()
+    e.stopPropagation();
     setLikedItems((prev) => {
-      const newSet = new Set(prev)
+      const newSet = new Set(prev);
       if (newSet.has(itemId)) {
-        newSet.delete(itemId)
+        newSet.delete(itemId);
       } else {
-        newSet.add(itemId)
+        newSet.add(itemId);
       }
-      return newSet
-    })
-  }, [])
+      return newSet;
+    });
+  }, []);
 
   useEffect(() => {
     if (modalIndex !== null) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset"
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [modalIndex])
+      document.body.style.overflow = "unset";
+    };
+  }, [modalIndex]);
 
   useEffect(() => {
     return () => {
-      cleanupKeyboardListener()
-    }
-  }, [cleanupKeyboardListener])
+      cleanupKeyboardListener();
+    };
+  }, [cleanupKeyboardListener]);
 
   const handleCategorySelect = useCallback((category: string | null) => {
-    setSelectedCategory(category)
-    setShowFilters(false)
-  }, [])
+    setSelectedCategory(category);
+    setShowFilters(false);
+  }, []);
 
   const handleSearchClear = useCallback(() => {
-    setSearchQuery("")
-  }, [])
+    setSearchQuery("");
+  }, []);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }, [])
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    []
+  );
 
   const currentModalItem = useMemo(() => {
-    return modalIndex !== null ? galleryData[modalIndex] : null
-  }, [modalIndex, galleryData])
+    return modalIndex !== null ? galleryData[modalIndex] : null;
+  }, [modalIndex, galleryData]);
 
   const filteredGallery = useMemo(() => {
     if (!selectedCategory && !debouncedSearchQuery) {
-      return galleryData
+      return galleryData;
     }
 
-    const searchLower = debouncedSearchQuery.toLowerCase()
+    const searchLower = debouncedSearchQuery.toLowerCase();
 
     return galleryData.filter((item) => {
       if (selectedCategory && !item.category.includes(selectedCategory)) {
-        return false
+        return false;
       }
 
       if (debouncedSearchQuery) {
-        const matchesTitle = item.title.toLowerCase().includes(searchLower)
-        const matchesDescription = item.description.toLowerCase().includes(searchLower)
-        const matchesLocation = item.location?.toLowerCase().includes(searchLower)
-        const matchesCategory = item.category.some((cat) => cat.toLowerCase().includes(searchLower))
+        const matchesTitle = item.title.toLowerCase().includes(searchLower);
+        const matchesDescription = item.description
+          .toLowerCase()
+          .includes(searchLower);
+        const matchesLocation = item.location
+          ?.toLowerCase()
+          .includes(searchLower);
+        const matchesCategory = item.category.some((cat) =>
+          cat.toLowerCase().includes(searchLower)
+        );
 
-        if (!matchesTitle && !matchesDescription && !matchesLocation && !matchesCategory) {
-          return false
+        if (
+          !matchesTitle &&
+          !matchesDescription &&
+          !matchesLocation &&
+          !matchesCategory
+        ) {
+          return false;
         }
       }
 
-      return true
-    })
-  }, [selectedCategory, debouncedSearchQuery, galleryData])
+      return true;
+    });
+  }, [selectedCategory, debouncedSearchQuery, galleryData]);
 
   if (isLoading) {
     return (
@@ -338,11 +371,13 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4 sm:mb-6"></div>
             <p className="text-gray-600 font-medium">Loading your gallery...</p>
-            <p className="text-gray-400 text-sm mt-2">Optimizing large image collection</p>
+            <p className="text-gray-400 text-sm mt-2">
+              Optimizing large image collection
+            </p>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -365,17 +400,24 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
 
               <div className="flex justify-center gap-4 sm:gap-8 text-sm sm:text-base text-gray-600">
                 <div className="text-center">
-                  <div className="font-bold text-orange-500 text-lg sm:text-xl">{galleryData.length}</div>
+                  <div className="font-bold text-orange-500 text-lg sm:text-xl">
+                    {galleryData.length}
+                  </div>
                   <div>Projects</div>
                 </div>
                 <div className="text-center">
                   <div className="font-bold text-blue-500 text-lg sm:text-xl">
-                    {galleryData.reduce((total, item) => total + item.images.length, 0)}
+                    {galleryData.reduce(
+                      (total, item) => total + item.images.length,
+                      0
+                    )}
                   </div>
                   <div>Photos</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-green-500 text-lg sm:text-xl">{categoriesData.length}</div>
+                  <div className="font-bold text-green-500 text-lg sm:text-xl">
+                    {categoriesData.length}
+                  </div>
                   <div>Categories</div>
                 </div>
               </div>
@@ -423,7 +465,9 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                 >
                   <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                   <span className="font-bold text-gray-700 text-sm sm:text-base">
-                    {selectedCategory ? `Filter: ${selectedCategory}` : "All Categories"}
+                    {selectedCategory
+                      ? `Filter: ${selectedCategory}`
+                      : "All Categories"}
                   </span>
                 </button>
 
@@ -444,7 +488,9 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                         }`}
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-bold text-sm sm:text-base">All Categories</span>
+                          <span className="font-bold text-sm sm:text-base">
+                            All Categories
+                          </span>
                           <span className="text-xs sm:text-sm text-gray-500 bg-white/80 px-2 py-1 rounded-full">
                             ({galleryData.length})
                           </span>
@@ -464,8 +510,12 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                             <div className="flex items-center gap-2">
                               {cat.icon}
                               <div>
-                                <div className="font-bold text-sm sm:text-base">{cat.title}</div>
-                                <div className="text-xs sm:text-sm text-gray-500">{cat.description}</div>
+                                <div className="font-bold text-sm sm:text-base">
+                                  {cat.title}
+                                </div>
+                                <div className="text-xs sm:text-sm text-gray-500">
+                                  {cat.description}
+                                </div>
                               </div>
                             </div>
                             <span className="text-xs sm:text-sm text-gray-500 bg-white/80 px-2 py-1 rounded-full">
@@ -502,7 +552,8 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                   >
                     {cat.icon}
                     <span className="hidden sm:inline">{cat.title}</span>
-                    <span className="sm:hidden">{cat.title.split(" ")[0]}</span>({cat.count})
+                    <span className="sm:hidden">{cat.title.split(" ")[0]}</span>
+                    ({cat.count})
                   </button>
                 ))}
               </div>
@@ -549,13 +600,15 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                 <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-xl">
                   <Filter className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-500 mb-2 sm:mb-3">No projects found</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-500 mb-2 sm:mb-3">
+                  No projects found
+                </h3>
                 <p className="text-gray-400 mb-4 sm:mb-6 text-base sm:text-lg px-4">
                   {searchQuery
                     ? `No projects match "${searchQuery}"`
                     : selectedCategory
-                      ? `No projects found in "${selectedCategory}"`
-                      : "No projects available"}
+                    ? `No projects found in "${selectedCategory}"`
+                    : "No projects available"}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
                   {searchQuery && (
@@ -610,7 +663,9 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-500 mb-2">
                             {currentModalItem.title}
                           </h2>
-                          <p className="text-gray-600 mb-3 text-sm sm:text-base">{currentModalItem.description}</p>
+                          <p className="text-gray-600 mb-3 text-sm sm:text-base">
+                            {currentModalItem.description}
+                          </p>
                         </div>
                         {currentModalItem.featured && (
                           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1">
@@ -642,8 +697,13 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
 
                     <div className="relative w-full h-[250px] sm:h-[300px] md:h-[400px] mb-4 sm:mb-6 rounded-lg sm:rounded-xl overflow-hidden bg-gray-100">
                       <NextImage
-                        src={currentModalItem.images[currentPreviewIndex] || "/placeholder.svg"}
-                        alt={`${currentModalItem.title} - Image ${currentPreviewIndex + 1}`}
+                        src={
+                          currentModalItem.images[currentPreviewIndex] ||
+                          "/placeholder.svg"
+                        }
+                        alt={`${currentModalItem.title} - Image ${
+                          currentPreviewIndex + 1
+                        }`}
                         fill
                         className="object-contain"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -668,7 +728,8 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                       )}
 
                       <div className="absolute bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium text-gray-700">
-                        {currentPreviewIndex + 1} of {currentModalItem.images.length}
+                        {currentPreviewIndex + 1} of{" "}
+                        {currentModalItem.images.length}
                       </div>
                     </div>
 
@@ -698,7 +759,7 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
 
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {currentModalItem.category.map((cat) => {
-                        const categoryData = categoryLookupMap.get(cat)
+                        const categoryData = categoryLookupMap.get(cat);
                         return (
                           <span
                             key={cat}
@@ -709,7 +770,7 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
                             {categoryData?.icon}
                             {cat}
                           </span>
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -721,50 +782,35 @@ const DynamicGallery: React.FC<DynamicGalleryProps> = () => {
       </div>
       <Footer />
     </Shell>
-  )
-}
+  );
+};
 
+// -------------------------------
+// Helpers
+// -------------------------------
 const getCategoriesData = (gallery: GalleryItem[]): CategoryItem[] => {
-  const categoryMap = new Map<string, number>()
-
-  for (const item of gallery) {
-    for (const cat of item.category) {
-      categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1)
-    }
-  }
-
+  const map = new Map<string, number>();
+  gallery.forEach((item) =>
+    item.category.forEach((cat) => map.set(cat, (map.get(cat) || 0) + 1))
+  );
   return Object.entries(CATEGORY_CONFIG).map(([title, config]) => ({
     title,
     description: `${title} Programs`,
-    count: categoryMap.get(title) || 0,
+    count: map.get(title) || 0,
     color: config.color,
     icon: config.icon,
-  }))
-}
+  }));
+};
 
 const createCategoryLookupMap = (categoriesData: CategoryItem[]) => {
-  const map = new Map<string, CategoryItem>()
-  for (const cat of categoriesData) {
-    map.set(cat.title, cat)
-  }
-  return map
-}
+  const map = new Map<string, CategoryItem>();
+  categoriesData.forEach((cat) => map.set(cat.title, cat));
+  return map;
+};
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    year: "numeric",
-  })
-}
-
-const formatFullDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-
+// -------------------------------
+// Gallery Card
+// -------------------------------
 const GalleryCard = memo(
   ({
     item,
@@ -774,157 +820,60 @@ const GalleryCard = memo(
     isLiked,
     categoryLookupMap,
   }: {
-    item: GalleryItem
-    index: number
-    onOpenModal: (index: number) => void
-    onToggleLike: (itemId: string, e: React.MouseEvent) => void
-    isLiked: boolean
-    categoryLookupMap: Map<string, CategoryItem>
+    item: GalleryItem;
+    index: number;
+    onOpenModal: (index: number) => void;
+    onToggleLike: (itemId: string, e: React.MouseEvent) => void;
+    isLiked: boolean;
+    categoryLookupMap: Map<string, CategoryItem>;
   }) => {
-    const formattedDate = useMemo(() => (item.date ? formatDate(item.date) : null), [item.date])
-    const photoCountText = useMemo(
-      () => `${item.images.length} ${item.images.length === 1 ? "photo" : "photos"}`,
-      [item.images.length],
-    )
-
-    const categoryTags = useMemo(() => {
-      const visibleCategories = item.category.slice(0, 2)
-      const remainingCount = item.category.length - 2
-
-      return {
-        visible: visibleCategories.map((cat) => ({
-          name: cat,
-          color: categoryLookupMap.get(cat)?.color || "bg-gray-500",
-        })),
-        remaining: remainingCount > 0 ? remainingCount : null,
-      }
-    }, [item.category, categoryLookupMap])
-
-    const handleCardClick = useCallback(() => onOpenModal(index), [onOpenModal, index])
-    const handleLikeClick = useCallback(
-      (e: React.MouseEvent) => {
-        onToggleLike(item.id, e)
-      },
-      [onToggleLike, item.id],
-    )
-
-    const [imageSrc, setImageSrc] = useState(item.cover)
-    const [hasError, setHasError] = useState(false)
-
-    const handleImageError = useCallback(() => {
-      console.log(`[v0] Image failed to load: ${imageSrc}`)
-      if (!hasError) {
-        const title = item.title.toLowerCase()
-        const fallbackQuery = `${title} community program cover photo`
-        const fallbackSrc = `/placeholder.svg?height=200&width=300&query=${encodeURIComponent(fallbackQuery)}`
-        console.log(`[v0] Using fallback image: ${fallbackSrc}`)
-        setImageSrc(fallbackSrc)
-        setHasError(true)
-      }
-    }, [hasError, item.title, imageSrc])
-
-    const handleImageLoad = useCallback(() => {
-      console.log(`[v0] Image loaded successfully: ${imageSrc}`)
-    }, [imageSrc])
-
     return (
       <div
-        className="group cursor-pointer transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        onClick={handleCardClick}
+        className="group cursor-pointer bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition"
+        onClick={() => onOpenModal(index)}
       >
-        <div className="relative bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 hover:border-orange-300 transition-colors duration-200 shadow-md hover:shadow-xl">
-          {item.featured && (
-            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
-              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-              <span className="hidden xs:inline">Featured</span>
-            </div>
-          )}
-
-          <div className="relative h-40 sm:h-48 md:h-52 overflow-hidden bg-gray-100">
-            <NextImage
-              src={imageSrc || "/placeholder.svg"}
-              alt={item.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              priority={index < 6}
-              onError={handleImageError}
-              onLoad={handleImageLoad}
+        <div className="relative h-48 bg-gray-100">
+          <NextImage
+            src={item.cover}
+            alt={item.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <button
+            onClick={(e) => onToggleLike(item.id, e)}
+            className="absolute bottom-2 right-2 bg-white rounded-full p-1.5 shadow-md"
+          >
+            <Heart
+              className={`w-4 h-4 ${
+                isLiked ? "text-red-500 fill-red-500" : "text-gray-600"
+              }`}
             />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-
-            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden sm:flex">
-              <div className="text-center">
-                <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 mx-auto mb-1" />
-                <span className="text-orange-500 font-medium text-xs sm:text-sm">View Gallery</span>
-              </div>
-            </div>
-
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-gray-700 font-medium">
-              {photoCountText}
-            </div>
-
-            {formattedDate && (
-              <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-orange-500/90 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs text-white font-medium flex items-center gap-1">
-                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                <span className="hidden xs:inline">{formattedDate}</span>
-              </div>
-            )}
-
-            <button
-              onClick={handleLikeClick}
-              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/90 p-1 sm:p-1.5 rounded-full shadow-md hover:bg-white transition-all hover:scale-110 active:scale-95"
-            >
-              <Heart
-                className={`w-3 h-3 sm:w-4 sm:h-4 transition-colors ${
-                  isLiked ? "text-red-500 fill-red-500" : "text-gray-600"
+          </button>
+        </div>
+        <div className="p-4">
+          <h3 className="font-bold text-lg text-gray-900 line-clamp-1">
+            {item.title}
+          </h3>
+          <p className="text-gray-600 text-sm line-clamp-2 mb-2">
+            {item.description}
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {item.category.slice(0, 2).map((cat) => (
+              <span
+                key={cat}
+                className={`px-2 py-0.5 text-xs text-white rounded-full ${
+                  categoryLookupMap.get(cat)?.color || "bg-gray-500"
                 }`}
-              />
-            </button>
-          </div>
-
-          <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-1">
-              {item.title}
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed line-clamp-2">{item.description}</p>
-
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              {item.location && (
-                <div className="flex items-center gap-1 flex-1 min-w-0">
-                  <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
-                  <span className="truncate text-xs">{item.location}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                <Heart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                <span className="text-xs">{item.likes || 0}</span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-1 pt-1">
-              {categoryTags.visible.map((cat) => (
-                <span
-                  key={cat.name}
-                  className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-medium rounded-full text-white ${cat.color}`}
-                >
-                  {cat.name}
-                </span>
-              ))}
-              {categoryTags.remaining && (
-                <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
-                  +{categoryTags.remaining}
-                </span>
-              )}
-            </div>
+              >
+                {cat}
+              </span>
+            ))}
           </div>
         </div>
       </div>
-    )
-  },
-)
+    );
+  }
+);
+GalleryCard.displayName = "GalleryCard";
 
-GalleryCard.displayName = "GalleryCard"
-
-export default DynamicGallery
+export default DynamicGallery;
